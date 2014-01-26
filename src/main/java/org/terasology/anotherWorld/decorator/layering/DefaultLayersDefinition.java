@@ -15,6 +15,7 @@
  */
 package org.terasology.anotherWorld.decorator.layering;
 
+import org.terasology.anotherWorld.ChunkInformation;
 import org.terasology.anotherWorld.decorator.BlockFilter;
 import org.terasology.anotherWorld.util.ChunkRandom;
 import org.terasology.anotherWorld.util.PDist;
@@ -46,7 +47,7 @@ public class DefaultLayersDefinition implements LayersDefinition {
     }
 
     @Override
-    public void generateInChunk(String seed, int groundLevel, int seaLevel, Chunk chunk, int x, int z) {
+    public void generateInChunk(String seed, int groundLevel, int seaLevel, Chunk chunk, ChunkInformation chunkInformation, int x, int z) {
         Random random = ChunkRandom.getChunkRandom(seed, chunk.getPos(), 349 * (31 * x + z));
         boolean underSee = groundLevel < seaLevel;
 
@@ -56,7 +57,7 @@ public class DefaultLayersDefinition implements LayersDefinition {
                 int layerHeight = layerDefinition.thickness.getIntValue(random);
                 for (int i = 0; i < layerHeight; i++) {
                     if (level - i > 0) {
-                        if (layerDefinition.blockFilter.accepts(chunk, x, level - i, z)) {
+                        if (layerDefinition.blockFilter.accepts(chunk, chunkInformation, x, level - i, z)) {
                             chunk.setBlock(x, level - i, z, layerDefinition.block);
                         }
                     }

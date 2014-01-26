@@ -15,6 +15,7 @@
  */
 package org.terasology.anotherWorld.decorator;
 
+import org.terasology.anotherWorld.ChunkInformation;
 import org.terasology.world.block.Block;
 import org.terasology.world.chunks.Chunk;
 
@@ -36,10 +37,7 @@ public class BlockCollectionFilter implements BlockFilter {
     }
 
     @Override
-    public boolean accepts(Chunk chunk, int x, int y, int z) {
-        if (chunk.getBlock(x, y, z).getURI().getFamilyName().equalsIgnoreCase("snow")) {
-            int sdfasdf = 0;
-        }
+    public boolean accepts(Chunk chunk, ChunkInformation chunkInformation, int x, int y, int z) {
         return blocks.contains(chunk.getBlock(x, y, z));
     }
 }

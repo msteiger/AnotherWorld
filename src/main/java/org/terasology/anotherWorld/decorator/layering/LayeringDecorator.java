@@ -52,7 +52,7 @@ public class LayeringDecorator implements ChunkDecorator {
                 Biome biome = biomeProvider.getBiomeAt(chunk.getBlockWorldPosX(x), groundLevel, chunk.getBlockWorldPosZ(z));
                 LayersDefinition matchingLayers = findMatchingLayers(biomeProvider, biome);
                 if (matchingLayers != null) {
-                    matchingLayers.generateInChunk(seed, groundLevel, seaLevel, chunk, x, z);
+                    matchingLayers.generateInChunk(seed, groundLevel, seaLevel, chunk, chunkInformation, x, z);
                 }
             }
         }

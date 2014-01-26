@@ -33,7 +33,7 @@ public class BeachDecorator implements ChunkDecorator {
                 int groundLevel = chunkInformation.getGroundLevel(x, z);
                 if (groundLevel <= seaLevel + aboveSeaLevel && groundLevel >= seaLevel - belowSeaLevel) {
                     for (int y = seaLevel - belowSeaLevel; y < seaLevel + aboveSeaLevel; y++) {
-                        if (blockFilter.accepts(chunk, x, y, z)) {
+                        if (blockFilter.accepts(chunk, chunkInformation, x, y, z)) {
                             chunk.setBlock(x, y, z, beachBlock);
                         }
                     }

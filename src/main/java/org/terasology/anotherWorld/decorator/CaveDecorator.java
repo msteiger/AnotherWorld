@@ -74,7 +74,7 @@ public class CaveDecorator implements ChunkDecorator {
 
     @Override
     public void generateInChunk(Chunk chunk, ChunkInformation chunkInformation, int seaLevel, BiomeProvider biomeProvider) {
-        Structure.StructureCallback callback = new StructureCallbackImpl(chunk);
+        Structure.StructureCallback callback = new StructureCallbackImpl(chunk, chunkInformation);
 
         Collection<Structure> structures = caveDefinition.generateStructures(chunk, seed, biomeProvider);
         for (Structure structure : structures) {
@@ -84,16 +84,18 @@ public class CaveDecorator implements ChunkDecorator {
 
     private class StructureCallbackImpl implements Structure.StructureCallback {
         private Chunk chunk;
+        private ChunkInformation chunkInformation;
 
-        private StructureCallbackImpl(Chunk chunk) {
+        private StructureCallbackImpl(Chunk chunk, ChunkInformation chunkInformation) {
             this.chunk = chunk;
+            this.chunkInformation = chunkInformation;
         }
 
         @Override
         public boolean canReplace(int x, int y, int z) {
             boolean validCoords = (x >= 0 && y >= 1 && z >= 0
                     && x < chunk.getChunkSizeX() && y < chunk.getChunkSizeY() && z < chunk.getChunkSizeZ());
-            return validCoords && blockFilter.accepts(chunk, x, y, z);
+            return validCoords && blockFilter.accepts(chunk, chunkInformation, x, y, z);
 
         }
 
