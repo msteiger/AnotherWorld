@@ -18,7 +18,7 @@ package org.terasology.anotherWorld.decorator.layering;
 import org.terasology.anotherWorld.Biome;
 import org.terasology.anotherWorld.BiomeProvider;
 import org.terasology.anotherWorld.ChunkDecorator;
-import org.terasology.anotherWorld.ChunkInformation;
+import org.terasology.anotherWorld.GenerationParameters;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.chunks.Chunk;
 import org.terasology.world.generator.plugin.WorldGeneratorPluginLibrary;
@@ -33,6 +33,11 @@ import java.util.Map;
 public class LayeringDecorator implements ChunkDecorator {
     private Map<String, LayersDefinition> biomeLayers = new HashMap<>();
     private String seed;
+    private LayeringConfig layeringConfig;
+
+    public LayeringDecorator(LayeringConfig layeringConfig) {
+        this.layeringConfig = layeringConfig;
+    }
 
     @Override
     public void initializeWithSeed(String seed) {
@@ -45,14 +50,17 @@ public class LayeringDecorator implements ChunkDecorator {
     }
 
     @Override
-    public void generateInChunk(Chunk chunk, ChunkInformation chunkInformation, int seaLevel, BiomeProvider biomeProvider) {
+    public void generateInChunk(Chunk chunk, GenerationParameters generationParameters) {
+        int chunkStartX = chunk.getChunkWorldPosX();
+        int chunkStartZ = chunk.getChunkWorldPosZ();
         for (int x = 0; x < chunk.getChunkSizeX(); x++) {
             for (int z = 0; z < chunk.getChunkSizeZ(); z++) {
-                int groundLevel = chunkInformation.getGroundLevel(x, z);
-                Biome biome = biomeProvider.getBiomeAt(chunk.getBlockWorldPosX(x), groundLevel, chunk.getBlockWorldPosZ(z));
+                int groundLevel = generationParameters.getLandscapeProvider().getHeight(chunkStartX + x, chunkStartZ + z, generationParameters);
+                BiomeProvider biomeProvider = generationParameters.getBiomeProvider();
+                Biome biome = biomeProvider.getBiomeAt(chunkStartX + x, groundLevel, chunkStartZ + z);
                 LayersDefinition matchingLayers = findMatchingLayers(biomeProvider, biome);
                 if (matchingLayers != null) {
-                    matchingLayers.generateInChunk(seed, groundLevel, seaLevel, chunk, chunkInformation, x, z);
+                    matchingLayers.generateInChunk(seed, chunk, x, z, groundLevel, generationParameters, layeringConfig);
                 }
             }
         }

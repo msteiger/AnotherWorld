@@ -23,6 +23,5 @@ import org.terasology.world.chunks.Chunk;
 public interface ChunkDecorator {
     void initializeWithSeed(String seed);
 
-    void generateInChunk(Chunk chunk, ChunkInformation chunkInformation, int seaLevel,
-                         BiomeProvider biomeProvider);
+    void generateInChunk(Chunk chunk, GenerationParameters generationParameters);
 }

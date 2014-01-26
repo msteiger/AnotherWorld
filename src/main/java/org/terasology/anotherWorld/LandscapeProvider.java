@@ -15,13 +15,11 @@
  */
 package org.terasology.anotherWorld;
 
-import org.terasology.world.chunks.Chunk;
-
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public interface LandscapeGenerator {
-    void initializeWithSeed(String seed);
+public interface LandscapeProvider {
+    public void initializeWithSeed(String seed);
 
-    void generateInChunk(Chunk chunk, ChunkInformation chunkInformation, TerrainShapeProvider terrainShape, int seaLevel, int maxLevel);
+    public int getHeight(int x, int z, GenerationParameters generationParameters);
 }

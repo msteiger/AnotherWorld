@@ -15,7 +15,7 @@
  */
 package org.terasology.anotherWorld.decorator.structure;
 
-import org.terasology.anotherWorld.BiomeProvider;
+import org.terasology.anotherWorld.GenerationParameters;
 import org.terasology.anotherWorld.util.ChunkRandom;
 import org.terasology.anotherWorld.util.PDist;
 import org.terasology.math.Vector3i;
@@ -37,7 +37,7 @@ public abstract class AbstractMultiChunkStructureDefinition implements Structure
     }
 
     @Override
-    public final Collection<Structure> generateStructures(Chunk chunk, String seed, BiomeProvider biomeProvider) {
+    public final Collection<Structure> generateStructures(Chunk chunk, String seed, GenerationParameters generationParameters) {
         List<Structure> result = new LinkedList<>();
         float maxRange = getMaxRange();
         Vector3i chunkPosition = chunk.getPos();

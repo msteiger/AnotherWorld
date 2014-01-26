@@ -19,32 +19,19 @@ import org.terasology.anotherWorld.util.AlphaFunction;
 import org.terasology.math.TeraMath;
 import org.terasology.utilities.procedural.BrownianNoise2D;
 import org.terasology.utilities.procedural.SimplexNoise;
-import org.terasology.world.block.Block;
-import org.terasology.world.chunks.Chunk;
-import org.terasology.world.liquid.LiquidData;
-import org.terasology.world.liquid.LiquidType;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public class PerlinLandscapeGenerator implements LandscapeGenerator {
+public class PerlinLandscapeGenerator implements LandscapeProvider {
     private BrownianNoise2D noise;
     private double noiseScale;
 
     private float seaFrequency;
-    private Block bottomBlock;
-    private Block groundBlock;
-    private Block seeBlock;
-    private LiquidType liquidType;
     private AlphaFunction heightAboveSeaLevelFunction;
 
-    public PerlinLandscapeGenerator(float seaFrequency, Block bottomBlock, Block groundBlock, Block seeBlock, LiquidType liquidType,
-                                    AlphaFunction heightAboveSeaLevelFunction) {
+    public PerlinLandscapeGenerator(float seaFrequency, AlphaFunction heightAboveSeaLevelFunction) {
         this.seaFrequency = seaFrequency;
-        this.bottomBlock = bottomBlock;
-        this.groundBlock = groundBlock;
-        this.seeBlock = seeBlock;
-        this.liquidType = liquidType;
         this.heightAboveSeaLevelFunction = heightAboveSeaLevelFunction;
     }
 
@@ -55,40 +42,22 @@ public class PerlinLandscapeGenerator implements LandscapeGenerator {
     }
 
     @Override
-    public void generateInChunk(Chunk chunk, ChunkInformation chunkInformation, TerrainShapeProvider terrainShape, int seaLevel, int maxLevel) {
-        int chunkXStart = chunk.getBlockWorldPosX(0);
-        int chunkZStart = chunk.getBlockWorldPosZ(0);
-
-        for (int x = 0; x < chunk.getChunkSizeX(); x++) {
-            for (int z = 0; z < chunk.getChunkSizeZ(); z++) {
-                float hillyness = terrainShape.getHillyness(chunkXStart + x, chunkZStart + z);
-                float noise = getNoiseInWorld(hillyness, chunkXStart + x, chunkZStart + z);
-                int height;
-                if (noise < seaFrequency) {
-                    height = (int) (seaLevel * noise / seaFrequency);
-                } else {
-                    // Number in range 0<=alpha<1
-                    float alphaAboveSeaLevel = (noise - seaFrequency) / (1 - seaFrequency);
-                    float resultAlpha = heightAboveSeaLevelFunction.execute(alphaAboveSeaLevel);
-                    height = (int) (seaLevel + resultAlpha * (maxLevel - seaLevel));
-                }
-
-                height = Math.min(chunk.getChunkSizeY() - 1, height);
-
-                chunkInformation.setPositionGroundLevel(x, z, height);
-
-                chunk.setBlock(x, 0, z, bottomBlock);
-
-                for (int y = 1; y <= height; y++) {
-                    chunk.setBlock(x, y, z, groundBlock);
-                }
-
-                for (int y = height + 1; y <= seaLevel; y++) {
-                    chunk.setBlock(x, y, z, seeBlock);
-                    chunk.setLiquid(x, y, z, new LiquidData(liquidType, LiquidData.MAX_LIQUID_DEPTH));
-                }
-            }
+    public int getHeight(int x, int z, GenerationParameters generationParameters) {
+        float hillyness = generationParameters.getBiomeProvider().getTerrainShape().getHillyness(x, z);
+        int seaLevel = generationParameters.getSeaLevel();
+        int maxLevel = generationParameters.getMaxLevel();
+        float noise = getNoiseInWorld(hillyness, x, z);
+        int height;
+        if (noise < seaFrequency) {
+            height = (int) (seaLevel * noise / seaFrequency);
+        } else {
+            // Number in range 0<=alpha<1
+            float alphaAboveSeaLevel = (noise - seaFrequency) / (1 - seaFrequency);
+            float resultAlpha = heightAboveSeaLevelFunction.execute(alphaAboveSeaLevel);
+            height = (int) (seaLevel + resultAlpha * (maxLevel - seaLevel));
         }
+
+        return height;
     }
 
     private float getNoiseInWorld(float hillyness, int worldX, int worldZ) {

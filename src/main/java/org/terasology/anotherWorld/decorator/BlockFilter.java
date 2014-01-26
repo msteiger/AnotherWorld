@@ -15,12 +15,12 @@
  */
 package org.terasology.anotherWorld.decorator;
 
-import org.terasology.anotherWorld.ChunkInformation;
+import org.terasology.anotherWorld.GenerationParameters;
 import org.terasology.world.chunks.Chunk;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public interface BlockFilter {
-    boolean accepts(Chunk chunk, ChunkInformation chunkInformation, int x, int y, int z);
+    boolean accepts(Chunk chunk, int x, int y, int z, GenerationParameters generationParameters);
 }

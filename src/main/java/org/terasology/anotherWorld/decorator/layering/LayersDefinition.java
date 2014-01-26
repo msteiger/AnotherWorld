@@ -15,7 +15,7 @@
  */
 package org.terasology.anotherWorld.decorator.layering;
 
-import org.terasology.anotherWorld.ChunkInformation;
+import org.terasology.anotherWorld.GenerationParameters;
 import org.terasology.world.chunks.Chunk;
 import org.terasology.world.generator.plugin.WorldGeneratorPlugin;
 
@@ -25,5 +25,5 @@ import org.terasology.world.generator.plugin.WorldGeneratorPlugin;
 public interface LayersDefinition extends WorldGeneratorPlugin {
     String getBiomeId();
 
-    void generateInChunk(String seed, int groundLevel, int seaLevel, Chunk chunk, ChunkInformation chunkInformation, int x, int y);
+    void generateInChunk(String seed, Chunk chunk, int x, int y, int groundLevel, GenerationParameters generationParameters, LayeringConfig layeringConfig);
 }

@@ -15,9 +15,8 @@
  */
 package org.terasology.anotherWorld.decorator;
 
-import org.terasology.anotherWorld.BiomeProvider;
 import org.terasology.anotherWorld.ChunkDecorator;
-import org.terasology.anotherWorld.ChunkInformation;
+import org.terasology.anotherWorld.GenerationParameters;
 import org.terasology.anotherWorld.decorator.structure.Structure;
 import org.terasology.anotherWorld.decorator.structure.StructureDefinition;
 import org.terasology.anotherWorld.decorator.structure.VeinsStructureDefinition;
@@ -73,10 +72,10 @@ public class CaveDecorator implements ChunkDecorator {
     }
 
     @Override
-    public void generateInChunk(Chunk chunk, ChunkInformation chunkInformation, int seaLevel, BiomeProvider biomeProvider) {
-        Structure.StructureCallback callback = new StructureCallbackImpl(chunk, chunkInformation);
+    public void generateInChunk(Chunk chunk, GenerationParameters generationParameters) {
+        Structure.StructureCallback callback = new StructureCallbackImpl(chunk, generationParameters);
 
-        Collection<Structure> structures = caveDefinition.generateStructures(chunk, seed, biomeProvider);
+        Collection<Structure> structures = caveDefinition.generateStructures(chunk, seed, generationParameters);
         for (Structure structure : structures) {
             structure.generateStructure(callback);
         }
@@ -84,18 +83,18 @@ public class CaveDecorator implements ChunkDecorator {
 
     private class StructureCallbackImpl implements Structure.StructureCallback {
         private Chunk chunk;
-        private ChunkInformation chunkInformation;
+        private GenerationParameters generationParameters;
 
-        private StructureCallbackImpl(Chunk chunk, ChunkInformation chunkInformation) {
+        private StructureCallbackImpl(Chunk chunk, GenerationParameters generationParameters) {
             this.chunk = chunk;
-            this.chunkInformation = chunkInformation;
+            this.generationParameters = generationParameters;
         }
 
         @Override
         public boolean canReplace(int x, int y, int z) {
             boolean validCoords = (x >= 0 && y >= 1 && z >= 0
                     && x < chunk.getChunkSizeX() && y < chunk.getChunkSizeY() && z < chunk.getChunkSizeZ());
-            return validCoords && blockFilter.accepts(chunk, chunkInformation, x, y, z);
+            return validCoords && blockFilter.accepts(chunk, x, y, z, generationParameters);
 
         }
 

@@ -15,13 +15,13 @@
  */
 package org.terasology.anotherWorld.decorator.layering;
 
-import org.terasology.anotherWorld.ChunkInformation;
-import org.terasology.anotherWorld.decorator.BlockFilter;
+import org.terasology.anotherWorld.GenerationParameters;
 import org.terasology.anotherWorld.util.ChunkRandom;
 import org.terasology.anotherWorld.util.PDist;
 import org.terasology.utilities.random.Random;
 import org.terasology.world.block.Block;
 import org.terasology.world.chunks.Chunk;
+import org.terasology.world.liquid.LiquidData;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -42,24 +42,28 @@ public class DefaultLayersDefinition implements LayersDefinition {
         return biomeId;
     }
 
-    public void addLayerDefinition(PDist thickness, BlockFilter blockFilter, Block block, boolean generateUnderSee) {
-        layerDefinitions.add(new LayerDefinition(thickness, blockFilter, block, generateUnderSee));
+    public void addLayerDefinition(PDist thickness, Block block, boolean generateUnderSee) {
+        layerDefinitions.add(new LayerDefinition(thickness, block, generateUnderSee));
     }
 
     @Override
-    public void generateInChunk(String seed, int groundLevel, int seaLevel, Chunk chunk, ChunkInformation chunkInformation, int x, int z) {
+    public void generateInChunk(String seed, Chunk chunk, int x, int z, int groundLevel, GenerationParameters generationParameters, LayeringConfig layeringConfig) {
         Random random = ChunkRandom.getChunkRandom(seed, chunk.getPos(), 349 * (31 * x + z));
-        boolean underSee = groundLevel < seaLevel;
+        int seaLevel = generationParameters.getSeaLevel();
+        boolean underSea = groundLevel < seaLevel;
+
+        for (int level = seaLevel; level > groundLevel; level--) {
+            chunk.setBlock(x, level, z, layeringConfig.getSeaBlock());
+            chunk.setLiquid(x, level, z, new LiquidData(layeringConfig.getSeaLiquid(), LiquidData.MAX_LIQUID_DEPTH));
+        }
 
         int level = groundLevel;
         for (LayerDefinition layerDefinition : layerDefinitions) {
-            if (!underSee || layerDefinition.generateUnderSee) {
+            if (!underSea || layerDefinition.generateUnderSee) {
                 int layerHeight = layerDefinition.thickness.getIntValue(random);
                 for (int i = 0; i < layerHeight; i++) {
                     if (level - i > 0) {
-                        if (layerDefinition.blockFilter.accepts(chunk, chunkInformation, x, level - i, z)) {
-                            chunk.setBlock(x, level - i, z, layerDefinition.block);
-                        }
+                        chunk.setBlock(x, level - i, z, layerDefinition.block);
                     }
                 }
                 level -= layerHeight;
@@ -68,17 +72,21 @@ public class DefaultLayersDefinition implements LayersDefinition {
                 }
             }
         }
+
+        for (int i = level; i > 0; i--) {
+            chunk.setBlock(x, i, z, layeringConfig.getMainBlock());
+        }
+
+        chunk.setBlock(x, 0, z, layeringConfig.getBottomBlock());
     }
 
     private static class LayerDefinition {
         private PDist thickness;
-        private BlockFilter blockFilter;
         private Block block;
         private boolean generateUnderSee;
 
-        private LayerDefinition(PDist thickness, BlockFilter blockFilter, Block block, boolean generateUnderSee) {
+        private LayerDefinition(PDist thickness, Block block, boolean generateUnderSee) {
             this.thickness = thickness;
-            this.blockFilter = blockFilter;
             this.block = block;
             this.generateUnderSee = generateUnderSee;
         }

@@ -46,7 +46,7 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     private int seaLevel = 32;
     private int maxLevel = 220;
 
-    private LandscapeGenerator landscapeGenerator;
+    private LandscapeProvider landscapeProvider;
     private SimpleUri uri;
     private float biomeDiversity = 0.5f;
     private float terrainDiversity = 0.5f;
@@ -59,8 +59,8 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         this.uri = uri;
     }
 
-    public void setLandscapeGenerator(LandscapeGenerator landscapeGenerator) {
-        this.landscapeGenerator = landscapeGenerator;
+    public void setLandscapeProvider(LandscapeProvider landscapeProvider) {
+        this.landscapeProvider = landscapeProvider;
     }
 
     public void addChunkDecorator(ChunkDecorator chunkGenerator) {
@@ -123,7 +123,7 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
         setupGenerator();
 
-        landscapeGenerator.initializeWithSeed(seed);
+        landscapeProvider.initializeWithSeed(seed);
 
         for (ChunkDecorator chunkDecorator : chunkDecorators) {
             chunkDecorator.initializeWithSeed(seed);
@@ -150,12 +150,10 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
     @Override
     public void createChunk(Chunk chunk) {
-        ChunkInformation chunkInformation = new ChunkInformation();
-
-        landscapeGenerator.generateInChunk(chunk, chunkInformation, biomeProvider.getTerrainShape(), seaLevel, maxLevel);
+        GenerationParameters generationParameters = new GenerationParameters(landscapeProvider, biomeProvider, seaLevel, maxLevel);
 
         for (ChunkDecorator chunkDecorator : chunkDecorators) {
-            chunkDecorator.generateInChunk(chunk, chunkInformation, seaLevel, biomeProvider);
+            chunkDecorator.generateInChunk(chunk, generationParameters);
         }
     }
 
