@@ -5,12 +5,14 @@ package org.terasology.anotherWorld;
  */
 public class GenerationParameters {
     private LandscapeProvider landscapeProvider;
+    private TerrainShapeProvider terrainShapeProvider;
     private BiomeProvider biomeProvider;
     private int seaLevel;
     private int maxLevel;
 
-    public GenerationParameters(LandscapeProvider landscapeProvider, BiomeProvider biomeProvider, int seaLevel, int maxLevel) {
+    public GenerationParameters(LandscapeProvider landscapeProvider, TerrainShapeProvider terrainShapeProvider, BiomeProvider biomeProvider, int seaLevel, int maxLevel) {
         this.landscapeProvider = landscapeProvider;
+        this.terrainShapeProvider = terrainShapeProvider;
         this.biomeProvider = biomeProvider;
         this.seaLevel = seaLevel;
         this.maxLevel = maxLevel;
@@ -18,6 +20,10 @@ public class GenerationParameters {
 
     public LandscapeProvider getLandscapeProvider() {
         return landscapeProvider;
+    }
+
+    public TerrainShapeProvider getTerrainShapeProvider() {
+        return terrainShapeProvider;
     }
 
     public BiomeProvider getBiomeProvider() {

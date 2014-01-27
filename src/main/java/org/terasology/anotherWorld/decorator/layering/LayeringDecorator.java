@@ -19,6 +19,7 @@ import org.terasology.anotherWorld.Biome;
 import org.terasology.anotherWorld.BiomeProvider;
 import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.GenerationParameters;
+import org.terasology.math.Vector2i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.chunks.Chunk;
 import org.terasology.world.generator.plugin.WorldGeneratorPluginLibrary;
@@ -55,7 +56,7 @@ public class LayeringDecorator implements ChunkDecorator {
         int chunkStartZ = chunk.getChunkWorldPosZ();
         for (int x = 0; x < chunk.getChunkSizeX(); x++) {
             for (int z = 0; z < chunk.getChunkSizeZ(); z++) {
-                int groundLevel = generationParameters.getLandscapeProvider().getHeight(chunkStartX + x, chunkStartZ + z, generationParameters);
+                int groundLevel = generationParameters.getLandscapeProvider().getHeight(new Vector2i(chunkStartX + x, chunkStartZ + z));
                 BiomeProvider biomeProvider = generationParameters.getBiomeProvider();
                 Biome biome = biomeProvider.getBiomeAt(chunkStartX + x, groundLevel, chunkStartZ + z);
                 LayersDefinition matchingLayers = findMatchingLayers(biomeProvider, biome);

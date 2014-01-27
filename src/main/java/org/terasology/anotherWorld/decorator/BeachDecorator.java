@@ -2,6 +2,7 @@ package org.terasology.anotherWorld.decorator;
 
 import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.GenerationParameters;
+import org.terasology.math.Vector2i;
 import org.terasology.world.block.Block;
 import org.terasology.world.chunks.Chunk;
 
@@ -31,7 +32,7 @@ public class BeachDecorator implements ChunkDecorator {
         int chunkStartZ = chunk.getChunkWorldPosZ();
         for (int x = 0; x < chunk.getChunkSizeX(); x++) {
             for (int z = 0; z < chunk.getChunkSizeZ(); z++) {
-                int groundLevel = generationParameters.getLandscapeProvider().getHeight(chunkStartX + x, chunkStartZ + z, generationParameters);
+                int groundLevel = generationParameters.getLandscapeProvider().getHeight(new Vector2i(chunkStartX + x, chunkStartZ + z));
                 int seaLevel = generationParameters.getSeaLevel();
                 if (groundLevel <= seaLevel + aboveSeaLevel && groundLevel >= seaLevel - belowSeaLevel) {
                     for (int y = seaLevel - belowSeaLevel; y < seaLevel + aboveSeaLevel; y++) {

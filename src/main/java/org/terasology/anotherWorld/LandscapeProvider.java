@@ -15,11 +15,13 @@
  */
 package org.terasology.anotherWorld;
 
+import org.terasology.math.Vector2i;
+
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public interface LandscapeProvider {
-    public void initializeWithSeed(String seed);
+    public void initialize(String seed, int seaLevel, int maxLevel);
 
-    public int getHeight(int x, int z, GenerationParameters generationParameters);
+    public int getHeight(Vector2i position);
 }

@@ -42,18 +42,18 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     private List<ChunkDecorator> chunkDecorators = new LinkedList<>();
     private List<FeatureGenerator> featureGenerators = new LinkedList<>();
 
-    private BiomeProvider biomeProvider;
+    private BiomeProviderImpl biomeProvider;
     private int seaLevel = 32;
     private int maxLevel = 220;
 
     private LandscapeProvider landscapeProvider;
     private SimpleUri uri;
     private float biomeDiversity = 0.5f;
-    private float terrainDiversity = 0.5f;
 
     private AlphaFunction temperatureFunction = IdentityAlphaFunction.singleton;
     private AlphaFunction humidityFunction = IdentityAlphaFunction.singleton;
-    private AlphaFunction terrainFunction = IdentityAlphaFunction.singleton;
+
+    private TerrainShapeProvider terrainShapeProvider;
 
     public PluggableWorldGenerator(SimpleUri uri) {
         this.uri = uri;
@@ -88,25 +88,12 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         this.biomeDiversity = biomeDiversity;
     }
 
-    /**
-     * 0=changing slowly, 1=changing frequently
-     *
-     * @param terrainDiversity
-     */
-    public void setTerrainDiversity(float terrainDiversity) {
-        this.terrainDiversity = terrainDiversity;
-    }
-
     public void setTemperatureFunction(AlphaFunction temperatureFunction) {
         this.temperatureFunction = temperatureFunction;
     }
 
     public void setHumidityFunction(AlphaFunction humidityFunction) {
         this.humidityFunction = humidityFunction;
-    }
-
-    public void setTerrainFunction(AlphaFunction terrainFunction) {
-        this.terrainFunction = terrainFunction;
     }
 
     @Override
@@ -117,13 +104,14 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     public void setWorldSeed(String seed) {
         this.seed = seed;
 
-        biomeProvider = new BiomeProvider(seed, seaLevel, maxLevel,
-                biomeDiversity, temperatureFunction, humidityFunction,
-                terrainDiversity, terrainFunction);
-
         setupGenerator();
 
-        landscapeProvider.initializeWithSeed(seed);
+        landscapeProvider.initialize(seed, seaLevel, maxLevel);
+
+        terrainShapeProvider = new LookupTerrainShapeProvider(landscapeProvider);
+
+        biomeProvider = new BiomeProviderImpl(seed, seaLevel, maxLevel,
+                biomeDiversity, temperatureFunction, humidityFunction, terrainShapeProvider);
 
         for (ChunkDecorator chunkDecorator : chunkDecorators) {
             chunkDecorator.initializeWithSeed(seed);
@@ -150,7 +138,7 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
     @Override
     public void createChunk(Chunk chunk) {
-        GenerationParameters generationParameters = new GenerationParameters(landscapeProvider, biomeProvider, seaLevel, maxLevel);
+        GenerationParameters generationParameters = new GenerationParameters(landscapeProvider, terrainShapeProvider, biomeProvider, seaLevel, maxLevel);
 
         for (ChunkDecorator chunkDecorator : chunkDecorators) {
             chunkDecorator.generateInChunk(chunk, generationParameters);
@@ -170,9 +158,5 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     @Override
     public float getHumidity(float x, float y, float z) {
         return biomeProvider.getHumidity(TeraMath.floorToInt(x + 0.5f), TeraMath.floorToInt(y + 0.5f), TeraMath.floorToInt(z + 0.5f));
-    }
-
-    public float getTerrainShape(float x, float y, float z) {
-        return biomeProvider.getTerrainShape().getHillyness(TeraMath.floorToInt(x + 0.5f), TeraMath.floorToInt(z + 0.5f));
     }
 }

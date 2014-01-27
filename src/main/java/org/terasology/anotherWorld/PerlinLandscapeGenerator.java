@@ -17,37 +17,57 @@ package org.terasology.anotherWorld;
 
 import org.terasology.anotherWorld.util.AlphaFunction;
 import org.terasology.math.TeraMath;
+import org.terasology.math.Vector2i;
 import org.terasology.utilities.procedural.BrownianNoise2D;
 import org.terasology.utilities.procedural.SimplexNoise;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class PerlinLandscapeGenerator implements LandscapeProvider {
+    public static final int CACHE_SIZE = 10000;
+    private LinkedHashMap<Vector2i, Integer> heightCache = new LinkedHashMap<>();
+
     private BrownianNoise2D noise;
     private double noiseScale;
 
     private float seaFrequency;
     private AlphaFunction heightAboveSeaLevelFunction;
+    private float terrainDiversity;
+    private AlphaFunction terrainFunction;
+    private TerrainDeformation terrainDeformation;
+    private int seaLevel;
+    private int maxLevel;
 
-    public PerlinLandscapeGenerator(float seaFrequency, AlphaFunction heightAboveSeaLevelFunction) {
+    public PerlinLandscapeGenerator(float seaFrequency, AlphaFunction heightAboveSeaLevelFunction,
+                                    float terrainDiversity, AlphaFunction terrainFunction) {
         this.seaFrequency = seaFrequency;
         this.heightAboveSeaLevelFunction = heightAboveSeaLevelFunction;
+        this.terrainDiversity = terrainDiversity;
+        this.terrainFunction = terrainFunction;
     }
 
     @Override
-    public void initializeWithSeed(String seed) {
+    public void initialize(String seed, int seaLevel, int maxLevel) {
+        this.seaLevel = seaLevel;
+        this.maxLevel = maxLevel;
         noise = new BrownianNoise2D(new SimplexNoise(seed.hashCode()), 6);
         noiseScale = noise.getScale();
+        terrainDeformation = new TerrainDeformation(seed, terrainDiversity, terrainFunction);
     }
 
     @Override
-    public int getHeight(int x, int z, GenerationParameters generationParameters) {
-        float hillyness = generationParameters.getBiomeProvider().getTerrainShape().getHillyness(x, z);
-        int seaLevel = generationParameters.getSeaLevel();
-        int maxLevel = generationParameters.getMaxLevel();
-        float noise = getNoiseInWorld(hillyness, x, z);
-        int height;
+    public int getHeight(Vector2i position) {
+        Integer height = heightCache.get(position);
+        if (height != null) {
+            return height;
+        }
+
+        float hillyness = terrainDeformation.getHillyness(position.x, position.y);
+        float noise = getNoiseInWorld(hillyness, position.x, position.y);
         if (noise < seaFrequency) {
             height = (int) (seaLevel * noise / seaFrequency);
         } else {
@@ -55,6 +75,15 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
             float alphaAboveSeaLevel = (noise - seaFrequency) / (1 - seaFrequency);
             float resultAlpha = heightAboveSeaLevelFunction.execute(alphaAboveSeaLevel);
             height = (int) (seaLevel + resultAlpha * (maxLevel - seaLevel));
+        }
+
+        synchronized (heightCache) {
+            heightCache.put(position, height);
+            if (heightCache.size() > CACHE_SIZE) {
+                Iterator<Vector2i> iterator = heightCache.keySet().iterator();
+                iterator.next();
+                iterator.remove();
+            }
         }
 
         return height;
