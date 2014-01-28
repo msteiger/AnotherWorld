@@ -17,13 +17,12 @@ package org.terasology.anotherWorld.decorator.structure;
 
 import org.terasology.anotherWorld.GenerationParameters;
 import org.terasology.world.chunks.Chunk;
-import org.terasology.world.generator.plugin.WorldGeneratorPlugin;
 
 import java.util.Collection;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public interface StructureDefinition extends WorldGeneratorPlugin {
+public interface StructureDefinition {
     Collection<Structure> generateStructures(Chunk chunk, String seed, GenerationParameters generationParameters);
 }
