@@ -49,10 +49,6 @@ public class OreDecorator implements ChunkDecorator {
         loadOres();
     }
 
-    public void addOreDefinition(String oreId, StructureDefinition structureDefinition) {
-        oreDefinitions.put(oreId, structureDefinition);
-    }
-
     @Override
     public void generateInChunk(Chunk chunk, GenerationParameters generationParameters) {
         Structure.StructureCallback callback = new StructureCallbackImpl(chunk, generationParameters);
@@ -70,7 +66,7 @@ public class OreDecorator implements ChunkDecorator {
         List<OreDefinition> loadedOreDefinitions = pluginLibrary.instantiateAllOfType(OreDefinition.class);
         for (OreDefinition oreDefinition : loadedOreDefinitions) {
             String oreId = oreDefinition.getOreId();
-            addOreDefinition(oreId, oreDefinition);
+            oreDefinitions.put(oreId, oreDefinition);
         }
     }
 
