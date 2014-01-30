@@ -126,8 +126,10 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
     @Override
     public void applySecondPass(Vector3i chunkPos, ChunkView view) {
+        GenerationParameters generationParameters = new GenerationParameters(landscapeProvider, terrainShapeProvider, biomeProvider, seaLevel, maxLevel);
+
         for (FeatureGenerator featureGenerator : featureGenerators) {
-            featureGenerator.generateInChunk(chunkPos, view, biomeProvider);
+            featureGenerator.generateInChunk(chunkPos, view, generationParameters);
         }
     }
 

@@ -15,9 +15,8 @@
  */
 package org.terasology.anotherWorld.decorator;
 
-import org.terasology.anotherWorld.GenerationParameters;
+import org.terasology.anotherWorld.util.Filter;
 import org.terasology.world.block.Block;
-import org.terasology.world.chunks.Chunk;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -25,7 +24,7 @@ import java.util.Collections;
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public class BlockCollectionFilter implements BlockFilter {
+public class BlockCollectionFilter implements Filter<Block> {
     private Collection<Block> blocks;
 
     public BlockCollectionFilter(Block block) {
@@ -37,7 +36,7 @@ public class BlockCollectionFilter implements BlockFilter {
     }
 
     @Override
-    public boolean accepts(Chunk chunk, int x, int y, int z, GenerationParameters generationParameters) {
-        return blocks.contains(chunk.getBlock(x, y, z));
+    public boolean accepts(Block block) {
+        return blocks.contains(block);
     }
 }

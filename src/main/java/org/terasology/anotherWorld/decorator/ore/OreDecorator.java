@@ -17,9 +17,9 @@ package org.terasology.anotherWorld.decorator.ore;
 
 import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.GenerationParameters;
-import org.terasology.anotherWorld.decorator.BlockFilter;
 import org.terasology.anotherWorld.decorator.structure.Structure;
 import org.terasology.anotherWorld.decorator.structure.StructureDefinition;
+import org.terasology.anotherWorld.util.Filter;
 import org.terasology.math.Vector3i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.block.Block;
@@ -36,10 +36,10 @@ import java.util.Map;
  */
 public class OreDecorator implements ChunkDecorator {
     private Map<String, StructureDefinition> oreDefinitions = new LinkedHashMap<>();
-    private BlockFilter blockFilter;
+    private Filter<Block> blockFilter;
     private String seed;
 
-    public OreDecorator(BlockFilter blockFilter) {
+    public OreDecorator(Filter<Block> blockFilter) {
         this.blockFilter = blockFilter;
     }
 
@@ -83,7 +83,7 @@ public class OreDecorator implements ChunkDecorator {
         public boolean canReplace(int x, int y, int z) {
             boolean validCoords = (x >= 0 && y >= 1 && z >= 0
                     && x < chunk.getChunkSizeX() && y < chunk.getChunkSizeY() && z < chunk.getChunkSizeZ());
-            return validCoords && blockFilter.accepts(chunk, x, y, z, generationParameters);
+            return validCoords && blockFilter.accepts(chunk.getBlock(x, y, z));
 
         }
 

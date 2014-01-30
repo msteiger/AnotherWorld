@@ -24,5 +24,5 @@ import org.terasology.world.ChunkView;
 public interface FeatureGenerator {
     void initializeWithSeed(String seed);
 
-    void generateInChunk(Vector3i chunkPos, ChunkView view, BiomeProviderImpl biomeProvider);
+    void generateInChunk(Vector3i chunkPos, ChunkView view, GenerationParameters generationParameters);
 }

@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.anotherWorld.decorator;
+package org.terasology.anotherWorld.util;
 
-import org.terasology.world.block.Block;
-
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
-public interface BlockFilter {
-    boolean accepts(Block block);
+public interface Filter<T> {
+    public boolean accepts(T value);
 }
