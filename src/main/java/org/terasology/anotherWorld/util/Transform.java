@@ -1,3 +1,18 @@
+/*
+ * Copyright 2014 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.anotherWorld.util;
 
 /**
@@ -105,11 +120,11 @@ public class Transform implements Cloneable {
         float w = mat[12] * vector[0] + mat[13] * vector[1] + mat[14] * vector[2] + mat[15] * vw;
         /* FOR FUTURE USE:
         // left-multiply: vector * matrix
-		float x = vector[0]*mat[0] + vector[1]*mat[4] + vector[2]*mat[8]  + vw*mat[12];
-		float y = vector[0]*mat[1] + vector[1]*mat[5] + vector[2]*mat[9]  + vw*mat[13];
-		float z = vector[0]*mat[2] + vector[1]*mat[6] + vector[2]*mat[10] + vw*mat[14];
-		float w = vector[0]*mat[3] + vector[1]*mat[7] + vector[2]*mat[11] + vw*mat[15];		
-		*/
+        float x = vector[0]*mat[0] + vector[1]*mat[4] + vector[2]*mat[8]  + vw*mat[12];
+        float y = vector[0]*mat[1] + vector[1]*mat[5] + vector[2]*mat[9]  + vw*mat[13];
+        float z = vector[0]*mat[2] + vector[1]*mat[6] + vector[2]*mat[10] + vw*mat[14];
+        float w = vector[0]*mat[3] + vector[1]*mat[7] + vector[2]*mat[11] + vw*mat[15];        
+        */
         // place results in original vector
         vector[0] = x;
         vector[1] = y;
@@ -221,10 +236,12 @@ public class Transform implements Cloneable {
         }
         if (r != 1) {
             r = (float) Math.sqrt(r);
-            axisX /= r;
-            axisY /= r;
-            axisZ /= r;
+            return rotateInternal(angle, axisX / r, axisY / r, axisZ / r);
         }
+        return rotateInternal(angle, axisX, axisY, axisZ);
+    }
+
+    private Transform rotateInternal(float angle, float axisX, float axisY, float axisZ) {
         // cache sin & cosine of angles
         float s = (float) Math.sin(angle);
         float nc = 1 - (float) Math.cos(angle);
@@ -345,10 +362,12 @@ public class Transform implements Cloneable {
         }
         if (r != 1) {
             r = (float) Math.sqrt(r);
-            axisX /= r;
-            axisY /= r;
-            axisZ /= r;
+            return rotateXIntoInternal(axisX / r, axisY / r, axisZ / r);
         }
+        return rotateXIntoInternal(axisX, axisY, axisZ);
+    }
+
+    private Transform rotateXIntoInternal(float axisX, float axisY, float axisZ) {
         // cache squared norm of cross product (equal to sin^2 of rotation angle)
         float s2 = axisY * axisY + axisZ * axisZ;
         if (s2 == 0) {
@@ -387,10 +406,12 @@ public class Transform implements Cloneable {
         }
         if (r != 1) {
             r = (float) Math.sqrt(r);
-            axisX /= r;
-            axisY /= r;
-            axisZ /= r;
+            return rotateYIntoInternal(axisX / r, axisY / r, axisZ / r);
         }
+        return rotateYIntoInternal(axisX, axisY, axisZ);
+    }
+
+    private Transform rotateYIntoInternal(float axisX, float axisY, float axisZ) {
         // cache squared norm of cross product (equal to sin^2 of rotation angle)
         float s2 = axisX * axisX + axisZ * axisZ;
         if (s2 == 0) {
@@ -429,10 +450,12 @@ public class Transform implements Cloneable {
         }
         if (r != 1) {
             r = (float) Math.sqrt(r);
-            axisX /= r;
-            axisY /= r;
-            axisZ /= r;
+            return rotateZIntoInternal(axisX / r, axisY / r, axisZ / r);
         }
+        return rotateZIntoInternal(axisX, axisY, axisZ);
+    }
+
+    private Transform rotateZIntoInternal(float axisX, float axisY, float axisZ) {
         // cache squared norm of cross product (equal to sin^2 of rotation angle)
         float s2 = axisX * axisX + axisY * axisY;
         if (s2 == 0) {
@@ -471,25 +494,27 @@ public class Transform implements Cloneable {
         }
         if (r != 1) {
             r = (float) Math.sqrt(r);
-            axisX /= r;
-            axisY /= r;
-            axisZ /= r;
+            return scaleInternal(scaleM, axisX / r, axisY / r, axisZ / r);
         }
+        return scaleInternal(scaleM, axisX, axisY, axisZ);
+    }
+
+    private Transform scaleInternal(float scaleM, float axisX, float axisY, float axisZ) {
         // modify scale for convenience
-        scaleM -= 1;
+        float scaleMAdjusted = scaleM - 1;
         float[] scal = new float[16];
         //
-        scal[0] = scaleM * axisX * axisX + 1;
-        scal[1] = scaleM * axisX * axisY;
-        scal[2] = scaleM * axisX * axisZ;
+        scal[0] = scaleMAdjusted * axisX * axisX + 1;
+        scal[1] = scaleMAdjusted * axisX * axisY;
+        scal[2] = scaleMAdjusted * axisX * axisZ;
         //
-        scal[4] = scaleM * axisX * axisY;
-        scal[5] = scaleM * axisY * axisY + 1;
-        scal[6] = scaleM * axisY * axisZ;
+        scal[4] = scaleMAdjusted * axisX * axisY;
+        scal[5] = scaleMAdjusted * axisY * axisY + 1;
+        scal[6] = scaleMAdjusted * axisY * axisZ;
         //
-        scal[8] = scaleM * axisX * axisZ;
-        scal[9] = scaleM * axisY * axisZ;
-        scal[10] = scaleM * axisZ * axisZ + 1;
+        scal[8] = scaleMAdjusted * axisX * axisZ;
+        scal[9] = scaleMAdjusted * axisY * axisZ;
+        scal[10] = scaleMAdjusted * axisZ * axisZ + 1;
         //
         scal[15] = 1;
         // perform multiplication
@@ -523,51 +548,76 @@ public class Transform implements Cloneable {
      *
      * @throws RuntimeException if the axes are null or parallel to each other
      */
-    public Transform shear(float angle, float shearX, float shearY, float shearZ, float invariantX, float invariantY, float invariantZ) {
+    public Transform shear(float angle, final float shearX, final float shearY, final float shearZ,
+                           final float invariantX, final float invariantY, final float invariantZ) {
+        float shearXNormalised = shearX;
+        float shearYNormalised = shearY;
+        float shearZNormalised = shearZ;
+        float invariantXNormalised = invariantX;
+        float invariantYNormalised = invariantY;
+        float invariantZNormalised = invariantZ;
+
         // normalize invariant axis
-        float ri = invariantX * invariantX + invariantY * invariantY + invariantZ * invariantZ;
+        float ri = invariantXNormalised * invariantXNormalised + invariantYNormalised * invariantYNormalised + invariantZNormalised * invariantZNormalised;
         if (ri == 0) {
             throw new RuntimeException("Attempting to shear with a null invariant vector");
         }
         if (ri != 1) {
             ri = (float) Math.sqrt(ri);
-            invariantX /= ri;
-            invariantY /= ri;
-            invariantZ /= ri;
+            invariantXNormalised /= ri;
+            invariantYNormalised /= ri;
+            invariantZNormalised /= ri;
         }
         // orthogonalize shear axis
-        float p = shearX * invariantX + shearY * invariantY + shearZ * invariantZ;
+        float p = shearXNormalised * invariantXNormalised + shearYNormalised * invariantYNormalised + shearZNormalised * invariantZNormalised;
         if (p != 0) {
-            shearX -= p * invariantX;
-            shearY -= p * invariantY;
-            shearZ -= p * invariantZ;
+            shearXNormalised -= p * invariantXNormalised;
+            shearYNormalised -= p * invariantYNormalised;
+            shearZNormalised -= p * invariantZNormalised;
         }
         // normalize shear axis
-        float rs = shearX * shearX + shearY * shearY + shearZ * shearZ;
+        float rs = shearXNormalised * shearXNormalised + shearYNormalised * shearYNormalised + shearZNormalised * shearZNormalised;
         if (rs == 0) {
             throw new RuntimeException("Attempting to shear with a null or parallel shear vector");
         }
         if (rs != 1) {
             rs = (float) Math.sqrt(rs);
-            shearX /= rs;
-            shearY /= rs;
-            shearZ /= rs;
+            // cache tan of angle
+            float t = (float) Math.tan(angle);
+            float[] shr = new float[16];
+            //
+            shr[0] = shearXNormalised / rs * invariantXNormalised * t + 1;
+            shr[1] = shearXNormalised / rs * invariantYNormalised * t;
+            shr[2] = shearXNormalised / rs * invariantZNormalised * t;
+            //
+            shr[4] = shearYNormalised / rs * invariantXNormalised * t;
+            shr[5] = shearYNormalised / rs * invariantYNormalised * t + 1;
+            shr[6] = shearYNormalised / rs * invariantZNormalised * t;
+            //
+            shr[8] = shearZNormalised / rs * invariantXNormalised * t;
+            shr[9] = shearZNormalised / rs * invariantYNormalised * t;
+            shr[10] = shearZNormalised / rs * invariantZNormalised * t + 1;
+            //
+            shr[15] = 1;
+            // perform multiplication
+            mult(mat, shr);
+            return this;
         }
         // cache tan of angle
         float t = (float) Math.tan(angle);
         float[] shr = new float[16];
         //
-        shr[0] = shearX * invariantX * t + 1;
-        shr[1] = shearX * invariantY * t;
-        shr[2] = shearX * invariantZ * t;
+        shr[0] = shearXNormalised * invariantXNormalised * t + 1;
+        shr[1] = shearXNormalised * invariantYNormalised * t;
+        shr[2] = shearXNormalised * invariantZNormalised * t;
         //
-        shr[4] = shearY * invariantX * t;
-        shr[5] = shearY * invariantY * t + 1;
-        shr[6] = shearY * invariantZ * t;
+        shr[4] = shearYNormalised * invariantXNormalised * t;
+        shr[5] = shearYNormalised * invariantYNormalised * t + 1;
+        shr[6] = shearYNormalised * invariantZNormalised * t;
         //
-        shr[8] = shearZ * invariantX * t;
-        shr[9] = shearZ * invariantY * t;
-        shr[10] = shearZ * invariantZ * t + 1;
+        shr[8] = shearZNormalised * invariantXNormalised * t;
+        shr[9] = shearZNormalised * invariantYNormalised * t;
+        shr[10] = shearZNormalised * invariantZNormalised * t + 1;
         //
         shr[15] = 1;
         // perform multiplication
@@ -588,11 +638,13 @@ public class Transform implements Cloneable {
         }
         if (r != 1) {
             r = (float) Math.sqrt(r);
-            mirrorNormalX /= r;
-            mirrorNormalY /= r;
-            mirrorNormalZ /= r;
+            return reflectInternal(mirrorNormalX / r, mirrorNormalY / r, mirrorNormalZ / r);
         }
         //
+        return reflectInternal(mirrorNormalX, mirrorNormalY, mirrorNormalZ);
+    }
+
+    private Transform reflectInternal(float mirrorNormalX, float mirrorNormalY, float mirrorNormalZ) {
         float[] refl = new float[16];
         //
         refl[0] = 1 - 2 * mirrorNormalX * mirrorNormalX;
@@ -630,10 +682,14 @@ public class Transform implements Cloneable {
      * Calculate the matrix determinant
      */
     public float determinant() {
-        return mat[0] * (mat[5] * (mat[10] * mat[15] - mat[11] * mat[14]) + mat[6] * (mat[11] * mat[13] - mat[15] * mat[9]) + mat[7] * (mat[14] * mat[9] - mat[10] * mat[13]))
-                + mat[1] * (mat[4] * (mat[11] * mat[14] - mat[10] * mat[15]) + mat[6] * (mat[15] * mat[8] - mat[11] * mat[12]) + mat[7] * (mat[10] * mat[12] - mat[14] * mat[8]))
-                + mat[2] * (mat[4] * (mat[15] * mat[9] - mat[11] * mat[13]) + mat[5] * (mat[11] * mat[12] - mat[15] * mat[8]) + mat[7] * (mat[13] * mat[8] - mat[12] * mat[9]))
-                + mat[3] * (mat[4] * (mat[10] * mat[13] - mat[14] * mat[9]) + mat[5] * (mat[14] * mat[8] - mat[10] * mat[12]) + mat[6] * (mat[12] * mat[9] - mat[13] * mat[8]));
+        return mat[0] * (mat[5] * (mat[10] * mat[15] - mat[11] * mat[14])
+                + mat[6] * (mat[11] * mat[13] - mat[15] * mat[9]) + mat[7] * (mat[14] * mat[9] - mat[10] * mat[13]))
+                + mat[1] * (mat[4] * (mat[11] * mat[14] - mat[10] * mat[15])
+                + mat[6] * (mat[15] * mat[8] - mat[11] * mat[12]) + mat[7] * (mat[10] * mat[12] - mat[14] * mat[8]))
+                + mat[2] * (mat[4] * (mat[15] * mat[9] - mat[11] * mat[13])
+                + mat[5] * (mat[11] * mat[12] - mat[15] * mat[8]) + mat[7] * (mat[13] * mat[8] - mat[12] * mat[9]))
+                + mat[3] * (mat[4] * (mat[10] * mat[13] - mat[14] * mat[9])
+                + mat[5] * (mat[14] * mat[8] - mat[10] * mat[12]) + mat[6] * (mat[12] * mat[9] - mat[13] * mat[8]));
     }
 
     /**

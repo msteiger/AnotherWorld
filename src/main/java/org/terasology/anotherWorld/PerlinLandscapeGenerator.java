@@ -23,13 +23,14 @@ import org.terasology.utilities.procedural.SimplexNoise;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class PerlinLandscapeGenerator implements LandscapeProvider {
     public static final int CACHE_SIZE = 10000;
-    private LinkedHashMap<Vector2i, Integer> heightCache = new LinkedHashMap<>();
+    private Map<Vector2i, Integer> heightCache = new LinkedHashMap<>();
 
     private BrownianNoise2D noise;
     private double noiseScale;
@@ -51,9 +52,9 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
     }
 
     @Override
-    public void initialize(String seed, int seaLevel, int maxLevel) {
-        this.seaLevel = seaLevel;
-        this.maxLevel = maxLevel;
+    public void initialize(String seed, int sea, int max) {
+        seaLevel = sea;
+        maxLevel = max;
         noise = new BrownianNoise2D(new SimplexNoise(seed.hashCode()), 6);
         noiseScale = noise.getScale();
         terrainDeformation = new TerrainDeformation(seed, terrainDiversity, terrainFunction);
@@ -67,12 +68,12 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
         }
 
         float hillyness = terrainDeformation.getHillyness(position.x, position.y);
-        float noise = getNoiseInWorld(hillyness, position.x, position.y);
-        if (noise < seaFrequency) {
-            height = (int) (seaLevel * noise / seaFrequency);
+        float noiseValue = getNoiseInWorld(hillyness, position.x, position.y);
+        if (noiseValue < seaFrequency) {
+            height = (int) (seaLevel * noiseValue / seaFrequency);
         } else {
             // Number in range 0<=alpha<1
-            float alphaAboveSeaLevel = (noise - seaFrequency) / (1 - seaFrequency);
+            float alphaAboveSeaLevel = (noiseValue - seaFrequency) / (1 - seaFrequency);
             float resultAlpha = heightAboveSeaLevelFunction.execute(alphaAboveSeaLevel);
             height = (int) (seaLevel + resultAlpha * (maxLevel - seaLevel));
         }
@@ -90,18 +91,18 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
     }
 
     private float getNoiseInWorld(float hillyness, int worldX, int worldZ) {
-        double noise = 0;
+        double noiseValue = 0;
         int scanArea = (int) ((1 - hillyness) * 50);
         int divider = 0;
         // Scan and average heights in the circle of blocks with diameter of "scanArea" (based on hillyness)
         for (int x = worldX - scanArea; x <= worldX + scanArea; x++) {
             int zScan = (int) Math.sqrt(scanArea * scanArea - (x - worldX) * (x - worldX));
             for (int z = worldZ - zScan; z <= worldZ + zScan; z++) {
-                noise += this.noise.noise(0.004 * x, 0.004 * z) / noiseScale;
+                noiseValue += noise.noise(0.004 * x, 0.004 * z) / noiseScale;
                 divider++;
             }
         }
-        noise /= divider;
-        return (float) TeraMath.clamp((noise + 1.0) / 2);
+        noiseValue /= divider;
+        return (float) TeraMath.clamp((noiseValue + 1.0) / 2);
     }
 }

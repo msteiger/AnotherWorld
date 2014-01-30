@@ -41,8 +41,8 @@ public class LayeringDecorator implements ChunkDecorator {
     }
 
     @Override
-    public void initializeWithSeed(String seed) {
-        this.seed = seed;
+    public void initializeWithSeed(String worldSeed) {
+        this.seed = worldSeed;
         loadLayers();
     }
 

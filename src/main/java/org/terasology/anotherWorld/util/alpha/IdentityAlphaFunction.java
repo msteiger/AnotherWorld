@@ -20,10 +20,14 @@ import org.terasology.anotherWorld.util.AlphaFunction;
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public class IdentityAlphaFunction implements AlphaFunction {
-    public static IdentityAlphaFunction singleton = new IdentityAlphaFunction();
+public final class IdentityAlphaFunction implements AlphaFunction {
+    private static IdentityAlphaFunction singleton = new IdentityAlphaFunction();
 
     private IdentityAlphaFunction() {
+    }
+
+    public static IdentityAlphaFunction singleton() {
+        return singleton;
     }
 
     @Override

@@ -84,7 +84,7 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
     }
 
     public interface PocketBlockProvider {
-        public Block getBlock(float distanceFromCenter);
+        Block getBlock(float distanceFromCenter);
     }
 
     /**
@@ -187,8 +187,7 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
                         if (r2 > maxNoisyR2) {
                             continue; // block is outside maximum possible radius
                         }
-                        if (r2 > minNoisyR2) // block is within max noise tolerance
-                        {
+                        if (r2 > minNoisyR2) { // block is within max noise tolerance
                             // compute radius noise multiplier
                             // the point is projected radially onto the surface of the unit sphere and
                             // the 3D noise field is sampled at that location to determine the radius

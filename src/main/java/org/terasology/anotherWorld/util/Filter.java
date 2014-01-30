@@ -16,5 +16,5 @@
 package org.terasology.anotherWorld.util;
 
 public interface Filter<T> {
-    public boolean accepts(T value);
+    boolean accepts(T value);
 }

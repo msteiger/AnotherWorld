@@ -1,3 +1,18 @@
+/*
+ * Copyright 2014 MovingBlocks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.terasology.anotherWorld.util;
 
 import org.terasology.utilities.random.Random;
@@ -19,6 +34,46 @@ import org.terasology.utilities.random.Random;
  * is appreciated.
  */
 public class NoiseGenerator {
+    /* Inner class to speed upp gradient computations (array access is a lot slower than member access) */
+    /* Preselected gradients in various dimensions */
+    private static Grad[] grad2 = new Grad[]{
+            new Grad(1, 0, 0), new Grad(-1, 0, 0), new Grad(0, 1, 0), new Grad(0, -1, 0)
+    };
+    private static Grad[] grad3 = new Grad[]{
+            new Grad(1, 1, 0), new Grad(-1, 1, 0), new Grad(1, -1, 0),
+            new Grad(-1, -1, 0), new Grad(1, 0, 1), new Grad(-1, 0, 1),
+            new Grad(1, 0, -1), new Grad(-1, 0, -1), new Grad(0, 1, 1),
+            new Grad(0, -1, 1), new Grad(0, 1, -1), new Grad(0, -1, -1)
+    };
+    private static Grad[] grad4 = new Grad[]{
+            new Grad(0, 1, 1, 1), new Grad(0, 1, 1, -1), new Grad(0, 1, -1, 1), new Grad(0, 1, -1, -1),
+            new Grad(0, -1, 1, 1), new Grad(0, -1, 1, -1), new Grad(0, -1, -1, 1), new Grad(0, -1, -1, -1),
+            new Grad(1, 0, 1, 1), new Grad(1, 0, 1, -1), new Grad(1, 0, -1, 1), new Grad(1, 0, -1, -1),
+            new Grad(-1, 0, 1, 1), new Grad(-1, 0, 1, -1), new Grad(-1, 0, -1, 1), new Grad(-1, 0, -1, -1),
+            new Grad(1, 1, 0, 1), new Grad(1, 1, 0, -1), new Grad(1, -1, 0, 1), new Grad(1, -1, 0, -1),
+            new Grad(-1, 1, 0, 1), new Grad(-1, 1, 0, -1), new Grad(-1, -1, 0, 1), new Grad(-1, -1, 0, -1),
+            new Grad(1, 1, 1, 0), new Grad(1, 1, -1, 0), new Grad(1, -1, 1, 0), new Grad(1, -1, -1, 0),
+            new Grad(-1, 1, 1, 0), new Grad(-1, 1, -1, 0), new Grad(-1, -1, 1, 0), new Grad(-1, -1, -1, 0)
+    };
+
+    /* Skewing and unskewing factors for 2, 3, and 4 dimensions */
+    private static final double F2 = 0.5 * (Math.sqrt(3.0) - 1.0);
+    private static final double G2 = (3.0 - Math.sqrt(3.0)) / 6.0;
+    private static final double F3 = 1.0 / 3.0;
+    private static final double G3 = 1.0 / 6.0;
+    private static final double F4 = (Math.sqrt(5.0) - 1.0) / 4.0;
+    private static final double G4 = (5.0 - Math.sqrt(5.0)) / 20.0;
+
+    /* Random permutation of gradients for this instance */
+    private final byte[] permutation = {
+            17, 1, 31, 92, 22, 53, 127, 38, 84, 62, 54, 21, 123, 111, 49, 96, 95, 58, 104, 42, 34,
+            55, 78, 107, 105, 98, 39, 50, 125, 2, 91, 23, 119, 100, 70, 56, 3, 88, 66, 101, 29, 8,
+            43, 76, 124, 0, 15, 115, 83, 5, 19, 64, 106, 80, 48, 82, 121, 69, 117, 10, 61, 9, 109,
+            87, 94, 25, 20, 27, 102, 122, 60, 6, 33, 77, 89, 90, 118, 110, 75, 71, 113, 126, 67, 52,
+            74, 116, 44, 103, 14, 18, 93, 85, 108, 12, 32, 45, 47, 79, 68, 86, 24, 114, 30, 57, 59,
+            81, 4, 26, 36, 37, 120, 35, 65, 28, 7, 63, 40, 72, 73, 41, 99, 16, 97, 13, 112, 51, 11, 46
+    };
+
     /**
      * Construct a new instance use the static pregenerated gradient permutation
      */
@@ -44,24 +99,28 @@ public class NoiseGenerator {
      * 2D simplex noise
      */
     public double noise(double xin, double yin) {
-        double n0, n1, n2; // Noise contributions from the three corners
+        // Noise contributions from the three corners
+        double n0;
+        double n1;
+        double n2;
         // Skew the input space to determine which simplex cell we're in
         double s = (xin + yin) * F2; // Hairy factor for 2D
         int i = fastfloor(xin + s);
         int j = fastfloor(yin + s);
         double t = (i + j) * G2;
-        double X0 = i - t; // Unskew the cell origin back to (x,y) space
-        double Y0 = j - t;
-        double x0 = xin - X0; // The x,y distances from the cell origin
-        double y0 = yin - Y0;
+        double originX = i - t; // Unskew the cell origin back to (x,y) space
+        double originY = j - t;
+        double x0 = xin - originX; // The x,y distances from the cell origin
+        double y0 = yin - originY;
         // For the 2D case, the simplex shape is an equilateral triangle.
         // Determine which simplex we are in.
-        int i1, j1; // Offsets for second (middle) corner of simplex in (i,j) coords
+        // Offsets for second (middle) corner of simplex in (i,j) coords
+        int i1;
+        int j1;
         if (x0 > y0) {
             i1 = 1;
             j1 = 0;
-        } // lower triangle, XY order: (0,0)->(1,0)->(1,1)
-        else {
+        } else { // lower triangle, XY order: (0,0)->(1,0)->(1,1)
             i1 = 0;
             j1 = 1;
         } // upper triangle, YX order: (0,0)->(0,1)->(1,1)
@@ -109,23 +168,33 @@ public class NoiseGenerator {
      * 3D simplex noise
      */
     public double noise(double xin, double yin, double zin) {
-        double n0, n1, n2, n3; // Noise contributions from the four corners
+        // Noise contributions from the four corners
+        double n0;
+        double n1;
+        double n2;
+        double n3;
         // Skew the input space to determine which simplex cell we're in
         double s = (xin + yin + zin) * F3; // Very nice and simple skew factor for 3D
         int i = fastfloor(xin + s);
         int j = fastfloor(yin + s);
         int k = fastfloor(zin + s);
         double t = (i + j + k) * G3;
-        double X0 = i - t; // Unskew the cell origin back to (x,y,z) space
-        double Y0 = j - t;
-        double Z0 = k - t;
-        double x0 = xin - X0; // The x,y,z distances from the cell origin
-        double y0 = yin - Y0;
-        double z0 = zin - Z0;
+        double originX = i - t; // Unskew the cell origin back to (x,y,z) space
+        double originY = j - t;
+        double originZ = k - t;
+        double x0 = xin - originX; // The x,y,z distances from the cell origin
+        double y0 = yin - originY;
+        double z0 = zin - originZ;
         // For the 3D case, the simplex shape is a slightly irregular tetrahedron.
         // Determine which simplex we are in.
-        int i1, j1, k1; // Offsets for second corner of simplex in (i,j,k) coords
-        int i2, j2, k2; // Offsets for third corner of simplex in (i,j,k) coords
+        // Offsets for second corner of simplex in (i,j,k) coords
+        int i1;
+        int j1;
+        int k1;
+        // Offsets for third corner of simplex in (i,j,k) coords
+        int i2;
+        int j2;
+        int k2;
         if (x0 >= y0) {
             if (y0 >= z0) {
                 i1 = 1;
@@ -134,16 +203,14 @@ public class NoiseGenerator {
                 i2 = 1;
                 j2 = 1;
                 k2 = 0;
-            } // X Y Z order
-            else if (x0 >= z0) {
+            } else if (x0 >= z0) { // X Y Z order
                 i1 = 1;
                 j1 = 0;
                 k1 = 0;
                 i2 = 1;
                 j2 = 0;
                 k2 = 1;
-            } // X Z Y order
-            else {
+            } else { // X Z Y order
                 i1 = 0;
                 j1 = 0;
                 k1 = 1;
@@ -159,16 +226,14 @@ public class NoiseGenerator {
                 i2 = 0;
                 j2 = 1;
                 k2 = 1;
-            } // Z Y X order
-            else if (x0 < z0) {
+            } else if (x0 < z0) { // Z Y X order
                 i1 = 0;
                 j1 = 1;
                 k1 = 0;
                 i2 = 0;
                 j2 = 1;
                 k2 = 1;
-            } // Y Z X order
-            else {
+            } else { // Y Z X order
                 i1 = 0;
                 j1 = 1;
                 k1 = 0;
@@ -237,7 +302,12 @@ public class NoiseGenerator {
      * Better simplex rank ordering method 2012-03-09.
      */
     public double noise(double x, double y, double z, double w) {
-        double n0, n1, n2, n3, n4; // Noise contributions from the five corners
+        // Noise contributions from the five corners
+        double n0;
+        double n1;
+        double n2;
+        double n3;
+        double n4;
         // Skew the (x,y,z,w) space to determine which cell of 24 simplices we're in
         double s = (x + y + z + w) * F4; // Factor for 4D skewing
         int i = fastfloor(x + s);
@@ -245,14 +315,14 @@ public class NoiseGenerator {
         int k = fastfloor(z + s);
         int l = fastfloor(w + s);
         double t = (i + j + k + l) * G4; // Factor for 4D unskewing
-        double X0 = i - t; // Unskew the cell origin back to (x,y,z,w) space
-        double Y0 = j - t;
-        double Z0 = k - t;
-        double W0 = l - t;
-        double x0 = x - X0; // The x,y,z,w distances from the cell origin
-        double y0 = y - Y0;
-        double z0 = z - Z0;
-        double w0 = w - W0;
+        double originX = i - t; // Unskew the cell origin back to (x,y,z,w) space
+        double originY = j - t;
+        double originZ = k - t;
+        double originW = l - t;
+        double x0 = x - originX; // The x,y,z,w distances from the cell origin
+        double y0 = y - originY;
+        double z0 = z - originZ;
+        double w0 = w - originW;
         // For the 4D case, the simplex is a 4D shape I won't even try to describe.
         // To find out which of the 24 possible simplices we're in, we need to
         // determine the magnitude ordering of x0, y0, z0 and w0.
@@ -292,9 +362,18 @@ public class NoiseGenerator {
         } else {
             rankw++;
         }
-        int i1, j1, k1, l1; // The integer offsets for the second simplex corner
-        int i2, j2, k2, l2; // The integer offsets for the third simplex corner
-        int i3, j3, k3, l3; // The integer offsets for the fourth simplex corner
+        int i1; // The integer offsets for the second simplex corner
+        int j1;
+        int k1;
+        int l1;
+        int i2; // The integer offsets for the third simplex corner
+        int j2;
+        int k2;
+        int l2;
+        int i3; // The integer offsets for the fourth simplex corner
+        int j3;
+        int k3;
+        int l3;
         // simplex[c] is a 4-vector with the numbers 0, 1, 2 and 3 in some order.
         // Many values of c will never occur, since e.g. x>y>z>w makes x<z, y<w and x<w
         // impossible. Only the 24 indices which have non-zero entries make any sense.
@@ -400,9 +479,34 @@ public class NoiseGenerator {
         return g.x * x + g.y * y + g.z * z + g.w * w;
     }
 
-    /* Inner class to speed upp gradient computations (array access is a lot slower than member access) */
+    /* Methods for selecting a pseudo-random gradient based on grid coordinates and instance seed */
+    private Grad getGradient(int x, int y) {
+        int xm = x + permutation[y & 0x7F];
+        int pm = permutation[xm & 0x7F];
+        return grad2[pm & 0x3];
+    }
+
+    private Grad getGradient(int x, int y, int z) {
+        int ym = y + permutation[z & 0x7F];
+        int xm = x + permutation[ym & 0x7F];
+        int pm = permutation[xm & 0x7F];
+        return grad3[pm % 12];
+    }
+
+    private Grad getGradient(int x, int y, int z, int w) {
+        int zm = z + permutation[w & 0x7F];
+        int ym = y + permutation[zm & 0x7F];
+        int xm = x + permutation[ym & 0x7F];
+        int pm = permutation[xm & 0x7F];
+        return grad4[pm & 0x31];
+    }
+
     private static class Grad {
-        double x, y, z, w;
+        double x;
+        double y;
+        double z;
+
+        double w;
 
         Grad(double x, double y, double z) {
             this.x = x;
@@ -416,66 +520,6 @@ public class NoiseGenerator {
             this.z = z;
             this.w = w;
         }
+
     }
-
-    /* Preselected gradients in various dimensions */
-    private static Grad grad2[] = {
-            new Grad(1, 0, 0), new Grad(-1, 0, 0), new Grad(0, 1, 0), new Grad(0, -1, 0)
-    };
-    private static Grad grad3[] = {
-            new Grad(1, 1, 0), new Grad(-1, 1, 0), new Grad(1, -1, 0),
-            new Grad(-1, -1, 0), new Grad(1, 0, 1), new Grad(-1, 0, 1),
-            new Grad(1, 0, -1), new Grad(-1, 0, -1), new Grad(0, 1, 1),
-            new Grad(0, -1, 1), new Grad(0, 1, -1), new Grad(0, -1, -1)
-    };
-    private static Grad grad4[] = {
-            new Grad(0, 1, 1, 1), new Grad(0, 1, 1, -1), new Grad(0, 1, -1, 1), new Grad(0, 1, -1, -1),
-            new Grad(0, -1, 1, 1), new Grad(0, -1, 1, -1), new Grad(0, -1, -1, 1), new Grad(0, -1, -1, -1),
-            new Grad(1, 0, 1, 1), new Grad(1, 0, 1, -1), new Grad(1, 0, -1, 1), new Grad(1, 0, -1, -1),
-            new Grad(-1, 0, 1, 1), new Grad(-1, 0, 1, -1), new Grad(-1, 0, -1, 1), new Grad(-1, 0, -1, -1),
-            new Grad(1, 1, 0, 1), new Grad(1, 1, 0, -1), new Grad(1, -1, 0, 1), new Grad(1, -1, 0, -1),
-            new Grad(-1, 1, 0, 1), new Grad(-1, 1, 0, -1), new Grad(-1, -1, 0, 1), new Grad(-1, -1, 0, -1),
-            new Grad(1, 1, 1, 0), new Grad(1, 1, -1, 0), new Grad(1, -1, 1, 0), new Grad(1, -1, -1, 0),
-            new Grad(-1, 1, 1, 0), new Grad(-1, 1, -1, 0), new Grad(-1, -1, 1, 0), new Grad(-1, -1, -1, 0)
-    };
-
-    /* Methods for selecting a pseudo-random gradient based on grid coordinates and instance seed */
-    private final Grad getGradient(int x, int y) {
-        int xm = x + permutation[y & 0x7F];
-        int pm = permutation[xm & 0x7F];
-        return grad2[pm & 0x3];
-    }
-
-    private final Grad getGradient(int x, int y, int z) {
-        int ym = y + permutation[z & 0x7F];
-        int xm = x + permutation[ym & 0x7F];
-        int pm = permutation[xm & 0x7F];
-        return grad3[pm % 12];
-    }
-
-    private final Grad getGradient(int x, int y, int z, int w) {
-        int zm = z + permutation[w & 0x7F];
-        int ym = y + permutation[zm & 0x7F];
-        int xm = x + permutation[ym & 0x7F];
-        int pm = permutation[xm & 0x7F];
-        return grad4[pm & 0x31];
-    }
-
-    /* Random permutation of gradients for this instance */
-    private final byte[] permutation = {
-            17, 1, 31, 92, 22, 53, 127, 38, 84, 62, 54, 21, 123, 111, 49, 96, 95, 58, 104, 42, 34,
-            55, 78, 107, 105, 98, 39, 50, 125, 2, 91, 23, 119, 100, 70, 56, 3, 88, 66, 101, 29, 8,
-            43, 76, 124, 0, 15, 115, 83, 5, 19, 64, 106, 80, 48, 82, 121, 69, 117, 10, 61, 9, 109,
-            87, 94, 25, 20, 27, 102, 122, 60, 6, 33, 77, 89, 90, 118, 110, 75, 71, 113, 126, 67, 52,
-            74, 116, 44, 103, 14, 18, 93, 85, 108, 12, 32, 45, 47, 79, 68, 86, 24, 114, 30, 57, 59,
-            81, 4, 26, 36, 37, 120, 35, 65, 28, 7, 63, 40, 72, 73, 41, 99, 16, 97, 13, 112, 51, 11, 46
-    };
-
-    /* Skewing and unskewing factors for 2, 3, and 4 dimensions */
-    private static final double F2 = 0.5 * (Math.sqrt(3.0) - 1.0);
-    private static final double G2 = (3.0 - Math.sqrt(3.0)) / 6.0;
-    private static final double F3 = 1.0 / 3.0;
-    private static final double G3 = 1.0 / 6.0;
-    private static final double F4 = (Math.sqrt(5.0) - 1.0) / 4.0;
-    private static final double G4 = (5.0 - Math.sqrt(5.0)) / 20.0;
 }

@@ -44,14 +44,14 @@ public class OreDecorator implements ChunkDecorator {
     }
 
     @Override
-    public void initializeWithSeed(String seed) {
-        this.seed = seed;
+    public void initializeWithSeed(String worldSeed) {
+        this.seed = worldSeed;
         loadOres();
     }
 
     @Override
     public void generateInChunk(Chunk chunk, GenerationParameters generationParameters) {
-        Structure.StructureCallback callback = new StructureCallbackImpl(chunk, generationParameters);
+        Structure.StructureCallback callback = new StructureCallbackImpl(chunk);
 
         for (StructureDefinition structureDefinition : oreDefinitions.values()) {
             Collection<Structure> structures = structureDefinition.generateStructures(chunk, seed, generationParameters);
@@ -70,13 +70,11 @@ public class OreDecorator implements ChunkDecorator {
         }
     }
 
-    private class StructureCallbackImpl implements Structure.StructureCallback {
+    private final class StructureCallbackImpl implements Structure.StructureCallback {
         private Chunk chunk;
-        private GenerationParameters generationParameters;
 
-        private StructureCallbackImpl(Chunk chunk, GenerationParameters generationParameters) {
+        private StructureCallbackImpl(Chunk chunk) {
             this.chunk = chunk;
-            this.generationParameters = generationParameters;
         }
 
         @Override

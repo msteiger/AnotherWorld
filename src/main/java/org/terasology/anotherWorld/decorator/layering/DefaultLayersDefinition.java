@@ -80,7 +80,7 @@ public class DefaultLayersDefinition implements LayersDefinition {
         chunk.setBlock(x, 0, z, layeringConfig.getBottomBlock());
     }
 
-    private static class LayerDefinition {
+    private static final class LayerDefinition {
         private PDist thickness;
         private Block block;
         private boolean generateUnderSee;

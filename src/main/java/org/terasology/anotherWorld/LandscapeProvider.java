@@ -21,7 +21,7 @@ import org.terasology.math.Vector2i;
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public interface LandscapeProvider {
-    public void initialize(String seed, int seaLevel, int maxLevel);
+    void initialize(String seed, int seaLevel, int maxLevel);
 
-    public int getHeight(Vector2i position);
+    int getHeight(Vector2i position);
 }

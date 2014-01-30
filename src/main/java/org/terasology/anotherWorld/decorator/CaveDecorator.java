@@ -53,8 +53,8 @@ public class CaveDecorator implements ChunkDecorator {
     }
 
     @Override
-    public void initializeWithSeed(String seed) {
-        this.seed = seed;
+    public void initializeWithSeed(String worldSeed) {
+        this.seed = worldSeed;
 
         caveDefinition = new VeinsStructureDefinition(caveFrequency,
                 new VeinsStructureDefinition.VeinsBlockProvider() {
@@ -74,7 +74,7 @@ public class CaveDecorator implements ChunkDecorator {
 
     @Override
     public void generateInChunk(Chunk chunk, GenerationParameters generationParameters) {
-        Structure.StructureCallback callback = new StructureCallbackImpl(chunk, generationParameters);
+        Structure.StructureCallback callback = new StructureCallbackImpl(chunk);
 
         Collection<Structure> structures = caveDefinition.generateStructures(chunk, seed, generationParameters);
         for (Structure structure : structures) {
@@ -82,13 +82,11 @@ public class CaveDecorator implements ChunkDecorator {
         }
     }
 
-    private class StructureCallbackImpl implements Structure.StructureCallback {
+    private final class StructureCallbackImpl implements Structure.StructureCallback {
         private Chunk chunk;
-        private GenerationParameters generationParameters;
 
-        private StructureCallbackImpl(Chunk chunk, GenerationParameters generationParameters) {
+        private StructureCallbackImpl(Chunk chunk) {
             this.chunk = chunk;
-            this.generationParameters = generationParameters;
         }
 
         @Override

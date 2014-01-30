@@ -35,8 +35,6 @@ import java.util.List;
 public abstract class PluggableWorldGenerator implements WorldGenerator {
     private static final Logger logger = LoggerFactory.getLogger(PluggableWorldGenerator.class);
 
-    private String seed;
-
     private Vector3i chunkSize = new Vector3i(16, 256, 16);
 
     private List<ChunkDecorator> chunkDecorators = new LinkedList<>();
@@ -50,8 +48,8 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     private SimpleUri uri;
     private float biomeDiversity = 0.5f;
 
-    private AlphaFunction temperatureFunction = IdentityAlphaFunction.singleton;
-    private AlphaFunction humidityFunction = IdentityAlphaFunction.singleton;
+    private AlphaFunction temperatureFunction = IdentityAlphaFunction.singleton();
+    private AlphaFunction humidityFunction = IdentityAlphaFunction.singleton();
 
     private TerrainShapeProvider terrainShapeProvider;
 
@@ -102,8 +100,6 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
     @Override
     public void setWorldSeed(String seed) {
-        this.seed = seed;
-
         setupGenerator();
 
         landscapeProvider.initialize(seed, seaLevel, maxLevel);

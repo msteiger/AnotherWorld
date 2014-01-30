@@ -118,14 +118,15 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
 
     public void generateBranch(List<Structure> result, float length, float maxHeight, float minHeight, Transform mat, BezierTubeStructure parent, Random random) {
         float[] pos = new float[3];
+        float remainingLength = length;
         // create segments until max branch length is reached
-        while (length > 0) {
+        while (remainingLength > 0) {
             // determine segment length & radius
             float segLen = segmentLength.getValue(random);
-            if (segLen > length) {
-                segLen = length;
+            if (segLen > remainingLength) {
+                segLen = remainingLength;
             }
-            length -= segLen;
+            remainingLength -= segLen;
             segLen /= 2;
             float segRad = segmentRadius.getValue(random);
 
@@ -148,7 +149,7 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
             // validate coordinates for next segment
             if (pos[1] > maxHeight || pos[1] < minHeight) {
                 return;    // branch extends outside of vertical range
-            } else if (length <= 0) {
+            } else if (remainingLength <= 0) {
                 return; // remaining length is  <= 0
             }
 
@@ -162,7 +163,7 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
                 fkMat.rotate(segmentAngle.getValue(fkRandom), (float) Math.cos(axisTheta), (float) Math.sin(axisTheta), 0);
                 // create forked branch
                 float fkLenMult = segmentForkLengthMultiplier.getValue(fkRandom);
-                generateBranch(result, length * (fkLenMult > 1F ? 1F : fkLenMult), maxHeight, minHeight, fkMat, tube, fkRandom);
+                generateBranch(result, remainingLength * (fkLenMult > 1F ? 1F : fkLenMult), maxHeight, minHeight, fkMat, tube, fkRandom);
             }
 
             // rotate relative to arbitrary axis in XY plane
@@ -171,19 +172,19 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
         }
     }
 
-    private class BezierTubeStructure implements Structure {
+    private final class BezierTubeStructure implements Structure {
         // center and forward control points
-        protected float[] mid;
-        protected float[] end;
+        private float[] mid;
+        private float[] end;
         // radius
-        protected final float rad;
+        private final float rad;
         // neighbors
-        protected BezierTubeStructure prev;
+        private BezierTubeStructure prev;
         private Random random;
-        protected BezierTubeStructure next;
+        private BezierTubeStructure next;
         // interpolation context & persistent transform object
-        protected final InterpolationContext context;
-        protected final Transform mat;
+        private final InterpolationContext context;
+        private final Transform mat;
         private Vector3i minPosition;
         private Vector3i maxPosition;
 
@@ -236,20 +237,17 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
          * @param t   interpolating parameter between [-1,1]
          */
         public void interpolatePosition(float[] pos, float t) {
-            if (t > 0 && next != null) // valid forward neighbor
-            {
+            if (t > 0 && next != null) { // valid forward neighbor
                 float nt = 1 - t;
                 pos[0] = nt * nt * mid[0] + 2 * t * nt * end[0] + t * t * next.mid[0];
                 pos[1] = nt * nt * mid[1] + 2 * t * nt * end[1] + t * t * next.mid[1];
                 pos[2] = nt * nt * mid[2] + 2 * t * nt * end[2] + t * t * next.mid[2];
-            } else if (t < 0 && prev != null) // valid backward neighbor
-            {
+            } else if (t < 0 && prev != null) { // valid backward neighbor
                 float nt = 1 + t;
                 pos[0] = nt * nt * mid[0] - 2 * t * nt * prev.end[0] + t * t * prev.mid[0];
                 pos[1] = nt * nt * mid[1] - 2 * t * nt * prev.end[1] + t * t * prev.mid[1];
                 pos[2] = nt * nt * mid[2] - 2 * t * nt * prev.end[2] + t * t * prev.mid[2];
-            } else // no neighbor in specified direction - simple linear interpolation
-            {
+            } else { // no neighbor in specified direction - simple linear interpolation
                 float nt = 1 - 2 * t;
                 pos[0] = nt * mid[0] + 2 * t * end[0];
                 pos[1] = nt * mid[1] + 2 * t * end[1];
@@ -265,18 +263,15 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
          * @param t   interpolating parameter between [-1,1]
          */
         public void interpolateDerivative(float[] der, float t) {
-            if (t > 0 && next != null) // valid forward neighbor
-            {
+            if (t > 0 && next != null) { // valid forward neighbor
                 der[0] = 2 * ((1 - t) * (end[0] - mid[0]) + t * (next.mid[0] - end[0]));
                 der[1] = 2 * ((1 - t) * (end[1] - mid[1]) + t * (next.mid[1] - end[1]));
                 der[2] = 2 * ((1 - t) * (end[2] - mid[2]) + t * (next.mid[2] - end[2]));
-            } else if (t < 0 && prev != null) // valid backward neighbor
-            {
+            } else if (t < 0 && prev != null) { // valid backward neighbor
                 der[0] = 2 * ((1 + t) * (mid[0] - prev.end[0]) - t * (prev.end[0] - prev.mid[0]));
                 der[1] = 2 * ((1 + t) * (mid[1] - prev.end[1]) - t * (prev.end[1] - prev.mid[1]));
                 der[2] = 2 * ((1 + t) * (mid[2] - prev.end[2]) - t * (prev.end[2] - prev.mid[2]));
-            } else // no neighbor in specified direction
-            {
+            } else { // no neighbor in specified direction
                 der[0] = 2 * (end[0] - mid[0]);
                 der[1] = 2 * (end[1] - mid[1]);
                 der[2] = 2 * (end[2] - mid[2]);
@@ -305,10 +300,86 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
             }
         }
 
+        @Override
+        public void generateStructure(StructureCallback callback) {
+            // get min & max radii in local coordinates
+            float maxR = blockRadiusMultiplier.getMax();
+            if (maxR < 0) {
+                maxR = 0;
+            }
+            float maxR2 = maxR * maxR;
+            float minR = blockRadiusMultiplier.getMin();
+            if (minR < 0) {
+                minR = 0;
+            }
+            float minR2 = minR * minR;
+
+            // interpolate over segment
+            float[] pos = new float[3];
+            int innerStep = 1;
+            context.init(0, true);
+            do {
+                // determine step size and count
+                innerStep = (int) context.radius / 4 + 1;
+                if (context.radius <= 0) {
+                    continue; // zero radius
+                }
+                float step = 0.7F * innerStep / context.radius;
+                int stepCount = (int) (maxR / step) + 1;
+                boolean oneBlockThreshold = (context.radius * maxR < 0.25F); // radius is too small even for a single block
+                // build transformation
+                mat.identity();
+                mat.translate(context.pos[0], context.pos[1], context.pos[2]);
+                mat.rotateZInto(context.der[0], context.der[1], context.der[2]);
+                mat.scale(context.radius, context.radius, innerStep);
+
+                // iterate through blocks in the local XY plane
+                for (int x = -stepCount; x < stepCount; x++) {
+                    for (int y = -stepCount; y < stepCount; y++) {
+                        pos[0] = x * step;
+                        pos[1] = y * step;
+                        pos[2] = 0;
+                        // check radius
+                        float r2 = pos[0] * pos[0] + pos[1] * pos[1];
+                        if (r2 > maxR2) {
+                            continue; // block is outside maximum possible radius
+                        }
+                        if (r2 > minR2) { // block is near tube surface
+                            float rMax = blockRadiusMultiplier.getValue(random);
+                            if (r2 > rMax * rMax) {
+                                continue; // block is outside maximum radius
+                            }
+                        }
+                        if (oneBlockThreshold && context.radius * maxR * 4 < random.nextFloat()) {
+                            continue; // blocks must pass random check for very thin tubes
+                        }
+                        // transform into world coordinates
+                        mat.transformVector(pos);
+                        int baseX = (int) Math.floor(pos[0]) - innerStep / 2;
+                        int baseY = (int) Math.floor(pos[1]) - innerStep / 2;
+                        int baseZ = (int) Math.floor(pos[2]) - innerStep / 2;
+                        // iterate over inner group
+                        for (int blockX = baseX; blockX < innerStep + baseX; blockX++) {
+                            for (int blockY = baseY; blockY < innerStep + baseY; blockY++) {
+                                for (int blockZ = baseZ; blockZ < innerStep + baseZ; blockZ++) {
+                                    if (blockDensity.getIntValue(random) < 1) {
+                                        continue; // density check failed
+                                    }
+
+                                    callback.replaceBlock(new Vector3i(blockX, blockY, blockZ), 1, veinsBlockProvider.getBranchBlock());
+                                }
+                            }
+                        }
+                    }
+                }
+                // next interpolation step
+            } while (context.advance(0.7F * innerStep));
+        }
+
         /**
          * Context information for discrete interpolation over the segement
          */
-        private class InterpolationContext {
+        private final class InterpolationContext {
             public float[] pos;        // position
             public float[] der;        // normalized derivative vector
             public float derLen;    // norm of derivative
@@ -354,7 +425,9 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
                     der[2] /= derLen;
                 } else {
                     derLen = 0;
-                    der[0] = der[1] = der[2] = 0;
+                    der[0] = 0;
+                    der[1] = 0;
+                    der[2] = 0;
                 }
                 // set initial error to zero
                 err = 0;
@@ -420,87 +493,10 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
                 return (t < 0.5F);
             }
         }
-
-        @Override
-        public void generateStructure(StructureCallback callback) {
-            // get min & max radii in local coordinates
-            float maxR = blockRadiusMultiplier.getMax();
-            if (maxR < 0) {
-                maxR = 0;
-            }
-            float maxR2 = maxR * maxR;
-            float minR = blockRadiusMultiplier.getMin();
-            if (minR < 0) {
-                minR = 0;
-            }
-            float minR2 = minR * minR;
-
-            // interpolate over segment
-            float[] pos = new float[3];
-            int innerStep = 1;
-            context.init(0, true);
-            do {
-                // determine step size and count
-                innerStep = (int) context.radius / 4 + 1;
-                if (context.radius <= 0) {
-                    continue; // zero radius
-                }
-                float step = 0.7F * innerStep / context.radius;
-                int stepCount = (int) (maxR / step) + 1;
-                boolean oneBlockThreshold = (context.radius * maxR < 0.25F); // radius is too small even for a single block
-                // build transformation
-                mat.identity();
-                mat.translate(context.pos[0], context.pos[1], context.pos[2]);
-                mat.rotateZInto(context.der[0], context.der[1], context.der[2]);
-                mat.scale(context.radius, context.radius, innerStep);
-
-                // iterate through blocks in the local XY plane
-                for (int x = -stepCount; x < stepCount; x++) {
-                    for (int y = -stepCount; y < stepCount; y++) {
-                        pos[0] = x * step;
-                        pos[1] = y * step;
-                        pos[2] = 0;
-                        // check radius
-                        float r2 = pos[0] * pos[0] + pos[1] * pos[1];
-                        if (r2 > maxR2) {
-                            continue; // block is outside maximum possible radius
-                        }
-                        if (r2 > minR2) // block is near tube surface
-                        {
-                            float rMax = blockRadiusMultiplier.getValue(random);
-                            if (r2 > rMax * rMax) {
-                                continue; // block is outside maximum radius
-                            }
-                        }
-                        if (oneBlockThreshold && context.radius * maxR * 4 < random.nextFloat()) {
-                            continue; // blocks must pass random check for very thin tubes
-                        }
-                        // transform into world coordinates
-                        mat.transformVector(pos);
-                        int baseX = (int) Math.floor(pos[0]) - innerStep / 2;
-                        int baseY = (int) Math.floor(pos[1]) - innerStep / 2;
-                        int baseZ = (int) Math.floor(pos[2]) - innerStep / 2;
-                        // iterate over inner group
-                        for (int blockX = baseX; blockX < innerStep + baseX; blockX++) {
-                            for (int blockY = baseY; blockY < innerStep + baseY; blockY++) {
-                                for (int blockZ = baseZ; blockZ < innerStep + baseZ; blockZ++) {
-                                    if (blockDensity.getIntValue(random) < 1) {
-                                        continue; // density check failed
-                                    }
-
-                                    callback.replaceBlock(new Vector3i(blockX, blockY, blockZ), 1, veinsBlockProvider.getBranchBlock());
-                                }
-                            }
-                        }
-                    }
-                }
-                // next interpolation step
-            } while (context.advance(0.7F * innerStep));
-        }
     }
 
 
-    private class SolidSphereStructure implements Structure {
+    private final class SolidSphereStructure implements Structure {
         protected final Transform mat;
         protected final Transform invMat;
         private Vector3i minPosition;
@@ -573,8 +569,7 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
                         if (r2 > maxR2) {
                             continue; // block is outside maximum possible radius
                         }
-                        if (r2 > minR2) // block is near ellipsoid surface
-                        {
+                        if (r2 > minR2) { // block is near ellipsoid surface
                             float rMax = blockRadiusMultiplier.getValue(random);
                             if (r2 > rMax * rMax) {
                                 continue; // block is outside maximum radius
@@ -592,9 +587,8 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
     }
 
     public interface VeinsBlockProvider {
-        public Block getClusterBlock(float distanceFromCenter);
+        Block getClusterBlock(float distanceFromCenter);
 
-        public Block getBranchBlock();
+        Block getBranchBlock();
     }
-
 }

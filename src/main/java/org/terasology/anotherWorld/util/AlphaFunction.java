@@ -26,5 +26,5 @@ package org.terasology.anotherWorld.util;
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public interface AlphaFunction {
-    public float execute(float value);
+    float execute(float value);
 }

@@ -17,6 +17,7 @@ package org.terasology.anotherWorld.util;
 
 import org.terasology.utilities.random.Random;
 
+import java.util.Deque;
 import java.util.LinkedList;
 
 /**
@@ -26,7 +27,7 @@ public class ChanceRandomizer<T> {
     private int granularity;
 
     private float chanceSum;
-    private LinkedList<ObjectChance<T>> objectChances = new LinkedList<>();
+    private Deque<ObjectChance<T>> objectChances = new LinkedList<>();
 
     private Object[] lookupArray;
 
@@ -60,7 +61,7 @@ public class ChanceRandomizer<T> {
         return (T) lookupArray[random.nextInt(granularity)];
     }
 
-    private static class ObjectChance<T> {
+    private static final class ObjectChance<T> {
         private float chance;
         private T object;
 
