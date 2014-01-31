@@ -15,10 +15,11 @@
  */
 package org.terasology.anotherWorld.decorator.structure;
 
-import org.terasology.anotherWorld.util.NoiseGenerator;
 import org.terasology.anotherWorld.util.PDist;
 import org.terasology.anotherWorld.util.Transform;
 import org.terasology.math.Vector3i;
+import org.terasology.utilities.procedural.Noise3D;
+import org.terasology.utilities.procedural.SimplexNoise;
 import org.terasology.utilities.random.Random;
 import org.terasology.world.block.Block;
 
@@ -95,7 +96,7 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
         protected final Transform mat;
         protected final Transform invMat;
         // noise generator
-        protected final NoiseGenerator noiseGen;
+        protected final Noise3D noiseGen;
         protected final float sizeNoiseMagnitude;
         protected final int noiseLevels;
         private Vector3i minPosition;
@@ -107,7 +108,7 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
             this.random = random;
             this.chunkSize = chunkSize;
             // create noise generator
-            noiseGen = new NoiseGenerator(random);
+            noiseGen = new SimplexNoise(random.nextInt());
             sizeNoiseMagnitude = Math.abs(noiseLevel.getValue(random));
 
             // build transformed bounding box from the local BB for a unit sphere
