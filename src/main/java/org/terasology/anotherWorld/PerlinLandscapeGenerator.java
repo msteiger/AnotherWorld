@@ -20,6 +20,7 @@ import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector2i;
 import org.terasology.utilities.procedural.BrownianNoise2D;
+import org.terasology.utilities.procedural.Noise2D;
 import org.terasology.utilities.procedural.SimplexNoise;
 
 import java.util.Iterator;
@@ -33,45 +34,51 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
     public static final int CACHE_SIZE = 10000;
     private Map<Vector2i, Integer> heightCache = new LinkedHashMap<>();
 
-    private BrownianNoise2D noise;
+    private Noise2D noise;
     private double noiseScale;
 
     private float seaFrequency;
+    private float terrainNoiseMultiplier;
     private AlphaFunction generalHeightFunction;
     private AlphaFunction heightBelowSeaLevelFunction;
     private AlphaFunction heightAboveSeaLevelFunction;
-    private float terrainDiversity;
-    private AlphaFunction terrainFunction;
+    private float hillynessDiversity;
+    private AlphaFunction hillynessFunction;
     private TerrainDeformation terrainDeformation;
     private int seaLevel;
     private int maxLevel;
 
+    private final float minMultiplier = 0.0005f;
+    private final float maxMultiplier = 0.01f;
+
     @Deprecated
     public PerlinLandscapeGenerator(float seaFrequency, AlphaFunction heightAboveSeaLevelFunction,
-                                    float terrainDiversity, AlphaFunction terrainFunction) {
-        this(seaFrequency, IdentityAlphaFunction.singleton(), IdentityAlphaFunction.singleton(),
-                heightAboveSeaLevelFunction, terrainDiversity, terrainFunction);
+                                    float hillynessDiversity, AlphaFunction hillynessFunction) {
+        this(seaFrequency, 0.4216f, IdentityAlphaFunction.singleton(), IdentityAlphaFunction.singleton(),
+                heightAboveSeaLevelFunction, hillynessDiversity, hillynessFunction);
     }
 
-    public PerlinLandscapeGenerator(float seaFrequency, AlphaFunction generalHeightFunction,
+    public PerlinLandscapeGenerator(float seaFrequency, float terrainDiversity, AlphaFunction generalTerrainFunction,
                                     AlphaFunction heightBelowSeaLevelFunction,
                                     AlphaFunction heightAboveSeaLevelFunction,
-                                    float terrainDiversity, AlphaFunction terrainFunction) {
+                                    float hillinessDiversity, AlphaFunction hillynessFunction) {
         this.seaFrequency = seaFrequency;
-        this.generalHeightFunction = generalHeightFunction;
+        this.terrainNoiseMultiplier = minMultiplier + terrainDiversity * (maxMultiplier - minMultiplier);
+        this.generalHeightFunction = generalTerrainFunction;
         this.heightBelowSeaLevelFunction = heightBelowSeaLevelFunction;
         this.heightAboveSeaLevelFunction = heightAboveSeaLevelFunction;
-        this.terrainDiversity = terrainDiversity;
-        this.terrainFunction = terrainFunction;
+        this.hillynessDiversity = hillinessDiversity;
+        this.hillynessFunction = hillynessFunction;
     }
 
     @Override
     public void initialize(String seed, int sea, int max) {
         seaLevel = sea;
         maxLevel = max;
-        noise = new BrownianNoise2D(new SimplexNoise(seed.hashCode()), 6);
-        noiseScale = noise.getScale();
-        terrainDeformation = new TerrainDeformation(seed, terrainDiversity, terrainFunction);
+        BrownianNoise2D brownianNoise = new BrownianNoise2D(new SimplexNoise(seed.hashCode()), 6);
+        noise = brownianNoise;
+        noiseScale = brownianNoise.getScale();
+        terrainDeformation = new TerrainDeformation(seed, hillynessDiversity, hillynessFunction);
     }
 
     @Override
@@ -114,7 +121,7 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
         for (int x = worldX - scanArea; x <= worldX + scanArea; x++) {
             int zScan = (int) Math.sqrt(scanArea * scanArea - (x - worldX) * (x - worldX));
             for (int z = worldZ - zScan; z <= worldZ + zScan; z++) {
-                noiseValue += noise.noise(0.004 * x, 0.004 * z) / noiseScale;
+                noiseValue += noise.noise(terrainNoiseMultiplier * x, terrainNoiseMultiplier * z) / noiseScale;
                 divider++;
             }
         }
