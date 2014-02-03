@@ -16,6 +16,7 @@
 package org.terasology.anotherWorld;
 
 import org.terasology.anotherWorld.util.AlphaFunction;
+import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector2i;
 import org.terasology.utilities.procedural.BrownianNoise2D;
@@ -36,6 +37,8 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
     private double noiseScale;
 
     private float seaFrequency;
+    private AlphaFunction generalHeightFunction;
+    private AlphaFunction heightBelowSeaLevelFunction;
     private AlphaFunction heightAboveSeaLevelFunction;
     private float terrainDiversity;
     private AlphaFunction terrainFunction;
@@ -43,9 +46,20 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
     private int seaLevel;
     private int maxLevel;
 
+    @Deprecated
     public PerlinLandscapeGenerator(float seaFrequency, AlphaFunction heightAboveSeaLevelFunction,
                                     float terrainDiversity, AlphaFunction terrainFunction) {
+        this(seaFrequency, IdentityAlphaFunction.singleton(), IdentityAlphaFunction.singleton(),
+                heightAboveSeaLevelFunction, terrainDiversity, terrainFunction);
+    }
+
+    public PerlinLandscapeGenerator(float seaFrequency, AlphaFunction generalHeightFunction,
+                                    AlphaFunction heightBelowSeaLevelFunction,
+                                    AlphaFunction heightAboveSeaLevelFunction,
+                                    float terrainDiversity, AlphaFunction terrainFunction) {
         this.seaFrequency = seaFrequency;
+        this.generalHeightFunction = generalHeightFunction;
+        this.heightBelowSeaLevelFunction = heightBelowSeaLevelFunction;
         this.heightAboveSeaLevelFunction = heightAboveSeaLevelFunction;
         this.terrainDiversity = terrainDiversity;
         this.terrainFunction = terrainFunction;
@@ -70,7 +84,9 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
         float hillyness = terrainDeformation.getHillyness(position.x, position.y);
         float noiseValue = getNoiseInWorld(hillyness, position.x, position.y);
         if (noiseValue < seaFrequency) {
-            height = (int) (seaLevel * noiseValue / seaFrequency);
+            float alphaBelowSeaLevel = (noiseValue / seaFrequency);
+            float resultAlpha = heightBelowSeaLevelFunction.execute(alphaBelowSeaLevel);
+            height = (int) (seaLevel * resultAlpha);
         } else {
             // Number in range 0<=alpha<1
             float alphaAboveSeaLevel = (noiseValue - seaFrequency) / (1 - seaFrequency);
@@ -103,6 +119,6 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
             }
         }
         noiseValue /= divider;
-        return (float) TeraMath.clamp((noiseValue + 1.0) / 2);
+        return generalHeightFunction.execute((float) TeraMath.clamp((noiseValue + 1.0) / 2));
     }
 }
