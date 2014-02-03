@@ -18,6 +18,7 @@ package org.terasology.anotherWorld.decorator;
 import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.GenerationParameters;
 import org.terasology.anotherWorld.util.Filter;
+import org.terasology.anotherWorld.util.Provider;
 import org.terasology.math.Vector2i;
 import org.terasology.world.block.Block;
 import org.terasology.world.chunks.Chunk;
@@ -27,24 +28,39 @@ import org.terasology.world.chunks.Chunk;
  */
 public class BeachDecorator implements ChunkDecorator {
     private Filter<Block> blockFilter;
-    private Block beachBlock;
+    private Provider<Block> beachBlockProvider;
     private int aboveSeaLevel;
     private int belowSeaLevel;
 
-    public BeachDecorator(Filter<Block> blockFilter, Block beachBlock, int aboveSeaLevel, int belowSeaLevel) {
+    public BeachDecorator(Filter<Block> blockFilter, final Block beachBlock, int aboveSeaLevel, int belowSeaLevel) {
+        this(blockFilter, new Provider<Block>() {
+            @Override
+            public void initializeWithSeed(String seed) {
+            }
+
+            @Override
+            public Block provide(int x, int y, int z) {
+                return beachBlock;
+            }
+        }, aboveSeaLevel, belowSeaLevel);
+    }
+
+    public BeachDecorator(Filter<Block> blockFilter, Provider<Block> beachBlockProvider, int aboveSeaLevel, int belowSeaLevel) {
         this.blockFilter = blockFilter;
-        this.beachBlock = beachBlock;
+        this.beachBlockProvider = beachBlockProvider;
         this.aboveSeaLevel = aboveSeaLevel;
         this.belowSeaLevel = belowSeaLevel;
     }
 
     @Override
     public void initializeWithSeed(String seed) {
+        beachBlockProvider.initializeWithSeed(seed);
     }
 
     @Override
     public void generateInChunk(Chunk chunk, GenerationParameters generationParameters) {
         int chunkStartX = chunk.getChunkWorldPosX();
+        int chunkStartY = chunk.getChunkWorldPosY();
         int chunkStartZ = chunk.getChunkWorldPosZ();
         for (int x = 0; x < chunk.getChunkSizeX(); x++) {
             for (int z = 0; z < chunk.getChunkSizeZ(); z++) {
@@ -53,7 +69,7 @@ public class BeachDecorator implements ChunkDecorator {
                 if (groundLevel <= seaLevel + aboveSeaLevel && groundLevel >= seaLevel - belowSeaLevel) {
                     for (int y = seaLevel - belowSeaLevel; y < seaLevel + aboveSeaLevel; y++) {
                         if (blockFilter.accepts(chunk.getBlock(x, y, z))) {
-                            chunk.setBlock(x, y, z, beachBlock);
+                            chunk.setBlock(x, y, z, beachBlockProvider.provide(chunkStartX + x, chunkStartY + y, chunkStartZ + z));
                         }
                     }
                 }
