@@ -40,7 +40,7 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     private List<ChunkDecorator> chunkDecorators = new LinkedList<>();
     private List<FeatureGenerator> featureGenerators = new LinkedList<>();
 
-    private BiomeProviderImpl biomeProvider;
+    private BiomeProvider biomeProvider;
     private int seaLevel = 32;
     private int maxLevel = 220;
 
