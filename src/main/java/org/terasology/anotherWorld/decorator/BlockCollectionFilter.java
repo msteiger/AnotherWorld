@@ -15,7 +15,7 @@
  */
 package org.terasology.anotherWorld.decorator;
 
-import org.terasology.anotherWorld.util.Filter;
+import com.google.common.base.Predicate;
 import org.terasology.world.block.Block;
 
 import java.util.Collection;
@@ -24,7 +24,7 @@ import java.util.Collections;
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public class BlockCollectionFilter implements Filter<Block> {
+public class BlockCollectionFilter implements Predicate<Block> {
     private Collection<Block> blocks;
 
     public BlockCollectionFilter(Block block) {
@@ -36,7 +36,7 @@ public class BlockCollectionFilter implements Filter<Block> {
     }
 
     @Override
-    public boolean accepts(Block block) {
+    public boolean apply(Block block) {
         return blocks.contains(block);
     }
 }

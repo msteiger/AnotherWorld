@@ -15,9 +15,9 @@
  */
 package org.terasology.anotherWorld.decorator;
 
+import com.google.common.base.Predicate;
 import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.GenerationParameters;
-import org.terasology.anotherWorld.util.Filter;
 import org.terasology.anotherWorld.util.Provider;
 import org.terasology.math.Vector2i;
 import org.terasology.world.block.Block;
@@ -27,12 +27,12 @@ import org.terasology.world.chunks.Chunk;
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class BeachDecorator implements ChunkDecorator {
-    private Filter<Block> blockFilter;
+    private Predicate<Block> blockFilter;
     private Provider<Block> beachBlockProvider;
     private int aboveSeaLevel;
     private int belowSeaLevel;
 
-    public BeachDecorator(Filter<Block> blockFilter, final Block beachBlock, int aboveSeaLevel, int belowSeaLevel) {
+    public BeachDecorator(Predicate<Block> blockFilter, final Block beachBlock, int aboveSeaLevel, int belowSeaLevel) {
         this(blockFilter, new Provider<Block>() {
             @Override
             public void initializeWithSeed(String seed) {
@@ -45,7 +45,7 @@ public class BeachDecorator implements ChunkDecorator {
         }, aboveSeaLevel, belowSeaLevel);
     }
 
-    public BeachDecorator(Filter<Block> blockFilter, Provider<Block> beachBlockProvider, int aboveSeaLevel, int belowSeaLevel) {
+    public BeachDecorator(Predicate<Block> blockFilter, Provider<Block> beachBlockProvider, int aboveSeaLevel, int belowSeaLevel) {
         this.blockFilter = blockFilter;
         this.beachBlockProvider = beachBlockProvider;
         this.aboveSeaLevel = aboveSeaLevel;
@@ -68,7 +68,7 @@ public class BeachDecorator implements ChunkDecorator {
                 int seaLevel = generationParameters.getSeaLevel();
                 if (groundLevel <= seaLevel + aboveSeaLevel && groundLevel >= seaLevel - belowSeaLevel) {
                     for (int y = seaLevel - belowSeaLevel; y < seaLevel + aboveSeaLevel; y++) {
-                        if (blockFilter.accepts(chunk.getBlock(x, y, z))) {
+                        if (blockFilter.apply(chunk.getBlock(x, y, z))) {
                             chunk.setBlock(x, y, z, beachBlockProvider.provide(chunkStartX + x, chunkStartY + y, chunkStartZ + z));
                         }
                     }

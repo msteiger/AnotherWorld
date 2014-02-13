@@ -15,12 +15,12 @@
  */
 package org.terasology.anotherWorld.decorator;
 
+import com.google.common.base.Predicate;
 import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.GenerationParameters;
 import org.terasology.anotherWorld.decorator.structure.Structure;
 import org.terasology.anotherWorld.decorator.structure.StructureDefinition;
 import org.terasology.anotherWorld.decorator.structure.VeinsStructureDefinition;
-import org.terasology.anotherWorld.util.Filter;
 import org.terasology.anotherWorld.util.PDist;
 import org.terasology.math.Vector3i;
 import org.terasology.world.block.Block;
@@ -34,7 +34,7 @@ import java.util.Collection;
  */
 public class CaveDecorator implements ChunkDecorator {
     private String seed;
-    private Filter<Block> blockFilter;
+    private Predicate<Block> blockFilter;
     private PDist caveFrequency;
     private PDist mainCaveRadius;
     private PDist mainCaveYLevel;
@@ -42,7 +42,7 @@ public class CaveDecorator implements ChunkDecorator {
     private PDist tunnelRadius;
     private StructureDefinition caveDefinition;
 
-    public CaveDecorator(Filter<Block> blockFilter, PDist caveFrequency, PDist mainCaveRadius, PDist mainCaveYLevel,
+    public CaveDecorator(Predicate<Block> blockFilter, PDist caveFrequency, PDist mainCaveRadius, PDist mainCaveYLevel,
                          PDist tunnelLength, PDist tunnelRadius) {
         this.blockFilter = blockFilter;
         this.caveFrequency = caveFrequency;
@@ -93,7 +93,7 @@ public class CaveDecorator implements ChunkDecorator {
         public boolean canReplace(int x, int y, int z) {
             boolean validCoords = (x >= 0 && y >= 1 && z >= 0
                     && x < chunk.getChunkSizeX() && y < chunk.getChunkSizeY() && z < chunk.getChunkSizeZ());
-            return validCoords && blockFilter.accepts(chunk.getBlock(x, y, z));
+            return validCoords && blockFilter.apply(chunk.getBlock(x, y, z));
 
         }
 
