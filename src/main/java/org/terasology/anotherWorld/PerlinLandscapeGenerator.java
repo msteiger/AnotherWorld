@@ -15,6 +15,8 @@
  */
 package org.terasology.anotherWorld;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.terasology.anotherWorld.util.AlphaFunction;
 import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.math.TeraMath;
@@ -23,16 +25,13 @@ import org.terasology.utilities.procedural.BrownianNoise2D;
 import org.terasology.utilities.procedural.Noise2D;
 import org.terasology.utilities.procedural.SimplexNoise;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class PerlinLandscapeGenerator implements LandscapeProvider {
     public static final int CACHE_SIZE = 10000;
-    private Map<Vector2i, Integer> heightCache = new LinkedHashMap<>();
+    private Cache<Vector2i, Integer> heightCache = CacheBuilder.<Vector2i, Integer>newBuilder()
+            .concurrencyLevel(5).maximumSize(CACHE_SIZE).build();
 
     private Noise2D noise;
     private double noiseScale;
@@ -83,7 +82,7 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
 
     @Override
     public int getHeight(Vector2i position) {
-        Integer height = heightCache.get(position);
+        Integer height = heightCache.getIfPresent(position);
         if (height != null) {
             return height;
         }
@@ -101,14 +100,7 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
             height = (int) (seaLevel + resultAlpha * (maxLevel - seaLevel));
         }
 
-        synchronized (heightCache) {
-            heightCache.put(position, height);
-            if (heightCache.size() > CACHE_SIZE) {
-                Iterator<Vector2i> iterator = heightCache.keySet().iterator();
-                iterator.next();
-                iterator.remove();
-            }
-        }
+        heightCache.put(position, height);
 
         return height;
     }
