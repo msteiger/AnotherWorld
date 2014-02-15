@@ -24,14 +24,14 @@ import java.util.Collections;
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public class BlockCollectionFilter implements Predicate<Block> {
+public class BlockCollectionPredicate implements Predicate<Block> {
     private Collection<Block> blocks;
 
-    public BlockCollectionFilter(Block block) {
+    public BlockCollectionPredicate(Block block) {
         this(Collections.singleton(block));
     }
 
-    public BlockCollectionFilter(Collection<Block> blocks) {
+    public BlockCollectionPredicate(Collection<Block> blocks) {
         this.blocks = blocks;
     }
 

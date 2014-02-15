@@ -23,7 +23,7 @@ import org.terasology.anotherWorld.Biome;
 public class PlainsBiome implements Biome {
     public static final String ID = "AnotherWorld:Plains";
     // Rather dry and average temperature, flat preferred
-    private SweetSpot sweetSpot = new DefaultSweetSpot(0.3f, 0.4f, 0.5f, 0.4f, 0f, 0.2f, 0f, 0f);
+    private SweetSpot sweetSpot = new DefaultSweetSpot(0.3f, 0.3f, 0.5f, 0.3f, 0f, 0.4f, 0f, 0f);
 
     @Override
     public String getBiomeId() {
