@@ -18,6 +18,7 @@ package org.terasology.anotherWorld;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.anotherWorld.coreBiome.AlpineBiome;
+import org.terasology.anotherWorld.coreBiome.CliffBiome;
 import org.terasology.anotherWorld.coreBiome.DesertBiome;
 import org.terasology.anotherWorld.coreBiome.ForestBiome;
 import org.terasology.anotherWorld.coreBiome.PlainsBiome;
@@ -71,6 +72,8 @@ public class BiomeProviderImpl implements BiomeProvider {
         biomes.put(taiga.getBiomeId(), taiga);
         Biome alpine = new AlpineBiome();
         biomes.put(alpine.getBiomeId(), alpine);
+        Biome cliff = new CliffBiome();
+        biomes.put(cliff.getBiomeId(), cliff);
     }
 
     private void loadBiomes() {
