@@ -15,9 +15,9 @@
  */
 package org.terasology.anotherWorld;
 
+import com.google.common.base.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.anotherWorld.util.AlphaFunction;
 import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.engine.SimpleUri;
 import org.terasology.math.TeraMath;
@@ -48,8 +48,8 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     private SimpleUri uri;
     private float biomeDiversity = 0.5f;
 
-    private AlphaFunction temperatureFunction = IdentityAlphaFunction.singleton();
-    private AlphaFunction humidityFunction = IdentityAlphaFunction.singleton();
+    private Function<Float, Float> temperatureFunction = IdentityAlphaFunction.singleton();
+    private Function<Float, Float> humidityFunction = IdentityAlphaFunction.singleton();
 
     private TerrainShapeProvider terrainShapeProvider;
 
@@ -86,11 +86,11 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         this.biomeDiversity = biomeDiversity;
     }
 
-    public void setTemperatureFunction(AlphaFunction temperatureFunction) {
+    public void setTemperatureFunction(Function<Float, Float> temperatureFunction) {
         this.temperatureFunction = temperatureFunction;
     }
 
-    public void setHumidityFunction(AlphaFunction humidityFunction) {
+    public void setHumidityFunction(Function<Float, Float> humidityFunction) {
         this.humidityFunction = humidityFunction;
     }
 

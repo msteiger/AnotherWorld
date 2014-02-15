@@ -15,12 +15,12 @@
  */
 package org.terasology.anotherWorld.util.alpha;
 
-import org.terasology.anotherWorld.util.AlphaFunction;
+import com.google.common.base.Function;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public final class IdentityAlphaFunction implements AlphaFunction {
+public final class IdentityAlphaFunction implements Function<Float, Float> {
     private static IdentityAlphaFunction singleton = new IdentityAlphaFunction();
 
     private IdentityAlphaFunction() {
@@ -31,7 +31,7 @@ public final class IdentityAlphaFunction implements AlphaFunction {
     }
 
     @Override
-    public float execute(float value) {
-        return value;
+    public Float apply(Float input) {
+        return input;
     }
 }

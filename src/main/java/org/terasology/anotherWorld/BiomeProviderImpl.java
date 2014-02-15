@@ -15,6 +15,7 @@
  */
 package org.terasology.anotherWorld;
 
+import com.google.common.base.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.anotherWorld.coreBiome.AlpineBiome;
@@ -24,7 +25,6 @@ import org.terasology.anotherWorld.coreBiome.ForestBiome;
 import org.terasology.anotherWorld.coreBiome.PlainsBiome;
 import org.terasology.anotherWorld.coreBiome.TaigaBiome;
 import org.terasology.anotherWorld.coreBiome.TundraBiome;
-import org.terasology.anotherWorld.util.AlphaFunction;
 import org.terasology.math.TeraMath;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.generator.plugin.WorldGeneratorPluginLibrary;
@@ -47,7 +47,7 @@ public class BiomeProviderImpl implements BiomeProvider {
     private TerrainShapeProvider terrainShapeProvider;
 
     public BiomeProviderImpl(String worldSeed, int seaLevel, int maxLevel,
-                             float biomeSize, AlphaFunction temperatureFunction, AlphaFunction humidityFunction,
+                             float biomeSize, Function<Float, Float> temperatureFunction, Function<Float, Float> humidityFunction,
                              TerrainShapeProvider terrainShapeProvider) {
         this.seaLevel = seaLevel;
         this.maxLevel = maxLevel;

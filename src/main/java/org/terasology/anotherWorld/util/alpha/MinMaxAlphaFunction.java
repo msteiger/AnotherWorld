@@ -15,17 +15,17 @@
  */
 package org.terasology.anotherWorld.util.alpha;
 
-import org.terasology.anotherWorld.util.AlphaFunction;
+import com.google.common.base.Function;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public class MinMaxAlphaFunction implements AlphaFunction {
-    private AlphaFunction delegate;
+public class MinMaxAlphaFunction implements Function<Float, Float> {
+    private Function<Float, Float> delegate;
     private float min;
     private float max;
 
-    public MinMaxAlphaFunction(AlphaFunction delegate, float min, float max) {
+    public MinMaxAlphaFunction(Function<Float, Float> delegate, float min, float max) {
         if (min > max) {
             throw new IllegalArgumentException("Minimum cannot be higher than maximum");
         }
@@ -35,8 +35,8 @@ public class MinMaxAlphaFunction implements AlphaFunction {
     }
 
     @Override
-    public float execute(float value) {
-        float result = delegate.execute(value);
+    public Float apply(Float input) {
+        float result = delegate.apply(input);
         return min + (max - min) * result;
     }
 }

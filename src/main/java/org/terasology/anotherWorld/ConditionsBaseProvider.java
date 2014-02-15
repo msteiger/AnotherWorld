@@ -15,7 +15,7 @@
  */
 package org.terasology.anotherWorld;
 
-import org.terasology.anotherWorld.util.AlphaFunction;
+import com.google.common.base.Function;
 import org.terasology.math.TeraMath;
 import org.terasology.utilities.procedural.Noise2D;
 import org.terasology.utilities.procedural.SimplexNoise;
@@ -31,10 +31,10 @@ public class ConditionsBaseProvider {
     private final Noise2D humidityNoise;
 
     private float noiseMultiplier;
-    private AlphaFunction temperatureFunction;
-    private AlphaFunction humidityFunction;
+    private Function<Float, Float> temperatureFunction;
+    private Function<Float, Float> humidityFunction;
 
-    public ConditionsBaseProvider(String worldSeed, float conditionsDiversity, AlphaFunction temperatureFunction, AlphaFunction humidityFunction) {
+    public ConditionsBaseProvider(String worldSeed, float conditionsDiversity, Function<Float, Float> temperatureFunction, Function<Float, Float> humidityFunction) {
         this.temperatureFunction = temperatureFunction;
         this.humidityFunction = humidityFunction;
         temperatureNoise = new SimplexNoise(worldSeed.hashCode() + 582374);
@@ -44,11 +44,11 @@ public class ConditionsBaseProvider {
 
     public float getBaseTemperature(int x, int z) {
         double result = temperatureNoise.noise(x * noiseMultiplier, z * noiseMultiplier);
-        return temperatureFunction.execute((float) TeraMath.clamp((result + 1.0f) / 2.0f));
+        return temperatureFunction.apply((float) TeraMath.clamp((result + 1.0f) / 2.0f));
     }
 
     public float getBaseHumidity(int x, int z) {
         double result = humidityNoise.noise(x * noiseMultiplier, z * noiseMultiplier);
-        return humidityFunction.execute((float) TeraMath.clamp((result + 1.0f) / 2.0f));
+        return humidityFunction.apply((float) TeraMath.clamp((result + 1.0f) / 2.0f));
     }
 }

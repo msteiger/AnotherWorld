@@ -15,13 +15,13 @@
  */
 package org.terasology.anotherWorld.util.alpha;
 
-import org.terasology.anotherWorld.util.AlphaFunction;
+import com.google.common.base.Function;
 import org.terasology.math.TeraMath;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public class UniformNoiseAlpha implements AlphaFunction {
+public class UniformNoiseAlpha implements Function<Float, Float> {
     private static final float[] uniformNoiseLookup = new float[]{
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -124,15 +124,15 @@ public class UniformNoiseAlpha implements AlphaFunction {
             1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
             1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
 
-    private AlphaFunction delegate;
+    private Function<Float, Float> delegate;
 
-    public UniformNoiseAlpha(AlphaFunction delegate) {
+    public UniformNoiseAlpha(Function<Float, Float> delegate) {
         this.delegate = delegate;
     }
 
     @Override
-    public float execute(float value) {
-        return uniformNoiseLookup[(int) (TeraMath.clamp(delegate.execute(value)) * uniformNoiseLookup.length)];
+    public Float apply(Float input) {
+        return uniformNoiseLookup[(int) (TeraMath.clamp(delegate.apply(input)) * uniformNoiseLookup.length)];
     }
 
 // This method was used for generating the lookupArray, if more granularity is required, it can be used again

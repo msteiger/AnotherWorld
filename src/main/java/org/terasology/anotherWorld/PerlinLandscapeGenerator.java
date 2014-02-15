@@ -15,9 +15,9 @@
  */
 package org.terasology.anotherWorld;
 
+import com.google.common.base.Function;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.terasology.anotherWorld.util.AlphaFunction;
 import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector2i;
@@ -38,11 +38,11 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
 
     private float seaFrequency;
     private float terrainNoiseMultiplier;
-    private AlphaFunction generalHeightFunction;
-    private AlphaFunction heightBelowSeaLevelFunction;
-    private AlphaFunction heightAboveSeaLevelFunction;
+    private Function<Float, Float> generalHeightFunction;
+    private Function<Float, Float> heightBelowSeaLevelFunction;
+    private Function<Float, Float> heightAboveSeaLevelFunction;
     private float hillynessDiversity;
-    private AlphaFunction hillynessFunction;
+    private Function<Float, Float> hillynessFunction;
     private TerrainDeformation terrainDeformation;
     private int seaLevel;
     private int maxLevel;
@@ -51,16 +51,16 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
     private final float maxMultiplier = 0.01f;
 
     @Deprecated
-    public PerlinLandscapeGenerator(float seaFrequency, AlphaFunction heightAboveSeaLevelFunction,
-                                    float hillynessDiversity, AlphaFunction hillynessFunction) {
+    public PerlinLandscapeGenerator(float seaFrequency, Function<Float, Float> heightAboveSeaLevelFunction,
+                                    float hillynessDiversity, Function<Float, Float> hillynessFunction) {
         this(seaFrequency, 0.4216f, IdentityAlphaFunction.singleton(), IdentityAlphaFunction.singleton(),
                 heightAboveSeaLevelFunction, hillynessDiversity, hillynessFunction);
     }
 
-    public PerlinLandscapeGenerator(float seaFrequency, float terrainDiversity, AlphaFunction generalTerrainFunction,
-                                    AlphaFunction heightBelowSeaLevelFunction,
-                                    AlphaFunction heightAboveSeaLevelFunction,
-                                    float hillinessDiversity, AlphaFunction hillynessFunction) {
+    public PerlinLandscapeGenerator(float seaFrequency, float terrainDiversity, Function<Float, Float> generalTerrainFunction,
+                                    Function<Float, Float> heightBelowSeaLevelFunction,
+                                    Function<Float, Float> heightAboveSeaLevelFunction,
+                                    float hillinessDiversity, Function<Float, Float> hillynessFunction) {
         this.seaFrequency = seaFrequency;
         this.terrainNoiseMultiplier = minMultiplier + terrainDiversity * (maxMultiplier - minMultiplier);
         this.generalHeightFunction = generalTerrainFunction;
@@ -91,12 +91,12 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
         float noiseValue = getNoiseInWorld(hillyness, position.x, position.y);
         if (noiseValue < seaFrequency) {
             float alphaBelowSeaLevel = (noiseValue / seaFrequency);
-            float resultAlpha = heightBelowSeaLevelFunction.execute(alphaBelowSeaLevel);
+            float resultAlpha = heightBelowSeaLevelFunction.apply(alphaBelowSeaLevel);
             height = (int) (seaLevel * resultAlpha);
         } else {
             // Number in range 0<=alpha<1
             float alphaAboveSeaLevel = (noiseValue - seaFrequency) / (1 - seaFrequency);
-            float resultAlpha = heightAboveSeaLevelFunction.execute(alphaAboveSeaLevel);
+            float resultAlpha = heightAboveSeaLevelFunction.apply(alphaAboveSeaLevel);
             height = (int) (seaLevel + resultAlpha * (maxLevel - seaLevel));
         }
 
@@ -118,6 +118,6 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
             }
         }
         noiseValue /= divider;
-        return generalHeightFunction.execute((float) TeraMath.clamp((noiseValue + 1.0) / 2));
+        return generalHeightFunction.apply((float) TeraMath.clamp((noiseValue + 1.0) / 2));
     }
 }

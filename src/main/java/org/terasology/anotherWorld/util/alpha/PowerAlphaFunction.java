@@ -15,22 +15,22 @@
  */
 package org.terasology.anotherWorld.util.alpha;
 
-import org.terasology.anotherWorld.util.AlphaFunction;
+import com.google.common.base.Function;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public class PowerAlphaFunction implements AlphaFunction {
-    private AlphaFunction delegate;
+public class PowerAlphaFunction implements Function<Float, Float> {
+    private Function<Float, Float> delegate;
     private float power;
 
-    public PowerAlphaFunction(AlphaFunction delegate, float power) {
+    public PowerAlphaFunction(Function<Float, Float> delegate, float power) {
         this.delegate = delegate;
         this.power = power;
     }
 
     @Override
-    public float execute(float value) {
-        return (float) Math.pow(delegate.execute(value), power);
+    public Float apply(Float input) {
+        return (float) Math.pow(delegate.apply(input), power);
     }
 }
