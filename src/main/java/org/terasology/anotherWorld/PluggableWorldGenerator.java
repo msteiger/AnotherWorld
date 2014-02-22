@@ -22,6 +22,7 @@ import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.engine.SimpleUri;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
+import org.terasology.monitoring.PerformanceMonitor;
 import org.terasology.world.ChunkView;
 import org.terasology.world.chunks.Chunk;
 import org.terasology.world.generator.WorldGenerator;
@@ -122,10 +123,15 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
     @Override
     public void applySecondPass(Vector3i chunkPos, ChunkView view) {
-        GenerationParameters generationParameters = new GenerationParameters(landscapeProvider, terrainShapeProvider, biomeProvider, seaLevel, maxLevel);
+        PerformanceMonitor.startActivity("AnotherWorld - chunk second pass");
+        try {
+            GenerationParameters generationParameters = new GenerationParameters(landscapeProvider, terrainShapeProvider, biomeProvider, seaLevel, maxLevel);
 
-        for (FeatureGenerator featureGenerator : featureGenerators) {
-            featureGenerator.generateInChunk(chunkPos, view, generationParameters);
+            for (FeatureGenerator featureGenerator : featureGenerators) {
+                featureGenerator.generateInChunk(chunkPos, view, generationParameters);
+            }
+        } finally {
+            PerformanceMonitor.endActivity();
         }
     }
 
@@ -136,10 +142,15 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
     @Override
     public void createChunk(Chunk chunk) {
-        GenerationParameters generationParameters = new GenerationParameters(landscapeProvider, terrainShapeProvider, biomeProvider, seaLevel, maxLevel);
+        PerformanceMonitor.startActivity("AnotherWorld - chunk generation");
+        try {
+            GenerationParameters generationParameters = new GenerationParameters(landscapeProvider, terrainShapeProvider, biomeProvider, seaLevel, maxLevel);
 
-        for (ChunkDecorator chunkDecorator : chunkDecorators) {
-            chunkDecorator.generateInChunk(chunk, generationParameters);
+            for (ChunkDecorator chunkDecorator : chunkDecorators) {
+                chunkDecorator.generateInChunk(chunk, generationParameters);
+            }
+        } finally {
+            PerformanceMonitor.endActivity();
         }
     }
 
