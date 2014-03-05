@@ -15,6 +15,7 @@
  */
 package org.terasology.anotherWorld.util;
 
+import org.terasology.math.TeraMath;
 import org.terasology.utilities.random.Random;
 
 import java.util.Deque;
@@ -59,6 +60,10 @@ public class ChanceRandomizer<T> {
 
     public T randomizeObject(Random random) {
         return (T) lookupArray[random.nextInt(granularity)];
+    }
+
+    public T getObject(float value) {
+        return (T) lookupArray[TeraMath.floorToInt(value * lookupArray.length)];
     }
 
     private static final class ObjectChance<T> {
