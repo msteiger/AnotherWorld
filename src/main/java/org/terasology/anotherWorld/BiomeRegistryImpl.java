@@ -15,7 +15,6 @@
  */
 package org.terasology.anotherWorld;
 
-import com.google.common.base.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.anotherWorld.coreBiome.AlpineBiome;
@@ -25,36 +24,22 @@ import org.terasology.anotherWorld.coreBiome.ForestBiome;
 import org.terasology.anotherWorld.coreBiome.PlainsBiome;
 import org.terasology.anotherWorld.coreBiome.TaigaBiome;
 import org.terasology.anotherWorld.coreBiome.TundraBiome;
-import org.terasology.math.TeraMath;
 import org.terasology.registry.CoreRegistry;
+import org.terasology.registry.Share;
 import org.terasology.world.generator.plugin.WorldGeneratorPluginLibrary;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
-public class BiomeProviderImpl implements BiomeProvider {
-    private static final Logger logger = LoggerFactory.getLogger(BiomeProviderImpl.class);
+@Share(BiomeRegistry.class)
+public class BiomeRegistryImpl implements BiomeRegistry {
+    private static final Logger logger = LoggerFactory.getLogger(BiomeRegistryImpl.class);
 
-    private ConditionsBaseProvider conditions;
     private Map<String, Biome> biomes = new HashMap<>();
 
-    private int seaLevel;
-    private int maxLevel;
-    private TerrainShapeProvider terrainShapeProvider;
 
-    public BiomeProviderImpl(String worldSeed, int seaLevel, int maxLevel,
-                             float biomeSize, Function<Float, Float> temperatureFunction, Function<Float, Float> humidityFunction,
-                             TerrainShapeProvider terrainShapeProvider) {
-        this.seaLevel = seaLevel;
-        this.maxLevel = maxLevel;
-        this.terrainShapeProvider = terrainShapeProvider;
-
-        conditions = new ConditionsBaseProvider(worldSeed, biomeSize, temperatureFunction, humidityFunction);
-
+    public BiomeRegistryImpl() {
         initializeCoreBiomes();
         loadBiomes();
     }
@@ -118,68 +103,7 @@ public class BiomeProviderImpl implements BiomeProvider {
         return biomes.get(biomeId);
     }
 
-    public Biome getBiomeAt(int x, int y, int z) {
-        float temp = getTemperature(x, y, z);
-        float hum = getHumidity(x, y, z);
-        float terrain = terrainShapeProvider.getHillyness(x, z);
-
-        return getBestBiomeMatch(temp, hum, terrain, y);
-    }
-
-
-    public float getTemperature(int x, int y, int z) {
-        float temperatureBase = conditions.getBaseTemperature(x, z);
-        if (y <= seaLevel) {
-            return temperatureBase;
-        }
-
-        if (y >= maxLevel) {
-            return 0;
-        }
-        // The higher above see level - the colder
-        return temperatureBase * (1f * (maxLevel - y) / (maxLevel - seaLevel));
-    }
-
-    public float getHumidity(int x, int y, int z) {
-        float humidityBase = conditions.getBaseHumidity(x, z);
-        if (y <= seaLevel) {
-            return humidityBase;
-        }
-
-        if (y >= maxLevel) {
-            return 0;
-        }
-        // The higher above see level - the less humid
-        return humidityBase * (1f * (maxLevel - y) / (maxLevel - seaLevel));
-    }
-
-    private Biome getBestBiomeMatch(float temp, float hum, float terrain, int yLevel) {
-        float height;
-        if (yLevel <= seaLevel) {
-            height = 0f;
-        } else {
-            height = (float) TeraMath.clamp(1f * (yLevel - seaLevel) / (maxLevel - seaLevel));
-        }
-
-        Biome chosenBiome = null;
-        float maxPriority = 0;
-
-        for (Biome biome : biomes.values()) {
-            final Biome.SweetSpot sweetSpot = biome.getSweetSpot();
-            float matchPriority = 0;
-
-            matchPriority += sweetSpot.getAboveSeaLevelWeight() * (1 - Math.abs(sweetSpot.getAboveSeaLevel() - height));
-            matchPriority += sweetSpot.getHumidityWeight() * (1 - Math.abs(sweetSpot.getHumidity() - hum));
-            matchPriority += sweetSpot.getTemperatureWeight() * (1 - Math.abs(sweetSpot.getTemperature() - temp));
-            matchPriority += sweetSpot.getTerrainWeight() * (1 - Math.abs(sweetSpot.getTerrain() - terrain));
-
-            matchPriority *= biome.getRarity();
-
-            if (matchPriority > maxPriority) {
-                chosenBiome = biome;
-                maxPriority = matchPriority;
-            }
-        }
-        return chosenBiome;
+    public Iterable<Biome> getBiomes() {
+        return biomes.values();
     }
 }

@@ -18,48 +18,46 @@ package org.terasology.anotherWorld;
 import com.google.common.base.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terasology.anotherWorld.generation.BiomeProvider;
+import org.terasology.anotherWorld.generation.MaxLevelProvider;
+import org.terasology.anotherWorld.generation.PerlinSurfaceHeightProvider;
 import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
+import org.terasology.core.world.generator.facetProviders.SeaLevelProvider;
+import org.terasology.core.world.generator.facetProviders.SurfaceToDensityProvider;
 import org.terasology.engine.SimpleUri;
-import org.terasology.math.TeraMath;
-import org.terasology.math.Vector3i;
-import org.terasology.monitoring.PerformanceMonitor;
-import org.terasology.world.ChunkView;
-import org.terasology.world.chunks.Chunk;
+import org.terasology.registry.CoreRegistry;
+import org.terasology.world.block.BlockManager;
+import org.terasology.world.chunks.CoreChunk;
+import org.terasology.world.generation.World;
+import org.terasology.world.generation.WorldBuilder;
 import org.terasology.world.generator.WorldGenerator;
 
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
 public abstract class PluggableWorldGenerator implements WorldGenerator {
     private static final Logger logger = LoggerFactory.getLogger(PluggableWorldGenerator.class);
 
-    private Vector3i chunkSize = new Vector3i(16, 256, 16);
-
+    private World world;
     private List<ChunkDecorator> chunkDecorators = new LinkedList<>();
     private List<FeatureGenerator> featureGenerators = new LinkedList<>();
 
-    private BiomeProvider biomeProvider;
     private int seaLevel = 32;
     private int maxLevel = 220;
-
-    private LandscapeProvider landscapeProvider;
-    private SimpleUri uri;
     private float biomeDiversity = 0.5f;
+
+    private SimpleUri uri;
+    private String worldSeed;
 
     private Function<Float, Float> temperatureFunction = IdentityAlphaFunction.singleton();
     private Function<Float, Float> humidityFunction = IdentityAlphaFunction.singleton();
+
+    private PerlinSurfaceHeightProvider surfaceHeightProvider;
 
     private TerrainShapeProvider terrainShapeProvider;
 
     public PluggableWorldGenerator(SimpleUri uri) {
         this.uri = uri;
-    }
-
-    public void setLandscapeProvider(LandscapeProvider landscapeProvider) {
-        this.landscapeProvider = landscapeProvider;
     }
 
     public void addChunkDecorator(ChunkDecorator chunkGenerator) {
@@ -95,44 +93,49 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         this.humidityFunction = humidityFunction;
     }
 
+
+    public void setLandscapeOptions(float seaFrequency, float terrainDiversity, Function<Float, Float> generalTerrainFunction,
+                                    Function<Float, Float> heightBelowSeaLevelFunction,
+                                    Function<Float, Float> heightAboveSeaLevelFunction,
+                                    float hillinessDiversity, Function<Float, Float> hillynessFunction) {
+        surfaceHeightProvider = new PerlinSurfaceHeightProvider(seaFrequency, terrainDiversity, generalTerrainFunction,
+                heightBelowSeaLevelFunction,
+                heightAboveSeaLevelFunction,
+                hillinessDiversity, hillynessFunction);
+    }
+
     @Override
-    public final void initialize() {
+    public void initialize() {
+        BlockManager blockManager = CoreRegistry.get(BlockManager.class);
+        WorldBuilder worldBuilder = new WorldBuilder(worldSeed.hashCode())
+                .addProvider(new SeaLevelProvider(seaLevel))
+                .addProvider(new MaxLevelProvider(maxLevel))
+                .addProvider(surfaceHeightProvider)
+                .addProvider(new BiomeProvider())
+                .addProvider(new SurfaceToDensityProvider());
+
+        for (ChunkDecorator chunkDecorator : chunkDecorators) {
+            worldBuilder.addRasterizer(chunkDecorator);
+        }
+        for (FeatureGenerator featureGenerator : featureGenerators) {
+            worldBuilder.addRasterizer(featureGenerator);
+        }
+
+        world = worldBuilder.build();
     }
 
     @Override
     public void setWorldSeed(String seed) {
+        worldSeed = seed;
         setupGenerator();
-
-        landscapeProvider.initialize(seed, seaLevel, maxLevel);
-
-        terrainShapeProvider = new LookupTerrainShapeProvider(landscapeProvider);
-
-        biomeProvider = new BiomeProviderImpl(seed, seaLevel, maxLevel,
-                biomeDiversity, temperatureFunction, humidityFunction, terrainShapeProvider);
-
-        for (ChunkDecorator chunkDecorator : chunkDecorators) {
-            chunkDecorator.initializeWithSeed(seed);
-        }
-
-        for (FeatureGenerator featureGenerator : featureGenerators) {
-            featureGenerator.initializeWithSeed(seed);
-        }
     }
 
     protected abstract void setupGenerator();
 
-    @Override
-    public void applySecondPass(Vector3i chunkPos, ChunkView view) {
-        PerformanceMonitor.startActivity("AnotherWorld - chunk second pass");
-        try {
-            GenerationParameters generationParameters = new GenerationParameters(landscapeProvider, terrainShapeProvider, biomeProvider, seaLevel, maxLevel);
 
-            for (FeatureGenerator featureGenerator : featureGenerators) {
-                featureGenerator.generateInChunk(chunkPos, view, generationParameters);
-            }
-        } finally {
-            PerformanceMonitor.endActivity();
-        }
+    @Override
+    public void createChunk(CoreChunk chunk) {
+        world.rasterizeChunk(chunk);
     }
 
     @Override
@@ -141,31 +144,17 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     }
 
     @Override
-    public void createChunk(Chunk chunk) {
-        PerformanceMonitor.startActivity("AnotherWorld - chunk generation");
-        try {
-            GenerationParameters generationParameters = new GenerationParameters(landscapeProvider, terrainShapeProvider, biomeProvider, seaLevel, maxLevel);
-
-            for (ChunkDecorator chunkDecorator : chunkDecorators) {
-                chunkDecorator.generateInChunk(chunk, generationParameters);
-            }
-        } finally {
-            PerformanceMonitor.endActivity();
-        }
-    }
-
-    @Override
     public float getFog(float x, float y, float z) {
-        return biomeProvider.getBiomeAt(TeraMath.floorToInt(x + 0.5f), TeraMath.floorToInt(y + 0.5f), TeraMath.floorToInt(z + 0.5f)).getFog();
+        return 0.5f;
     }
 
     @Override
     public float getTemperature(float x, float y, float z) {
-        return biomeProvider.getTemperature(TeraMath.floorToInt(x + 0.5f), TeraMath.floorToInt(y + 0.5f), TeraMath.floorToInt(z + 0.5f));
+        return 0.5f;
     }
 
     @Override
     public float getHumidity(float x, float y, float z) {
-        return biomeProvider.getHumidity(TeraMath.floorToInt(x + 0.5f), TeraMath.floorToInt(y + 0.5f), TeraMath.floorToInt(z + 0.5f));
+        return 0.5f;
     }
 }

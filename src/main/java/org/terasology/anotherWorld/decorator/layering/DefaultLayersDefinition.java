@@ -15,12 +15,15 @@
  */
 package org.terasology.anotherWorld.decorator.layering;
 
-import org.terasology.anotherWorld.GenerationParameters;
 import org.terasology.anotherWorld.util.ChunkRandom;
 import org.terasology.anotherWorld.util.PDist;
+import org.terasology.math.TeraMath;
 import org.terasology.utilities.random.Random;
 import org.terasology.world.block.Block;
-import org.terasology.world.chunks.Chunk;
+import org.terasology.world.chunks.CoreChunk;
+import org.terasology.world.generation.GeneratingRegion;
+import org.terasology.world.generation.facets.SeaLevelFacet;
+import org.terasology.world.generation.facets.SurfaceHeightFacet;
 import org.terasology.world.liquid.LiquidData;
 
 import java.util.LinkedList;
@@ -47,9 +50,10 @@ public class DefaultLayersDefinition implements LayersDefinition {
     }
 
     @Override
-    public void generateInChunk(String seed, Chunk chunk, int x, int z, int groundLevel, GenerationParameters generationParameters, LayeringConfig layeringConfig) {
-        Random random = ChunkRandom.getChunkRandom(seed, chunk.getPos(), 349 * (31 * x + z));
-        int seaLevel = generationParameters.getSeaLevel();
+    public void generateInChunk(long seed, CoreChunk chunk, GeneratingRegion generatingRegion, int x, int z, LayeringConfig layeringConfig) {
+        Random random = ChunkRandom.getChunkRandom(seed, chunk.getPosition(), 349 * (31 * x + z));
+        int seaLevel = generatingRegion.getRegionFacet(SeaLevelFacet.class).getSeaLevel();
+        int groundLevel = TeraMath.floorToInt(generatingRegion.getRegionFacet(SurfaceHeightFacet.class).getWorld(x, z));
         boolean underSea = groundLevel < seaLevel;
 
         for (int level = seaLevel; level > groundLevel; level--) {

@@ -16,12 +16,14 @@
 package org.terasology.anotherWorld.decorator.layering;
 
 import org.terasology.anotherWorld.Biome;
-import org.terasology.anotherWorld.BiomeProvider;
+import org.terasology.anotherWorld.BiomeRegistry;
 import org.terasology.anotherWorld.ChunkDecorator;
-import org.terasology.anotherWorld.GenerationParameters;
-import org.terasology.math.Vector2i;
+import org.terasology.anotherWorld.generation.BiomeFacet;
+import org.terasology.math.Vector3i;
 import org.terasology.registry.CoreRegistry;
-import org.terasology.world.chunks.Chunk;
+import org.terasology.world.chunks.CoreChunk;
+import org.terasology.world.generation.Region;
+import org.terasology.world.generation.facets.SurfaceHeightFacet;
 import org.terasology.world.generator.plugin.WorldGeneratorPluginLibrary;
 
 import java.util.HashMap;
@@ -33,16 +35,10 @@ import java.util.Map;
  */
 public class LayeringDecorator implements ChunkDecorator {
     private Map<String, LayersDefinition> biomeLayers = new HashMap<>();
-    private String seed;
     private LayeringConfig layeringConfig;
 
     public LayeringDecorator(LayeringConfig layeringConfig) {
         this.layeringConfig = layeringConfig;
-    }
-
-    @Override
-    public void initializeWithSeed(String worldSeed) {
-        this.seed = worldSeed;
         loadLayers();
     }
 
@@ -51,32 +47,32 @@ public class LayeringDecorator implements ChunkDecorator {
     }
 
     @Override
-    public void generateInChunk(Chunk chunk, GenerationParameters generationParameters) {
-        int chunkStartX = chunk.getChunkWorldPosX();
-        int chunkStartZ = chunk.getChunkWorldPosZ();
-        for (int x = 0; x < chunk.getChunkSizeX(); x++) {
-            for (int z = 0; z < chunk.getChunkSizeZ(); z++) {
-                int groundLevel = generationParameters.getLandscapeProvider().getHeight(new Vector2i(chunkStartX + x, chunkStartZ + z));
-                BiomeProvider biomeProvider = generationParameters.getBiomeProvider();
-                Biome biome = biomeProvider.getBiomeAt(chunkStartX + x, groundLevel, chunkStartZ + z);
-                LayersDefinition matchingLayers = findMatchingLayers(biomeProvider, biome);
-                if (matchingLayers != null) {
-                    matchingLayers.generateInChunk(seed, chunk, x, z, groundLevel, generationParameters, layeringConfig);
-                }
+    public void generateChunk(CoreChunk chunk, Region chunkRegion) {
+        SurfaceHeightFacet surfaceHeightFacet = chunkRegion.getFacet(SurfaceHeightFacet.class);
+        BiomeFacet biomeFacet = chunkRegion.getFacet(BiomeFacet.class);
+        BiomeRegistry biomeRegistry = CoreRegistry.get(BiomeRegistry.class);
+
+        for (Vector3i position : chunkRegion.getRegion()) {
+            float groundLevel = surfaceHeightFacet.getWorld(position.x, position.z);
+            Biome biome = biomeFacet.getWorld(position.x, position.z);
+            LayersDefinition matchingLayers = findMatchingLayers(biomeRegistry, biome);
+            if (matchingLayers != null) {
+                /// Todo: what to do with the seed value here
+                matchingLayers.generateInChunk(chunkRegion.hashCode(), chunk, , position.x, position.z, layeringConfig);
             }
         }
     }
 
-    private LayersDefinition findMatchingLayers(BiomeProvider biomeProvider, Biome biome) {
+    private LayersDefinition findMatchingLayers(BiomeRegistry biomeRegistry, Biome biome) {
         LayersDefinition layersDefinition = biomeLayers.get(biome.getBiomeId());
         if (layersDefinition != null) {
             return layersDefinition;
         }
         String biomeParentId = biome.getBiomeParent();
         if (biomeParentId != null) {
-            Biome parentBiome = biomeProvider.getBiomeById(biomeParentId);
+            Biome parentBiome = biomeRegistry.getBiomeById(biomeParentId);
             if (parentBiome != null) {
-                return findMatchingLayers(biomeProvider, parentBiome);
+                return findMatchingLayers(biomeRegistry, parentBiome);
             }
         }
         return null;

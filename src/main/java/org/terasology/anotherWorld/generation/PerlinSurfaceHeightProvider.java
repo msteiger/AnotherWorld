@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.anotherWorld;
+package org.terasology.anotherWorld.generation;
 
 import com.google.common.base.Function;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import org.terasology.anotherWorld.TerrainDeformation;
 import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector2i;
 import org.terasology.utilities.procedural.BrownianNoise2D;
 import org.terasology.utilities.procedural.Noise2D;
 import org.terasology.utilities.procedural.SimplexNoise;
+import org.terasology.world.generation.Border3D;
+import org.terasology.world.generation.Facet;
+import org.terasology.world.generation.FacetProvider;
+import org.terasology.world.generation.GeneratingRegion;
+import org.terasology.world.generation.Produces;
+import org.terasology.world.generation.Requires;
+import org.terasology.world.generation.facets.SeaLevelFacet;
+import org.terasology.world.generation.facets.SurfaceHeightFacet;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
-public class PerlinLandscapeGenerator implements LandscapeProvider {
-    public static final int CACHE_SIZE = 10000;
-    private Cache<Vector2i, Integer> heightCache = CacheBuilder.<Vector2i, Integer>newBuilder()
-            .concurrencyLevel(5).maximumSize(CACHE_SIZE).build();
+@Produces(SurfaceHeightFacet.class)
+@Requires({@Facet(SeaLevelFacet.class), @Facet(MaxLevelFacet.class)})
+public class PerlinSurfaceHeightProvider implements FacetProvider {
 
     private Noise2D noise;
     private double noiseScale;
@@ -44,23 +47,21 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
     private float hillynessDiversity;
     private Function<Float, Float> hillynessFunction;
     private TerrainDeformation terrainDeformation;
-    private int seaLevel;
-    private int maxLevel;
 
     private final float minMultiplier = 0.0005f;
     private final float maxMultiplier = 0.01f;
 
     @Deprecated
-    public PerlinLandscapeGenerator(float seaFrequency, Function<Float, Float> heightAboveSeaLevelFunction,
-                                    float hillynessDiversity, Function<Float, Float> hillynessFunction) {
+    public PerlinSurfaceHeightProvider(float seaFrequency, Function<Float, Float> heightAboveSeaLevelFunction,
+                                       float hillynessDiversity, Function<Float, Float> hillynessFunction) {
         this(seaFrequency, 0.4216f, IdentityAlphaFunction.singleton(), IdentityAlphaFunction.singleton(),
                 heightAboveSeaLevelFunction, hillynessDiversity, hillynessFunction);
     }
 
-    public PerlinLandscapeGenerator(float seaFrequency, float terrainDiversity, Function<Float, Float> generalTerrainFunction,
-                                    Function<Float, Float> heightBelowSeaLevelFunction,
-                                    Function<Float, Float> heightAboveSeaLevelFunction,
-                                    float hillinessDiversity, Function<Float, Float> hillynessFunction) {
+    public PerlinSurfaceHeightProvider(float seaFrequency, float terrainDiversity, Function<Float, Float> generalTerrainFunction,
+                                       Function<Float, Float> heightBelowSeaLevelFunction,
+                                       Function<Float, Float> heightAboveSeaLevelFunction,
+                                       float hillinessDiversity, Function<Float, Float> hillynessFunction) {
         this.seaFrequency = seaFrequency;
         this.terrainNoiseMultiplier = minMultiplier + terrainDiversity * (maxMultiplier - minMultiplier);
         this.generalHeightFunction = generalTerrainFunction;
@@ -70,39 +71,13 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
         this.hillynessFunction = hillynessFunction;
     }
 
+
     @Override
-    public void initialize(String seed, int sea, int max) {
-        seaLevel = sea;
-        maxLevel = max;
-        BrownianNoise2D brownianNoise = new BrownianNoise2D(new SimplexNoise(seed.hashCode()), 6);
+    public void setSeed(long seed) {
+        BrownianNoise2D brownianNoise = new BrownianNoise2D(new SimplexNoise(seed), 6);
         noise = brownianNoise;
         noiseScale = brownianNoise.getScale();
         terrainDeformation = new TerrainDeformation(seed, hillynessDiversity, hillynessFunction);
-    }
-
-    @Override
-    public int getHeight(Vector2i position) {
-        Integer height = heightCache.getIfPresent(position);
-        if (height != null) {
-            return height;
-        }
-
-        float hillyness = terrainDeformation.getHillyness(position.x, position.y);
-        float noiseValue = getNoiseInWorld(hillyness, position.x, position.y);
-        if (noiseValue < seaFrequency) {
-            float alphaBelowSeaLevel = (noiseValue / seaFrequency);
-            float resultAlpha = heightBelowSeaLevelFunction.apply(alphaBelowSeaLevel);
-            height = (int) (seaLevel * resultAlpha);
-        } else {
-            // Number in range 0<=alpha<1
-            float alphaAboveSeaLevel = (noiseValue - seaFrequency) / (1 - seaFrequency);
-            float resultAlpha = heightAboveSeaLevelFunction.apply(alphaAboveSeaLevel);
-            height = (int) (seaLevel + resultAlpha * (maxLevel - seaLevel));
-        }
-
-        heightCache.put(position, height);
-
-        return height;
     }
 
     private float getNoiseInWorld(float hillyness, int worldX, int worldZ) {
@@ -119,5 +94,32 @@ public class PerlinLandscapeGenerator implements LandscapeProvider {
         }
         noiseValue /= divider;
         return generalHeightFunction.apply((float) TeraMath.clamp((noiseValue + 1.0) / 2));
+    }
+
+    @Override
+    public void process(GeneratingRegion region) {
+        Border3D border = region.getBorderForFacet(SurfaceHeightFacet.class);
+        SurfaceHeightFacet facet = new SurfaceHeightFacet(region.getRegion(), border);
+        SeaLevelFacet seaLevelFacet = region.getRegionFacet(SeaLevelFacet.class);
+        float seaLevel = seaLevelFacet.getSeaLevel();
+        MaxLevelFacet maxLevelFacet = region.getRegionFacet(MaxLevelFacet.class);
+        float maxLevel = maxLevelFacet.getMaxLevel();
+
+        for (Vector2i position : facet.getWorldRegion()) {
+            float hillyness = terrainDeformation.getHillyness(position.x, position.y);
+            float noiseValue = getNoiseInWorld(hillyness, position.x, position.y);
+            if (noiseValue < seaFrequency) {
+                float alphaBelowSeaLevel = (noiseValue / seaFrequency);
+                float resultAlpha = heightBelowSeaLevelFunction.apply(alphaBelowSeaLevel);
+                facet.set(position, (seaLevel * resultAlpha));
+            } else {
+                // Number in range 0<=alpha<1
+                float alphaAboveSeaLevel = (noiseValue - seaFrequency) / (1 - seaFrequency);
+                float resultAlpha = heightAboveSeaLevelFunction.apply(alphaAboveSeaLevel);
+                facet.set(position, (seaLevel + resultAlpha * (maxLevel - seaLevel)));
+            }
+        }
+
+        region.setRegionFacet(SurfaceHeightFacet.class, facet);
     }
 }

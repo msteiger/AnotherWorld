@@ -15,14 +15,7 @@
  */
 package org.terasology.anotherWorld;
 
-import org.terasology.math.Vector3i;
-import org.terasology.world.ChunkView;
+import org.terasology.world.generation.WorldRasterizer;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
-public interface FeatureGenerator {
-    void initializeWithSeed(String seed);
-
-    void generateInChunk(Vector3i chunkPos, ChunkView view, GenerationParameters generationParameters);
+public interface FeatureGenerator extends WorldRasterizer {
 }

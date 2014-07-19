@@ -15,13 +15,8 @@
  */
 package org.terasology.anotherWorld;
 
-import org.terasology.math.Vector2i;
+public interface BiomeRegistry {
+    Biome getBiomeById(String biomeId);
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
-public interface LandscapeProvider {
-    void initialize(String seed, int seaLevel, int maxLevel);
-
-    int getHeight(Vector2i position);
+    Iterable<Biome> getBiomes();
 }

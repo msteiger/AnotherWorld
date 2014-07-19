@@ -16,11 +16,11 @@ public class GenerationLocalParameters implements LocalParameters {
 
     @Override
     public float getTemperature() {
-        return generationParameters.getBiomeProvider().getTemperature(location.x, location.y, location.z);
+        return generationParameters.getBiomeRegistry().getTemperature(location.x, location.y, location.z);
     }
 
     @Override
     public float getHumidity() {
-        return generationParameters.getBiomeProvider().getHumidity(location.x, location.y, location.z);
+        return generationParameters.getBiomeRegistry().getHumidity(location.x, location.y, location.z);
     }
 }

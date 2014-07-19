@@ -23,7 +23,7 @@ import org.terasology.utilities.random.Random;
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public abstract class ChunkRandom {
-    public static Random getChunkRandom(String seed, Vector3i location, int salt) {
-        return new FastRandom(seed.hashCode() + salt * (97 * location.x + location.z));
+    public static Random getChunkRandom(long seed, Vector3i location, int salt) {
+        return new FastRandom(seed + salt * (97 * location.x + location.z));
     }
 }

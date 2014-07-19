@@ -32,9 +32,9 @@ public class TerrainDeformation {
     private float noiseMultiplier;
     private Function<Float, Float> terrainFunction;
 
-    public TerrainDeformation(String worldSeed, float terrainDiversity, Function<Float, Float> terrainFunction) {
+    public TerrainDeformation(long worldSeed, float terrainDiversity, Function<Float, Float> terrainFunction) {
         this.terrainFunction = terrainFunction;
-        hillynessNoise = new SimplexNoise(worldSeed.hashCode() + 872364);
+        hillynessNoise = new SimplexNoise(worldSeed + 872364);
         noiseMultiplier = minMultiplier + (maxMultiplier - minMultiplier) * terrainDiversity;
     }
 
