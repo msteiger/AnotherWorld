@@ -16,6 +16,7 @@
 package org.terasology.anotherWorld.generation;
 
 import org.terasology.math.Vector2i;
+import org.terasology.math.Vector3i;
 import org.terasology.world.generation.Facet;
 import org.terasology.world.generation.FacetProvider;
 import org.terasology.world.generation.GeneratingRegion;
@@ -47,17 +48,10 @@ public class SurfaceHumidityProvider implements FacetProvider {
         int maxLevel = maxLevelFacet.getMaxLevel();
 
         for (Vector2i position : facet.getWorldRegion()) {
-            float humidityBase = seaLevelHumidityFacet.getWorld(position);
             float height = surfaceHeightFacet.getWorld(position);
+            float humidity = seaLevelHumidityFacet.calculateHumidityWorld(new Vector3i(position.x, height, position.y), seaLevel, maxLevel);
+            facet.setWorld(position, humidity);
 
-            if (height <= seaLevel) {
-                facet.setWorld(position, humidityBase);
-            } else if (height >= maxLevel) {
-                facet.setWorld(position, 0);
-            } else {
-                // The higher above see level - the less humid
-                facet.setWorld(position, humidityBase * (1f * (maxLevel - height) / (maxLevel - seaLevel)));
-            }
         }
 
         region.setRegionFacet(SurfaceHumidityFacet.class, facet);

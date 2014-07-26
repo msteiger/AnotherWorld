@@ -16,6 +16,7 @@
 package org.terasology.anotherWorld.generation;
 
 import org.terasology.math.Region3i;
+import org.terasology.math.Vector3i;
 import org.terasology.world.generation.Border3D;
 import org.terasology.world.generation.facets.base.BaseFieldFacet2D;
 
@@ -23,5 +24,17 @@ public class SeaLevelTemperatureFacet extends BaseFieldFacet2D {
 
     public SeaLevelTemperatureFacet(Region3i targetRegion, Border3D border) {
         super(targetRegion, border);
+    }
+
+    public float calculateTemperatureWorld(Vector3i position, int seaLevel, int maxLevel) {
+        float temperatureBase = getWorld(position.x, position.z);
+        if (position.y <= seaLevel) {
+            return temperatureBase;
+        } else if (position.y >= maxLevel) {
+            return 0;
+        } else {
+            // The higher above see level - the colder
+            return temperatureBase * (1f * (maxLevel - position.y) / (maxLevel - seaLevel));
+        }
     }
 }

@@ -17,13 +17,14 @@ package org.terasology.anotherWorld.decorator.ore;
 
 import com.google.common.base.Predicate;
 import org.terasology.anotherWorld.ChunkDecorator;
-import org.terasology.anotherWorld.GenerationParameters;
 import org.terasology.anotherWorld.decorator.structure.Structure;
 import org.terasology.anotherWorld.decorator.structure.StructureDefinition;
+import org.terasology.anotherWorld.generation.SeedFacet;
 import org.terasology.math.Vector3i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.block.Block;
-import org.terasology.world.chunks.Chunk;
+import org.terasology.world.chunks.CoreChunk;
+import org.terasology.world.generation.Region;
 import org.terasology.world.generator.plugin.WorldGeneratorPluginLibrary;
 
 import java.util.Collection;
@@ -37,24 +38,19 @@ import java.util.Map;
 public class OreDecorator implements ChunkDecorator {
     private Map<String, StructureDefinition> oreDefinitions = new LinkedHashMap<>();
     private Predicate<Block> blockFilter;
-    private String seed;
 
     public OreDecorator(Predicate<Block> blockFilter) {
         this.blockFilter = blockFilter;
-    }
-
-    @Override
-    public void initializeWithSeed(String worldSeed) {
-        this.seed = worldSeed;
         loadOres();
     }
 
     @Override
-    public void generateInChunk(Chunk chunk, GenerationParameters generationParameters) {
+    public void generateChunk(CoreChunk chunk, Region chunkRegion) {
+        SeedFacet seedFacet = chunkRegion.getFacet(SeedFacet.class);
         Structure.StructureCallback callback = new StructureCallbackImpl(chunk);
 
         for (StructureDefinition structureDefinition : oreDefinitions.values()) {
-            Collection<Structure> structures = structureDefinition.generateStructures(chunk, seed, generationParameters);
+            Collection<Structure> structures = structureDefinition.generateStructures(chunk, seedFacet.getSeed(), chunkRegion);
             for (Structure structure : structures) {
                 structure.generateStructure(callback);
             }
@@ -71,9 +67,9 @@ public class OreDecorator implements ChunkDecorator {
     }
 
     private final class StructureCallbackImpl implements Structure.StructureCallback {
-        private Chunk chunk;
+        private CoreChunk chunk;
 
-        private StructureCallbackImpl(Chunk chunk) {
+        private StructureCallbackImpl(CoreChunk chunk) {
             this.chunk = chunk;
         }
 

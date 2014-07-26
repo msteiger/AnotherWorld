@@ -16,6 +16,7 @@
 package org.terasology.anotherWorld.generation;
 
 import org.terasology.math.Region3i;
+import org.terasology.math.Vector3i;
 import org.terasology.world.generation.Border3D;
 import org.terasology.world.generation.facets.base.BaseFieldFacet2D;
 
@@ -23,5 +24,17 @@ public class SeaLevelHumidityFacet extends BaseFieldFacet2D {
 
     public SeaLevelHumidityFacet(Region3i targetRegion, Border3D border) {
         super(targetRegion, border);
+    }
+
+    public float calculateHumidityWorld(Vector3i position, int seaLevel, int maxLevel) {
+        float humidityBase = getWorld(position.x, position.z);
+        if (position.y <= seaLevel) {
+            return humidityBase;
+        } else if (position.y >= maxLevel) {
+            return 0;
+        } else {
+            // The higher above see level - the less humid
+            return humidityBase * (1f * (maxLevel - position.y) / (maxLevel - seaLevel));
+        }
     }
 }

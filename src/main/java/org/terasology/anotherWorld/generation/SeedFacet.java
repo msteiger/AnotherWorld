@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.anotherWorld.decorator.layering;
+package org.terasology.anotherWorld.generation;
 
-import org.terasology.world.chunks.CoreChunk;
-import org.terasology.world.generation.Region;
-import org.terasology.world.generator.plugin.WorldGeneratorPlugin;
+import org.terasology.world.generation.WorldFacet;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
-public interface LayersDefinition extends WorldGeneratorPlugin {
-    String getBiomeId();
+public class SeedFacet implements WorldFacet {
+    long seed;
 
-    void generateInChunk(long seed, CoreChunk chunk, Region chunkRegion, int x, int y, LayeringConfig layeringConfig);
+    public long getSeed() {
+        return seed;
+    }
+
+    public void setSeed(long seed) {
+        this.seed = seed;
+    }
+
+
 }

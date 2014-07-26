@@ -17,11 +17,15 @@ package org.terasology.anotherWorld.decorator;
 
 import com.google.common.base.Predicate;
 import org.terasology.anotherWorld.ChunkDecorator;
-import org.terasology.anotherWorld.GenerationParameters;
+import org.terasology.anotherWorld.generation.TerrainVariationFacet;
 import org.terasology.anotherWorld.util.Provider;
-import org.terasology.math.Vector2i;
+import org.terasology.math.TeraMath;
+import org.terasology.math.Vector3i;
 import org.terasology.world.block.Block;
-import org.terasology.world.chunks.Chunk;
+import org.terasology.world.chunks.CoreChunk;
+import org.terasology.world.generation.Region;
+import org.terasology.world.generation.facets.SeaLevelFacet;
+import org.terasology.world.generation.facets.SurfaceHeightFacet;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
@@ -35,11 +39,7 @@ public class BeachDecorator implements ChunkDecorator {
     public BeachDecorator(Predicate<Block> blockFilter, final Block beachBlock, int aboveSeaLevel, int belowSeaLevel) {
         this(blockFilter, new Provider<Block>() {
             @Override
-            public void initializeWithSeed(String seed) {
-            }
-
-            @Override
-            public Block provide(int x, int y, int z) {
+            public Block provide(float randomValue) {
                 return beachBlock;
             }
         }, aboveSeaLevel, belowSeaLevel);
@@ -53,24 +53,18 @@ public class BeachDecorator implements ChunkDecorator {
     }
 
     @Override
-    public void initializeWithSeed(String seed) {
-        beachBlockProvider.initializeWithSeed(seed);
-    }
+    public void generateChunk(CoreChunk chunk, Region chunkRegion) {
+        SurfaceHeightFacet surfaceHeightFacet = chunkRegion.getFacet(SurfaceHeightFacet.class);
+        TerrainVariationFacet terrainVariationFacet = chunkRegion.getFacet(TerrainVariationFacet.class);
+        SeaLevelFacet seaLevelFacet = chunkRegion.getFacet(SeaLevelFacet.class);
+        int seaLevel = chunkRegion.getFacet(SeaLevelFacet.class).getSeaLevel();
 
-    @Override
-    public void generateInChunk(Chunk chunk, GenerationParameters generationParameters) {
-        int chunkStartX = chunk.getChunkWorldPosX();
-        int chunkStartY = chunk.getChunkWorldPosY();
-        int chunkStartZ = chunk.getChunkWorldPosZ();
-        for (int x = 0; x < chunk.getChunkSizeX(); x++) {
-            for (int z = 0; z < chunk.getChunkSizeZ(); z++) {
-                int groundLevel = generationParameters.getLandscapeProvider().getHeight(new Vector2i(chunkStartX + x, chunkStartZ + z));
-                int seaLevel = generationParameters.getSeaLevel();
-                if (groundLevel <= seaLevel + aboveSeaLevel && groundLevel >= seaLevel - belowSeaLevel) {
-                    for (int y = seaLevel - belowSeaLevel; y < seaLevel + aboveSeaLevel; y++) {
-                        if (blockFilter.apply(chunk.getBlock(x, y, z))) {
-                            chunk.setBlock(x, y, z, beachBlockProvider.provide(chunkStartX + x, chunkStartY + y, chunkStartZ + z));
-                        }
+        for (Vector3i position : chunk.getRegion()) {
+            int groundLevel = TeraMath.floorToInt(surfaceHeightFacet.getWorld(position.x, position.z));
+            if (groundLevel <= seaLevel + aboveSeaLevel && groundLevel >= seaLevel - belowSeaLevel) {
+                for (int y = seaLevel - belowSeaLevel; y < seaLevel + aboveSeaLevel; y++) {
+                    if (blockFilter.apply(chunk.getBlock(position))) {
+                        chunk.setBlock(position, beachBlockProvider.provide(terrainVariationFacet.get(position)));
                     }
                 }
             }

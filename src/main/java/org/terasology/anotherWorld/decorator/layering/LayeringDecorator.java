@@ -52,13 +52,13 @@ public class LayeringDecorator implements ChunkDecorator {
         BiomeFacet biomeFacet = chunkRegion.getFacet(BiomeFacet.class);
         BiomeRegistry biomeRegistry = CoreRegistry.get(BiomeRegistry.class);
 
-        for (Vector3i position : chunkRegion.getRegion()) {
-            float groundLevel = surfaceHeightFacet.getWorld(position.x, position.z);
-            Biome biome = biomeFacet.getWorld(position.x, position.z);
+        for (Vector3i position : chunk.getRegion()) {
+            float groundLevel = surfaceHeightFacet.get(position.x, position.z);
+            Biome biome = biomeFacet.get(position.x, position.z);
             LayersDefinition matchingLayers = findMatchingLayers(biomeRegistry, biome);
             if (matchingLayers != null) {
                 /// Todo: what to do with the seed value here
-                matchingLayers.generateInChunk(chunkRegion.hashCode(), chunk, , position.x, position.z, layeringConfig);
+                matchingLayers.generateInChunk(chunkRegion.hashCode(), chunk, chunkRegion, position.x, position.z, layeringConfig);
             }
         }
     }

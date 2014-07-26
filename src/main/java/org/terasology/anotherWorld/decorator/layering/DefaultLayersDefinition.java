@@ -21,7 +21,7 @@ import org.terasology.math.TeraMath;
 import org.terasology.utilities.random.Random;
 import org.terasology.world.block.Block;
 import org.terasology.world.chunks.CoreChunk;
-import org.terasology.world.generation.GeneratingRegion;
+import org.terasology.world.generation.Region;
 import org.terasology.world.generation.facets.SeaLevelFacet;
 import org.terasology.world.generation.facets.SurfaceHeightFacet;
 import org.terasology.world.liquid.LiquidData;
@@ -50,10 +50,10 @@ public class DefaultLayersDefinition implements LayersDefinition {
     }
 
     @Override
-    public void generateInChunk(long seed, CoreChunk chunk, GeneratingRegion generatingRegion, int x, int z, LayeringConfig layeringConfig) {
+    public void generateInChunk(long seed, CoreChunk chunk, Region generatingRegion, int x, int z, LayeringConfig layeringConfig) {
         Random random = ChunkRandom.getChunkRandom(seed, chunk.getPosition(), 349 * (31 * x + z));
-        int seaLevel = generatingRegion.getRegionFacet(SeaLevelFacet.class).getSeaLevel();
-        int groundLevel = TeraMath.floorToInt(generatingRegion.getRegionFacet(SurfaceHeightFacet.class).getWorld(x, z));
+        int seaLevel = generatingRegion.getFacet(SeaLevelFacet.class).getSeaLevel();
+        int groundLevel = TeraMath.floorToInt(generatingRegion.getFacet(SurfaceHeightFacet.class).getWorld(x, z));
         boolean underSea = groundLevel < seaLevel;
 
         for (int level = seaLevel; level > groundLevel; level--) {

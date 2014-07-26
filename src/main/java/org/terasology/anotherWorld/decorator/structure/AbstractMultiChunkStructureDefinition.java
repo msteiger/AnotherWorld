@@ -15,12 +15,12 @@
  */
 package org.terasology.anotherWorld.decorator.structure;
 
-import org.terasology.anotherWorld.GenerationParameters;
 import org.terasology.anotherWorld.util.ChunkRandom;
 import org.terasology.anotherWorld.util.PDist;
 import org.terasology.math.Vector3i;
 import org.terasology.utilities.random.Random;
-import org.terasology.world.chunks.Chunk;
+import org.terasology.world.chunks.CoreChunk;
+import org.terasology.world.generation.Region;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -37,10 +37,10 @@ public abstract class AbstractMultiChunkStructureDefinition implements Structure
     }
 
     @Override
-    public final Collection<Structure> generateStructures(Chunk chunk, String seed, GenerationParameters generationParameters) {
+    public final Collection<Structure> generateStructures(CoreChunk chunk, long seed, Region chunkRegion) {
         List<Structure> result = new LinkedList<>();
         float maxRange = getMaxRange();
-        Vector3i chunkPosition = chunk.getPos();
+        Vector3i chunkPosition = chunk.getPosition();
         Vector3i chunkSize = new Vector3i(chunk.getChunkSizeX(), chunk.getChunkSizeY(), chunk.getChunkSizeZ());
 
         int chunksRangeToEvaluate = (int) Math.ceil(Math.max(maxRange / chunk.getChunkSizeX(), maxRange / chunk.getChunkSizeZ()));
@@ -57,7 +57,7 @@ public abstract class AbstractMultiChunkStructureDefinition implements Structure
         return result;
     }
 
-    protected final void generateStructuresForChunkWithFrequency(List<Structure> result, String seed, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int zShift) {
+    protected final void generateStructuresForChunkWithFrequency(List<Structure> result, long seed, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int zShift) {
         Random random = ChunkRandom.getChunkRandom(seed, chunkPosition, getGeneratorSalt());
 
         float structuresInChunk = frequency.getValue(random);

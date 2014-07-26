@@ -1,26 +1,34 @@
 package org.terasology.anotherWorld;
 
 import org.terasology.math.Vector3i;
+import org.terasology.world.generation.Region;
+import org.terasology.world.generation.facets.SurfaceHumidityFacet;
+import org.terasology.world.generation.facets.SurfaceTemperatureFacet;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class GenerationLocalParameters implements LocalParameters {
-    private GenerationParameters generationParameters;
+    private Region chunkRegion;
     private Vector3i location;
+    private SurfaceTemperatureFacet surfaceTemperatureFacet;
+    private SurfaceHumidityFacet surfaceHumidityFacet;
 
-    public GenerationLocalParameters(GenerationParameters generationParameters, Vector3i location) {
-        this.generationParameters = generationParameters;
+
+    public GenerationLocalParameters(Region chunkRegion, Vector3i location) {
+        this.chunkRegion = chunkRegion;
         this.location = location;
+        surfaceTemperatureFacet = chunkRegion.getFacet(SurfaceTemperatureFacet.class);
+        surfaceHumidityFacet = chunkRegion.getFacet(SurfaceHumidityFacet.class);
     }
 
     @Override
     public float getTemperature() {
-        return generationParameters.getBiomeRegistry().getTemperature(location.x, location.y, location.z);
+        return surfaceTemperatureFacet.get(location.x, location.z);
     }
 
     @Override
     public float getHumidity() {
-        return generationParameters.getBiomeRegistry().getHumidity(location.x, location.y, location.z);
+        return surfaceHumidityFacet.get(location.x, location.z);
     }
 }

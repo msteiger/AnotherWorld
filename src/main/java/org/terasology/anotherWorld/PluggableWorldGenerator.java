@@ -19,8 +19,15 @@ import com.google.common.base.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.anotherWorld.generation.BiomeProvider;
+import org.terasology.anotherWorld.generation.HillynessProvider;
 import org.terasology.anotherWorld.generation.MaxLevelProvider;
 import org.terasology.anotherWorld.generation.PerlinSurfaceHeightProvider;
+import org.terasology.anotherWorld.generation.SeaLevelHumidityProvider;
+import org.terasology.anotherWorld.generation.SeaLevelTemperatureProvider;
+import org.terasology.anotherWorld.generation.SeedProvider;
+import org.terasology.anotherWorld.generation.SurfaceHumidityProvider;
+import org.terasology.anotherWorld.generation.SurfaceTemperatureProvider;
+import org.terasology.anotherWorld.generation.TerrainVariationProvider;
 import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.core.world.generator.facetProviders.SeaLevelProvider;
 import org.terasology.core.world.generator.facetProviders.SurfaceToDensityProvider;
@@ -110,9 +117,17 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         WorldBuilder worldBuilder = new WorldBuilder(worldSeed.hashCode())
                 .addProvider(new SeaLevelProvider(seaLevel))
                 .addProvider(new MaxLevelProvider(maxLevel))
-                .addProvider(surfaceHeightProvider)
                 .addProvider(new BiomeProvider())
-                .addProvider(new SurfaceToDensityProvider());
+                .addProvider(new HillynessProvider())
+                .addProvider(new MaxLevelProvider(maxLevel))
+                .addProvider(surfaceHeightProvider)
+                .addProvider(new SurfaceToDensityProvider())
+                .addProvider(new SeaLevelHumidityProvider(biomeDiversity, humidityFunction))
+                .addProvider(new SurfaceHumidityProvider())
+                .addProvider(new SeaLevelTemperatureProvider(biomeDiversity, temperatureFunction))
+                .addProvider(new SurfaceTemperatureProvider())
+                .addProvider(new SeedProvider())
+                .addProvider(new TerrainVariationProvider());
 
         for (ChunkDecorator chunkDecorator : chunkDecorators) {
             worldBuilder.addRasterizer(chunkDecorator);

@@ -19,7 +19,5 @@ package org.terasology.anotherWorld.util;
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public interface Provider<T> {
-    void initializeWithSeed(String seed);
-
-    T provide(int x, int y, int z);
+    T provide(float randomValue);
 }

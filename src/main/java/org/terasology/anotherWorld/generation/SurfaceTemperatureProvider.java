@@ -16,6 +16,7 @@
 package org.terasology.anotherWorld.generation;
 
 import org.terasology.math.Vector2i;
+import org.terasology.math.Vector3i;
 import org.terasology.world.generation.Facet;
 import org.terasology.world.generation.FacetProvider;
 import org.terasology.world.generation.GeneratingRegion;
@@ -47,17 +48,9 @@ public class SurfaceTemperatureProvider implements FacetProvider {
         int maxLevel = maxLevelFacet.getMaxLevel();
 
         for (Vector2i position : facet.getWorldRegion()) {
-            float temperatureBase = seaLevelTemperatureFacet.getWorld(position);
             float height = surfaceHeightFacet.getWorld(position);
-
-            if (height <= seaLevel) {
-                facet.setWorld(position, temperatureBase);
-            } else if (height >= maxLevel) {
-                facet.setWorld(position, 0);
-            } else {
-                // The higher above see level - the colder
-                facet.setWorld(position, temperatureBase * (1f * (maxLevel - height) / (maxLevel - seaLevel)));
-            }
+            float temperature = seaLevelTemperatureFacet.calculateTemperatureWorld(new Vector3i(position.x, height, position.y), seaLevel, maxLevel);
+            facet.setWorld(position, temperature);
         }
 
         region.setRegionFacet(SurfaceTemperatureFacet.class, facet);
