@@ -23,7 +23,6 @@ import org.terasology.math.Vector3i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.chunks.CoreChunk;
 import org.terasology.world.generation.Region;
-import org.terasology.world.generation.facets.SurfaceHeightFacet;
 import org.terasology.world.generator.plugin.WorldGeneratorPluginLibrary;
 
 import java.util.HashMap;
@@ -48,16 +47,14 @@ public class LayeringDecorator implements ChunkDecorator {
 
     @Override
     public void generateChunk(CoreChunk chunk, Region chunkRegion) {
-        SurfaceHeightFacet surfaceHeightFacet = chunkRegion.getFacet(SurfaceHeightFacet.class);
         BiomeFacet biomeFacet = chunkRegion.getFacet(BiomeFacet.class);
         BiomeRegistry biomeRegistry = CoreRegistry.get(BiomeRegistry.class);
 
         for (Vector3i position : chunk.getRegion()) {
-            float groundLevel = surfaceHeightFacet.get(position.x, position.z);
-            Biome biome = biomeFacet.get(position.x, position.z);
+            Biome biome = biomeFacet.getWorld(position.x, position.z);
             LayersDefinition matchingLayers = findMatchingLayers(biomeRegistry, biome);
             if (matchingLayers != null) {
-                /// Todo: what to do with the seed value here
+                /// Todo: what to do with the seed value here there is no chunk specific seed
                 matchingLayers.generateInChunk(chunkRegion.hashCode(), chunk, chunkRegion, position.x, position.z, layeringConfig);
             }
         }

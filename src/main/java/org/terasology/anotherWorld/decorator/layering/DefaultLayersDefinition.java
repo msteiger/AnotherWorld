@@ -50,15 +50,17 @@ public class DefaultLayersDefinition implements LayersDefinition {
     }
 
     @Override
-    public void generateInChunk(long seed, CoreChunk chunk, Region generatingRegion, int x, int z, LayeringConfig layeringConfig) {
+    public void generateInChunk(long seed, CoreChunk chunk, Region chunkRegion, int x, int z, LayeringConfig layeringConfig) {
         Random random = ChunkRandom.getChunkRandom(seed, chunk.getPosition(), 349 * (31 * x + z));
-        int seaLevel = generatingRegion.getFacet(SeaLevelFacet.class).getSeaLevel();
-        int groundLevel = TeraMath.floorToInt(generatingRegion.getFacet(SurfaceHeightFacet.class).getWorld(x, z));
+        int seaLevel = chunkRegion.getFacet(SeaLevelFacet.class).getSeaLevel();
+        int groundLevel = TeraMath.floorToInt(chunkRegion.getFacet(SurfaceHeightFacet.class).getWorld(x, z));
         boolean underSea = groundLevel < seaLevel;
 
         for (int level = seaLevel; level > groundLevel; level--) {
-            chunk.setBlock(x, level, z, layeringConfig.getSeaBlock());
-            chunk.setLiquid(x, level, z, new LiquidData(layeringConfig.getSeaLiquid(), LiquidData.MAX_LIQUID_DEPTH));
+            if (chunk.getRegion().encompasses(x, level, z)) {
+                chunk.setBlock(TeraMath.calcBlockPos(x, level, z), layeringConfig.getSeaBlock());
+                chunk.setLiquid(TeraMath.calcBlockPos(x, level, z), new LiquidData(layeringConfig.getSeaLiquid(), LiquidData.MAX_LIQUID_DEPTH));
+            }
         }
 
         int level = groundLevel;
@@ -67,7 +69,9 @@ public class DefaultLayersDefinition implements LayersDefinition {
                 int layerHeight = layerDefinition.thickness.getIntValue(random);
                 for (int i = 0; i < layerHeight; i++) {
                     if (level - i > 0) {
-                        chunk.setBlock(x, level - i, z, layerDefinition.block);
+                        if (chunk.getRegion().encompasses(x, level - i, z)) {
+                            chunk.setBlock(TeraMath.calcBlockPos(x, level - i, z), layerDefinition.block);
+                        }
                     }
                 }
                 level -= layerHeight;
@@ -78,10 +82,16 @@ public class DefaultLayersDefinition implements LayersDefinition {
         }
 
         for (int i = level; i > 0; i--) {
-            chunk.setBlock(x, i, z, layeringConfig.getMainBlock());
+            if (chunk.getRegion().encompasses(x, i, z)) {
+
+                chunk.setBlock(TeraMath.calcBlockPos(x, i, z), layeringConfig.getMainBlock());
+            }
         }
 
-        chunk.setBlock(x, 0, z, layeringConfig.getBottomBlock());
+
+        if (chunk.getRegion().encompasses(x, 0, z)) {
+            chunk.setBlock(TeraMath.calcBlockPos(x, 0, z), layeringConfig.getBottomBlock());
+        }
     }
 
     private static final class LayerDefinition {

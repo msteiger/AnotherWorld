@@ -111,12 +111,12 @@ public class PerlinSurfaceHeightProvider implements FacetProvider {
             if (noiseValue < seaFrequency) {
                 float alphaBelowSeaLevel = (noiseValue / seaFrequency);
                 float resultAlpha = heightBelowSeaLevelFunction.apply(alphaBelowSeaLevel);
-                facet.set(position, (seaLevel * resultAlpha));
+                facet.setWorld(position, (seaLevel * resultAlpha));
             } else {
                 // Number in range 0<=alpha<1
                 float alphaAboveSeaLevel = (noiseValue - seaFrequency) / (1 - seaFrequency);
                 float resultAlpha = heightAboveSeaLevelFunction.apply(alphaAboveSeaLevel);
-                facet.set(position, (seaLevel + resultAlpha * (maxLevel - seaLevel)));
+                facet.setWorld(position, (seaLevel + resultAlpha * (maxLevel - seaLevel)));
             }
         }
 

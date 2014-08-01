@@ -24,6 +24,8 @@ import org.terasology.anotherWorld.coreBiome.ForestBiome;
 import org.terasology.anotherWorld.coreBiome.PlainsBiome;
 import org.terasology.anotherWorld.coreBiome.TaigaBiome;
 import org.terasology.anotherWorld.coreBiome.TundraBiome;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
+import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.Share;
 import org.terasology.world.generator.plugin.WorldGeneratorPluginLibrary;
@@ -33,7 +35,8 @@ import java.util.List;
 import java.util.Map;
 
 @Share(BiomeRegistry.class)
-public class BiomeRegistryImpl implements BiomeRegistry {
+@RegisterSystem
+public class BiomeRegistryImpl extends BaseComponentSystem implements BiomeRegistry {
     private static final Logger logger = LoggerFactory.getLogger(BiomeRegistryImpl.class);
 
     private Map<String, Biome> biomes = new HashMap<>();
@@ -41,6 +44,11 @@ public class BiomeRegistryImpl implements BiomeRegistry {
 
     public BiomeRegistryImpl() {
         initializeCoreBiomes();
+    }
+
+    @Override
+    public void initialise() {
+        super.initialise();
         loadBiomes();
     }
 

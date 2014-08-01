@@ -24,11 +24,11 @@ public class GenerationLocalParameters implements LocalParameters {
 
     @Override
     public float getTemperature() {
-        return surfaceTemperatureFacet.get(location.x, location.z);
+        return surfaceTemperatureFacet.getWorld(location.x, location.z);
     }
 
     @Override
     public float getHumidity() {
-        return surfaceHumidityFacet.get(location.x, location.z);
+        return surfaceHumidityFacet.getWorld(location.x, location.z);
     }
 }

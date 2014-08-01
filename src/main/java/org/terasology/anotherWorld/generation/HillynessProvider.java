@@ -17,6 +17,7 @@ package org.terasology.anotherWorld.generation;
 
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector2i;
+import org.terasology.math.Vector3i;
 import org.terasology.world.generation.Border3D;
 import org.terasology.world.generation.Facet;
 import org.terasology.world.generation.FacetBorder;
@@ -45,21 +46,20 @@ public class HillynessProvider implements FacetProvider {
         HillynessFacet facet = new HillynessFacet(region.getRegion(), border);
         SurfaceHeightFacet surfaceHeightFacet = region.getRegionFacet(SurfaceHeightFacet.class);
 
-
-        for (Vector2i position : facet.getWorldRegion()) {
-            float baseHeight = surfaceHeightFacet.getWorld(position);
+        for (Vector3i position : region.getRegion()) {
+            float baseHeight = surfaceHeightFacet.getWorld(position.x, position.z);
             int count = 0;
             int diffSum = 0;
-            for (int testX = position.x - RANGE; testX <= position.x + RANGE; testX++) {
-                int yRange = (int) Math.sqrt(RANGE * RANGE - (testX - position.x) * (testX - position.x));
-                for (int testY = position.y - yRange; testY <= position.y + yRange; testY++) {
+            for (int testX = position.x - RANGE; testX < position.x + RANGE; testX++) {
+                int zRange = (int) Math.sqrt(RANGE * RANGE - (testX - position.x) * (testX - position.x));
+                for (int testZ = position.z - zRange; testZ < position.z + zRange; testZ++) {
                     count++;
-                    diffSum += Math.abs(surfaceHeightFacet.getWorld(new Vector2i(testX, testY)) - baseHeight);
+                    diffSum += Math.abs(surfaceHeightFacet.getWorld(new Vector2i(testX, testZ)) - baseHeight);
                 }
             }
             float diffAverage = 1f * diffSum / count;
 
-            facet.setWorld(position, TeraMath.clamp(diffAverage / 2));
+            facet.setWorld(position.x, position.z, TeraMath.clamp(diffAverage / 2));
         }
 
         region.setRegionFacet(HillynessFacet.class, facet);

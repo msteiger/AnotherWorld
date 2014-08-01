@@ -35,6 +35,7 @@ import org.terasology.engine.SimpleUri;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.block.BlockManager;
 import org.terasology.world.chunks.CoreChunk;
+import org.terasology.world.generation.FacetProvider;
 import org.terasology.world.generation.World;
 import org.terasology.world.generation.WorldBuilder;
 import org.terasology.world.generator.WorldGenerator;
@@ -48,6 +49,7 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     private World world;
     private List<ChunkDecorator> chunkDecorators = new LinkedList<>();
     private List<FeatureGenerator> featureGenerators = new LinkedList<>();
+    private List<FacetProvider> facetProviders = new LinkedList<>();
 
     private int seaLevel = 32;
     private int maxLevel = 220;
@@ -73,6 +75,10 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
     public void addFeatureGenerator(FeatureGenerator featureGenerator) {
         featureGenerators.add(featureGenerator);
+    }
+
+    public void addFacetProvider(FacetProvider facetProvider) {
+        facetProviders.add(facetProvider);
     }
 
     public void setSeaLevel(int seaLevel) {
@@ -129,6 +135,10 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
                 .addProvider(new SeedProvider())
                 .addProvider(new TerrainVariationProvider());
 
+        for (FacetProvider facetProvider : facetProviders) {
+            worldBuilder.addProvider(facetProvider);
+        }
+
         for (ChunkDecorator chunkDecorator : chunkDecorators) {
             worldBuilder.addRasterizer(chunkDecorator);
         }
@@ -171,5 +181,10 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     @Override
     public float getHumidity(float x, float y, float z) {
         return 0.5f;
+    }
+
+    @Override
+    public World getWorld() {
+        return world;
     }
 }

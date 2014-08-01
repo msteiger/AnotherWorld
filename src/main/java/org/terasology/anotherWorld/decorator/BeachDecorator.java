@@ -57,14 +57,14 @@ public class BeachDecorator implements ChunkDecorator {
         SurfaceHeightFacet surfaceHeightFacet = chunkRegion.getFacet(SurfaceHeightFacet.class);
         TerrainVariationFacet terrainVariationFacet = chunkRegion.getFacet(TerrainVariationFacet.class);
         SeaLevelFacet seaLevelFacet = chunkRegion.getFacet(SeaLevelFacet.class);
-        int seaLevel = chunkRegion.getFacet(SeaLevelFacet.class).getSeaLevel();
+        int seaLevel = seaLevelFacet.getSeaLevel();
 
         for (Vector3i position : chunk.getRegion()) {
             int groundLevel = TeraMath.floorToInt(surfaceHeightFacet.getWorld(position.x, position.z));
             if (groundLevel <= seaLevel + aboveSeaLevel && groundLevel >= seaLevel - belowSeaLevel) {
                 for (int y = seaLevel - belowSeaLevel; y < seaLevel + aboveSeaLevel; y++) {
-                    if (blockFilter.apply(chunk.getBlock(position))) {
-                        chunk.setBlock(position, beachBlockProvider.provide(terrainVariationFacet.get(position)));
+                    if (blockFilter.apply(chunk.getBlock(TeraMath.calcBlockPos(position)))) {
+                        chunk.setBlock(TeraMath.calcBlockPos(position), beachBlockProvider.provide(terrainVariationFacet.getWorld(position)));
                     }
                 }
             }
