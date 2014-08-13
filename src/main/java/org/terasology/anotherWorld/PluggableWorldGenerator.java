@@ -169,21 +169,6 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     }
 
     @Override
-    public float getFog(float x, float y, float z) {
-        return 0.5f;
-    }
-
-    @Override
-    public float getTemperature(float x, float y, float z) {
-        return 0.5f;
-    }
-
-    @Override
-    public float getHumidity(float x, float y, float z) {
-        return 0.5f;
-    }
-
-    @Override
     public World getWorld() {
         return world;
     }
