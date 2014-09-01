@@ -46,6 +46,10 @@ public class LayeringDecorator implements ChunkDecorator {
     }
 
     @Override
+    public void initialize() {
+    }
+
+    @Override
     public void generateChunk(CoreChunk chunk, Region chunkRegion) {
         BiomeFacet biomeFacet = chunkRegion.getFacet(BiomeFacet.class);
         BiomeRegistry biomeRegistry = CoreRegistry.get(BiomeRegistry.class);

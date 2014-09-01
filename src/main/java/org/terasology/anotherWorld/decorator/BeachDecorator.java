@@ -53,6 +53,10 @@ public class BeachDecorator implements ChunkDecorator {
     }
 
     @Override
+    public void initialize() {
+    }
+
+    @Override
     public void generateChunk(CoreChunk chunk, Region chunkRegion) {
         SurfaceHeightFacet surfaceHeightFacet = chunkRegion.getFacet(SurfaceHeightFacet.class);
         TerrainVariationFacet terrainVariationFacet = chunkRegion.getFacet(TerrainVariationFacet.class);

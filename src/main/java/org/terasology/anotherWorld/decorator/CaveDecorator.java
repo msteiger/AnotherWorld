@@ -68,6 +68,10 @@ public class CaveDecorator implements ChunkDecorator {
     }
 
     @Override
+    public void initialize() {
+    }
+
+    @Override
     public void generateChunk(CoreChunk chunk, Region chunkRegion) {
         SeedFacet seedFacet = chunkRegion.getFacet(SeedFacet.class);
         Structure.StructureCallback callback = new StructureCallbackImpl(chunk);
