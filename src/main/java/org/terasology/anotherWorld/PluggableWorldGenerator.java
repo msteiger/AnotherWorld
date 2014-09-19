@@ -32,8 +32,6 @@ import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.core.world.generator.facetProviders.SeaLevelProvider;
 import org.terasology.core.world.generator.facetProviders.SurfaceToDensityProvider;
 import org.terasology.engine.SimpleUri;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.world.block.BlockManager;
 import org.terasology.world.chunks.CoreChunk;
 import org.terasology.world.generation.FacetProvider;
 import org.terasology.world.generation.World;
@@ -119,7 +117,6 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
     @Override
     public void initialize() {
-        BlockManager blockManager = CoreRegistry.get(BlockManager.class);
         WorldBuilder worldBuilder = new WorldBuilder(worldSeed.hashCode())
                 .addProvider(new SeaLevelProvider(seaLevel))
                 .addProvider(new MaxLevelProvider(maxLevel))
@@ -147,6 +144,7 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         }
 
         world = worldBuilder.build();
+        world.initialize();
     }
 
     @Override
