@@ -15,13 +15,13 @@
  */
 package org.terasology.anotherWorld.generation;
 
-import org.terasology.anotherWorld.Biome;
+import org.terasology.anotherWorld.AnotherWorldBiome;
 import org.terasology.math.Region3i;
 import org.terasology.world.generation.Border3D;
 import org.terasology.world.generation.facets.base.BaseObjectFacet2D;
 
-public class BiomeFacet extends BaseObjectFacet2D<Biome> {
+public class BiomeFacet extends BaseObjectFacet2D<AnotherWorldBiome> {
     public BiomeFacet(Region3i targetRegion, Border3D border) {
-        super(targetRegion, border, Biome.class);
+        super(targetRegion, border, AnotherWorldBiome.class);
     }
 }

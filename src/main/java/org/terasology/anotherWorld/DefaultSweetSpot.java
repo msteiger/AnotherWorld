@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.anotherWorld.coreBiome;
-
-import org.terasology.anotherWorld.Biome;
+package org.terasology.anotherWorld;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public class DefaultSweetSpot implements Biome.SweetSpot {
+class DefaultSweetSpot implements AnotherWorldBiome.SweetSpot {
     private float humidity;
     private float humidityWeight;
     private float temperature;

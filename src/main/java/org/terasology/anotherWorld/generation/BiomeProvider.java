@@ -15,10 +15,10 @@
  */
 package org.terasology.anotherWorld.generation;
 
-import org.terasology.anotherWorld.Biome;
-import org.terasology.anotherWorld.BiomeRegistry;
+import org.terasology.anotherWorld.AnotherWorldBiome;
 import org.terasology.math.Vector2i;
 import org.terasology.registry.CoreRegistry;
+import org.terasology.world.biomes.BiomeRegistry;
 import org.terasology.world.generation.Facet;
 import org.terasology.world.generation.FacetProvider;
 import org.terasology.world.generation.GeneratingRegion;
@@ -59,7 +59,7 @@ public class BiomeProvider implements FacetProvider {
             float hillyness = hillynessFacet.getWorld(pos);
             float surfaceHeight = surfaceHeightFacet.getWorld(pos);
 
-            Biome bestBiome = getBestBiomeMatch(biomeRegistry, temp, hum, hillyness, surfaceHeight);
+            AnotherWorldBiome bestBiome = getBestBiomeMatch(biomeRegistry, temp, hum, hillyness, surfaceHeight);
             facet.setWorld(pos, bestBiome);
         }
 
@@ -67,12 +67,12 @@ public class BiomeProvider implements FacetProvider {
     }
 
 
-    private Biome getBestBiomeMatch(BiomeRegistry biomeRegistry, float temp, float hum, float hillyness, float height) {
-        Biome chosenBiome = null;
+    private AnotherWorldBiome getBestBiomeMatch(BiomeRegistry biomeRegistry, float temp, float hum, float hillyness, float height) {
+        AnotherWorldBiome chosenBiome = null;
         float maxPriority = 0;
 
-        for (Biome biome : biomeRegistry.getBiomes()) {
-            final Biome.SweetSpot sweetSpot = biome.getSweetSpot();
+        for (AnotherWorldBiome biome : biomeRegistry.getBiomes(AnotherWorldBiome.class)) {
+            final AnotherWorldBiome.SweetSpot sweetSpot = biome.getSweetSpot();
             float matchPriority = 0;
 
             matchPriority += sweetSpot.getAboveSeaLevelWeight() * (1 - Math.abs(sweetSpot.getAboveSeaLevel() - height));

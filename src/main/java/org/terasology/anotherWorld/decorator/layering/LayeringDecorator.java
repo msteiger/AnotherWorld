@@ -15,12 +15,12 @@
  */
 package org.terasology.anotherWorld.decorator.layering;
 
-import org.terasology.anotherWorld.Biome;
-import org.terasology.anotherWorld.BiomeRegistry;
+import org.terasology.anotherWorld.AnotherWorldBiome;
 import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.generation.BiomeFacet;
 import org.terasology.math.Vector3i;
 import org.terasology.registry.CoreRegistry;
+import org.terasology.world.biomes.BiomeRegistry;
 import org.terasology.world.chunks.CoreChunk;
 import org.terasology.world.generation.Region;
 import org.terasology.world.generator.plugin.WorldGeneratorPluginLibrary;
@@ -55,7 +55,7 @@ public class LayeringDecorator implements ChunkDecorator {
         BiomeRegistry biomeRegistry = CoreRegistry.get(BiomeRegistry.class);
 
         for (Vector3i position : chunk.getRegion()) {
-            Biome biome = biomeFacet.getWorld(position.x, position.z);
+            AnotherWorldBiome biome = biomeFacet.getWorld(position.x, position.z);
             LayersDefinition matchingLayers = findMatchingLayers(biomeRegistry, biome);
             if (matchingLayers != null) {
                 /// Todo: what to do with the seed value here there is no chunk specific seed
@@ -64,14 +64,14 @@ public class LayeringDecorator implements ChunkDecorator {
         }
     }
 
-    private LayersDefinition findMatchingLayers(BiomeRegistry biomeRegistry, Biome biome) {
-        LayersDefinition layersDefinition = biomeLayers.get(biome.getBiomeId());
+    private LayersDefinition findMatchingLayers(BiomeRegistry biomeRegistry, AnotherWorldBiome biome) {
+        LayersDefinition layersDefinition = biomeLayers.get(biome.getId());
         if (layersDefinition != null) {
             return layersDefinition;
         }
         String biomeParentId = biome.getBiomeParent();
         if (biomeParentId != null) {
-            Biome parentBiome = biomeRegistry.getBiomeById(biomeParentId);
+            AnotherWorldBiome parentBiome = biomeRegistry.getBiomeById(biomeParentId, AnotherWorldBiome.class);
             if (parentBiome != null) {
                 return findMatchingLayers(biomeRegistry, parentBiome);
             }
