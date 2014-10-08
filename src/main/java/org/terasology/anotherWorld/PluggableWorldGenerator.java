@@ -117,6 +117,7 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
     @Override
     public void initialize() {
+        setupGenerator();
         WorldBuilder worldBuilder = new WorldBuilder(worldSeed.hashCode())
                 .addProvider(new SeaLevelProvider(seaLevel))
                 .addProvider(new MaxLevelProvider(maxLevel))
@@ -150,7 +151,6 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     @Override
     public void setWorldSeed(String seed) {
         worldSeed = seed;
-        setupGenerator();
     }
 
     protected abstract void setupGenerator();
