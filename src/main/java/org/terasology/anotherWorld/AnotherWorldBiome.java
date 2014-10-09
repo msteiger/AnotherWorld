@@ -15,25 +15,15 @@
  */
 package org.terasology.anotherWorld;
 
-import org.terasology.world.generator.plugin.WorldGeneratorPlugin;
+import org.terasology.world.biomes.Biome;
 
 /**
+ * Biomes used by the Another World generation framework need additional properties that are defined
+ * in this extension of the core biome interface.
+ *
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
-public interface Biome extends WorldGeneratorPlugin {
-    /**
-     * A unique identifier for this biome. Used by mods to map their behaviours based on the id.
-     *
-     * @return
-     */
-    String getBiomeId();
-
-    /**
-     * Returns human readable name of the biome.
-     *
-     * @return
-     */
-    String getBiomeName();
+public interface AnotherWorldBiome extends Biome {
 
     /**
      * What is the closest relative to this biome. Used when a mod requires to know the conditions in the biome,
@@ -57,8 +47,6 @@ public interface Biome extends WorldGeneratorPlugin {
      * @return
      */
     SweetSpot getSweetSpot();
-
-    float getFog();
 
     /**
      * Each value specifies what is the desired value for the field, for this biome to be allocated to a spot in the world.

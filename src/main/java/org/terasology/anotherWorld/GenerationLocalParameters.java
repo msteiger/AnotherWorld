@@ -9,14 +9,12 @@ import org.terasology.world.generation.facets.SurfaceTemperatureFacet;
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class GenerationLocalParameters implements LocalParameters {
-    private Region chunkRegion;
     private Vector3i location;
     private SurfaceTemperatureFacet surfaceTemperatureFacet;
     private SurfaceHumidityFacet surfaceHumidityFacet;
 
 
     public GenerationLocalParameters(Region chunkRegion, Vector3i location) {
-        this.chunkRegion = chunkRegion;
         this.location = location;
         surfaceTemperatureFacet = chunkRegion.getFacet(SurfaceTemperatureFacet.class);
         surfaceHumidityFacet = chunkRegion.getFacet(SurfaceHumidityFacet.class);
