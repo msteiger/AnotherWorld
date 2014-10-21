@@ -84,17 +84,12 @@ public class PerlinSurfaceHeightProvider implements FacetProvider {
         double noiseValue = 0;
         int scanArea = (int) ((1 - hillyness) * 50);
         int divider = 0;
-        float sampleReduction = scanArea / 4;
         // Scan and average heights in the circle of blocks with diameter of "scanArea" (based on hillyness)
-        for (int x = worldX - scanArea; x <= worldX + scanArea; x++) {
-            if (x % sampleReduction == 0) {
-                int zScan = (int) Math.sqrt(scanArea * scanArea - (x - worldX) * (x - worldX));
-                for (int z = worldZ - zScan; z <= worldZ + zScan; z++) {
-                    if (z % sampleReduction == 0) {
-                        noiseValue += noise.noise(terrainNoiseMultiplier * x, terrainNoiseMultiplier * z) / noiseScale;
-                        divider++;
-                    }
-                }
+        for (int x = worldX - scanArea; x <= worldX + scanArea; x+=4) {
+            int zScan = (int) Math.sqrt(scanArea * scanArea - (x - worldX) * (x - worldX));
+            for (int z = worldZ - zScan; z <= worldZ + zScan; z+=4) {
+                noiseValue += noise.noise(terrainNoiseMultiplier * x, terrainNoiseMultiplier * z) / noiseScale;
+                divider++;
             }
         }
         noiseValue /= divider;
