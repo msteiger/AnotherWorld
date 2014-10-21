@@ -18,7 +18,7 @@ package org.terasology.anotherWorld.decorator.layering;
 import org.terasology.anotherWorld.AnotherWorldBiome;
 import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.generation.BiomeFacet;
-import org.terasology.math.Vector3i;
+import org.terasology.math.Region3i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.biomes.BiomeRegistry;
 import org.terasology.world.chunks.CoreChunk;
@@ -35,9 +35,11 @@ import java.util.Map;
 public class LayeringDecorator implements ChunkDecorator {
     private Map<String, LayersDefinition> biomeLayers = new HashMap<>();
     private LayeringConfig layeringConfig;
+    private int seed;
 
-    public LayeringDecorator(LayeringConfig layeringConfig) {
+    public LayeringDecorator(LayeringConfig layeringConfig, int seed) {
         this.layeringConfig = layeringConfig;
+        this.seed = seed;
         loadLayers();
     }
 
@@ -50,16 +52,18 @@ public class LayeringDecorator implements ChunkDecorator {
     }
 
     @Override
-    public void generateChunk(CoreChunk chunk, Region chunkRegion) {
-        BiomeFacet biomeFacet = chunkRegion.getFacet(BiomeFacet.class);
+    public void generateChunk(CoreChunk chunk, Region region) {
+        BiomeFacet biomeFacet = region.getFacet(BiomeFacet.class);
         BiomeRegistry biomeRegistry = CoreRegistry.get(BiomeRegistry.class);
 
-        for (Vector3i position : chunk.getRegion()) {
-            AnotherWorldBiome biome = biomeFacet.getWorld(position.x, position.z);
-            LayersDefinition matchingLayers = findMatchingLayers(biomeRegistry, biome);
-            if (matchingLayers != null) {
-                /// Todo: what to do with the seed value here there is no chunk specific seed
-                matchingLayers.generateInChunk(chunkRegion.hashCode(), chunk, chunkRegion, position.x, position.z, layeringConfig);
+        Region3i chunkRegion = chunk.getRegion();
+        for (int x = chunkRegion.minX(); x <= chunkRegion.maxX(); x++) {
+            for (int z = chunkRegion.minZ(); z <= chunkRegion.maxZ(); z++) {
+                AnotherWorldBiome biome = biomeFacet.getWorld(x, z);
+                LayersDefinition matchingLayers = findMatchingLayers(biomeRegistry, biome);
+                if (matchingLayers != null) {
+                    matchingLayers.generateInChunk(seed, chunk, region, x, z, layeringConfig);
+                }
             }
         }
     }

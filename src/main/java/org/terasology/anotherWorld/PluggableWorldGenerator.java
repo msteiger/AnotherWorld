@@ -153,6 +153,10 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         worldSeed = seed;
     }
 
+    public String getWorldSeed() {
+        return worldSeed;
+    }
+
     protected abstract void setupGenerator();
 
 
