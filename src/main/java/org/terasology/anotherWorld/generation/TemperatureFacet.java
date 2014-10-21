@@ -45,14 +45,14 @@ public class TemperatureFacet extends BaseFacet3D {
 
     public float get(int x, int y, int z) {
         float result = noiseTable.noise(x * noiseMultiplier, z * noiseMultiplier);
-        float humidityBase = function.apply(TeraMath.clamp((result + 1.0f) / 2.0f));
+        float temperatureBase = function.apply(TeraMath.clamp((result + 1.0f) / 2.0f));
         if (y <= seaLevel) {
-            return humidityBase;
+            return temperatureBase;
         } else if (y >= maxLevel) {
             return 0;
         } else {
-            // The higher above see level - the less humid
-            return humidityBase * (1f * (maxLevel - y) / (maxLevel - seaLevel));
+            // The higher above see level - the colder
+            return temperatureBase * (1f * (maxLevel - y) / (maxLevel - seaLevel));
         }
     }
 }
