@@ -22,11 +22,9 @@ import org.terasology.anotherWorld.generation.BiomeProvider;
 import org.terasology.anotherWorld.generation.HillynessProvider;
 import org.terasology.anotherWorld.generation.MaxLevelProvider;
 import org.terasology.anotherWorld.generation.PerlinSurfaceHeightProvider;
-import org.terasology.anotherWorld.generation.SeaLevelHumidityProvider;
-import org.terasology.anotherWorld.generation.SeaLevelTemperatureProvider;
+import org.terasology.anotherWorld.generation.HumidityProvider;
 import org.terasology.anotherWorld.generation.SeedProvider;
-import org.terasology.anotherWorld.generation.SurfaceHumidityProvider;
-import org.terasology.anotherWorld.generation.SurfaceTemperatureProvider;
+import org.terasology.anotherWorld.generation.TemperatureProvider;
 import org.terasology.anotherWorld.generation.TerrainVariationProvider;
 import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.core.world.generator.facetProviders.SeaLevelProvider;
@@ -126,10 +124,8 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
                 .addProvider(new MaxLevelProvider(maxLevel))
                 .addProvider(surfaceHeightProvider)
                 .addProvider(new SurfaceToDensityProvider())
-                .addProvider(new SeaLevelHumidityProvider(biomeDiversity, humidityFunction))
-                .addProvider(new SurfaceHumidityProvider())
-                .addProvider(new SeaLevelTemperatureProvider(biomeDiversity, temperatureFunction))
-                .addProvider(new SurfaceTemperatureProvider())
+                .addProvider(new HumidityProvider(biomeDiversity, humidityFunction))
+                .addProvider(new TemperatureProvider(biomeDiversity, temperatureFunction))
                 .addProvider(new SeedProvider())
                 .addProvider(new TerrainVariationProvider());
 

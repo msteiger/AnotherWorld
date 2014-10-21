@@ -17,6 +17,7 @@ package org.terasology.anotherWorld.decorator.layering;
 
 import org.terasology.anotherWorld.util.ChunkRandom;
 import org.terasology.anotherWorld.util.PDist;
+import org.terasology.math.Region3i;
 import org.terasology.math.TeraMath;
 import org.terasology.utilities.random.Random;
 import org.terasology.world.block.Block;
@@ -50,16 +51,21 @@ public class DefaultLayersDefinition implements LayersDefinition {
     }
 
     @Override
-    public void generateInChunk(long seed, CoreChunk chunk, Region chunkRegion, int x, int z, LayeringConfig layeringConfig) {
+    public void generateInChunk(long seed, CoreChunk chunk, Region region, int x, int z, LayeringConfig layeringConfig) {
         Random random = ChunkRandom.getChunkRandom(seed, chunk.getPosition(), 349 * (31 * x + z));
-        int seaLevel = chunkRegion.getFacet(SeaLevelFacet.class).getSeaLevel();
-        int groundLevel = TeraMath.floorToInt(chunkRegion.getFacet(SurfaceHeightFacet.class).getWorld(x, z));
+        int seaLevel = region.getFacet(SeaLevelFacet.class).getSeaLevel();
+        int groundLevel = TeraMath.floorToInt(region.getFacet(SurfaceHeightFacet.class).getWorld(x, z));
         boolean underSea = groundLevel < seaLevel;
 
-        for (int level = seaLevel; level > groundLevel; level--) {
-            if (chunk.getRegion().encompasses(x, level, z)) {
-                chunk.setBlock(TeraMath.calcBlockPos(x, level, z), layeringConfig.getSeaBlock());
-                chunk.setLiquid(TeraMath.calcBlockPos(x, level, z), new LiquidData(layeringConfig.getSeaLiquid(), LiquidData.MAX_LIQUID_DEPTH));
+        Region3i chunkRegion = chunk.getRegion();
+        if (underSea) {
+            int seaBottom = Math.max(groundLevel + 1, chunkRegion.minY());
+            int seaTop = Math.min(seaLevel+1, chunkRegion.maxY());
+            for (int level = seaBottom; level <seaTop; level++) {
+//                if (chunkRegion.encompasses(x, level, z)) {
+                    chunk.setBlock(TeraMath.calcBlockPos(x, level, z), layeringConfig.getSeaBlock());
+                    chunk.setLiquid(TeraMath.calcBlockPos(x, level, z), new LiquidData(layeringConfig.getSeaLiquid(), LiquidData.MAX_LIQUID_DEPTH));
+//                }
             }
         }
 
@@ -69,7 +75,7 @@ public class DefaultLayersDefinition implements LayersDefinition {
                 int layerHeight = layerDefinition.thickness.getIntValue(random);
                 for (int i = 0; i < layerHeight; i++) {
                     if (level - i > 0) {
-                        if (chunk.getRegion().encompasses(x, level - i, z)) {
+                        if (chunkRegion.encompasses(x, level - i, z)) {
                             chunk.setBlock(TeraMath.calcBlockPos(x, level - i, z), layerDefinition.block);
                         }
                     }
@@ -82,14 +88,14 @@ public class DefaultLayersDefinition implements LayersDefinition {
         }
 
         for (int i = level; i > 0; i--) {
-            if (chunk.getRegion().encompasses(x, i, z)) {
+            if (chunkRegion.encompasses(x, i, z)) {
 
                 chunk.setBlock(TeraMath.calcBlockPos(x, i, z), layeringConfig.getMainBlock());
             }
         }
 
 
-        if (chunk.getRegion().encompasses(x, 0, z)) {
+        if (chunkRegion.encompasses(x, 0, z)) {
             chunk.setBlock(TeraMath.calcBlockPos(x, 0, z), layeringConfig.getBottomBlock());
         }
     }

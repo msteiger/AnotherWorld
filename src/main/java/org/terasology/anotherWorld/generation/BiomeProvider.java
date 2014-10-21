@@ -16,6 +16,7 @@
 package org.terasology.anotherWorld.generation;
 
 import org.terasology.anotherWorld.AnotherWorldBiome;
+import org.terasology.math.TeraMath;
 import org.terasology.math.Vector2i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.biomes.BiomeRegistry;
@@ -26,13 +27,11 @@ import org.terasology.world.generation.Produces;
 import org.terasology.world.generation.Requires;
 import org.terasology.world.generation.facets.SeaLevelFacet;
 import org.terasology.world.generation.facets.SurfaceHeightFacet;
-import org.terasology.world.generation.facets.SurfaceHumidityFacet;
-import org.terasology.world.generation.facets.SurfaceTemperatureFacet;
 
 
 @Produces(BiomeFacet.class)
-@Requires({@Facet(SurfaceTemperatureFacet.class),
-        @Facet(SurfaceHumidityFacet.class),
+@Requires({@Facet(TemperatureFacet.class),
+        @Facet(HumidityFacet.class),
         @Facet(HillynessFacet.class),
         @Facet(SurfaceHeightFacet.class),
         @Facet(SeaLevelFacet.class),
@@ -46,18 +45,18 @@ public class BiomeProvider implements FacetProvider {
     @Override
     public void process(GeneratingRegion region) {
         BiomeFacet facet = new BiomeFacet(region.getRegion(), region.getBorderForFacet(BiomeFacet.class));
-        SurfaceTemperatureFacet temperatureFacet = region.getRegionFacet(SurfaceTemperatureFacet.class);
-        SurfaceHumidityFacet surfaceHumidityFacet = region.getRegionFacet(SurfaceHumidityFacet.class);
+        TemperatureFacet temperatureFacet = region.getRegionFacet(TemperatureFacet.class);
+        HumidityFacet surfaceHumidityFacet = region.getRegionFacet(HumidityFacet.class);
         HillynessFacet hillynessFacet = region.getRegionFacet(HillynessFacet.class);
         SurfaceHeightFacet surfaceHeightFacet = region.getRegionFacet(SurfaceHeightFacet.class);
 
         BiomeRegistry biomeRegistry = CoreRegistry.get(BiomeRegistry.class);
 
         for (Vector2i pos : facet.getWorldRegion()) {
-            float temp = temperatureFacet.getWorld(pos);
-            float hum = surfaceHumidityFacet.getWorld(pos);
+            int surfaceHeight = TeraMath.floorToInt(surfaceHeightFacet.getWorld(pos));
+            float temp = temperatureFacet.get(pos.x, surfaceHeight, pos.y);
+            float hum = surfaceHumidityFacet.get(pos.x, surfaceHeight, pos.y);
             float hillyness = hillynessFacet.getWorld(pos);
-            float surfaceHeight = surfaceHeightFacet.getWorld(pos);
 
             AnotherWorldBiome bestBiome = getBestBiomeMatch(biomeRegistry, temp, hum, hillyness, surfaceHeight);
             facet.setWorld(pos, bestBiome);

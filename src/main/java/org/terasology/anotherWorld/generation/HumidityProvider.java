@@ -16,42 +16,41 @@
 package org.terasology.anotherWorld.generation;
 
 import com.google.common.base.Function;
-import org.terasology.math.TeraMath;
-import org.terasology.math.Vector2i;
-import org.terasology.utilities.procedural.Noise2D;
-import org.terasology.utilities.procedural.SimplexNoise;
-import org.terasology.world.generation.FacetProvider;
-import org.terasology.world.generation.GeneratingRegion;
-import org.terasology.world.generation.Produces;
+import org.terasology.world.generation.*;
+import org.terasology.world.generation.facets.SeaLevelFacet;
 
-@Produces(SeaLevelHumidityFacet.class)
-public class SeaLevelHumidityProvider implements FacetProvider {
+/**
+ * Created by Marcin on 2014-10-20.
+ */
+@Produces(HumidityFacet.class)
+@Requires({@Facet(SeaLevelFacet.class), @Facet(MaxLevelFacet.class)})
+public class HumidityProvider implements FacetProvider {
     private final float minMultiplier = 0.0005f;
     private final float maxMultiplier = 0.01f;
 
-    private Noise2D humidityNoise;
+    private long humiditySeed;
     private float noiseMultiplier;
     private Function<Float, Float> humidityFunction;
 
-    public SeaLevelHumidityProvider(float conditionsDiversity, Function<Float, Float> humidityFunction) {
+    public HumidityProvider(float conditionsDiversity, Function<Float, Float> humidityFunction) {
         this.humidityFunction = humidityFunction;
         noiseMultiplier = minMultiplier + (maxMultiplier - minMultiplier) * conditionsDiversity;
     }
 
     @Override
     public void setSeed(long seed) {
-        humidityNoise = new SimplexNoise(seed + 129534);
+        humiditySeed = seed + 129534;
     }
 
     @Override
     public void process(GeneratingRegion region) {
-        SeaLevelHumidityFacet facet = new SeaLevelHumidityFacet(region.getRegion(), region.getBorderForFacet(SeaLevelHumidityFacet.class));
+        Border3D border = region.getBorderForFacet(HillynessFacet.class);
+        SeaLevelFacet seaLevelFacet = region.getRegionFacet(SeaLevelFacet.class);
+        int seaLevel = seaLevelFacet.getSeaLevel();
+        MaxLevelFacet maxLevelFacet = region.getRegionFacet(MaxLevelFacet.class);
+        int maxLevel = maxLevelFacet.getMaxLevel();
 
-        for (Vector2i position : facet.getWorldRegion()) {
-            double result = humidityNoise.noise(position.x * noiseMultiplier, position.y * noiseMultiplier);
-            facet.setWorld(position, humidityFunction.apply((float) TeraMath.clamp((result + 1.0f) / 2.0f)));
-        }
-
-        region.setRegionFacet(SeaLevelHumidityFacet.class, facet);
+        HumidityFacet facet = new HumidityFacet(region.getRegion(), border, seaLevel, maxLevel, noiseMultiplier, humidityFunction, humiditySeed);
+        region.setRegionFacet(HumidityFacet.class, facet);
     }
 }
