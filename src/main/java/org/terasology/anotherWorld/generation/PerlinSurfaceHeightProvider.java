@@ -48,8 +48,8 @@ public class PerlinSurfaceHeightProvider implements FacetProvider {
     private Function<Float, Float> hillynessFunction;
     private TerrainDeformation terrainDeformation;
 
-    private final float minMultiplier = 0.0005f;
-    private final float maxMultiplier = 0.01f;
+    private final float minMultiplier = 0.00005f;
+    private final float maxMultiplier = 0.001f;
 
     @Deprecated
     public PerlinSurfaceHeightProvider(float seaFrequency, Function<Float, Float> heightAboveSeaLevelFunction,
