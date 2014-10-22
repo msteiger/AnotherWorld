@@ -59,8 +59,6 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
     private PerlinSurfaceHeightProvider surfaceHeightProvider;
 
-    private TerrainShapeProvider terrainShapeProvider;
-
     public PluggableWorldGenerator(SimpleUri uri) {
         this.uri = uri;
     }
@@ -118,7 +116,6 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         setupGenerator();
         WorldBuilder worldBuilder = new WorldBuilder(worldSeed.hashCode())
                 .addProvider(new SeaLevelProvider(seaLevel))
-                .addProvider(new MaxLevelProvider(maxLevel))
                 .addProvider(new BiomeProvider())
                 .addProvider(new HillynessProvider())
                 .addProvider(new MaxLevelProvider(maxLevel))
