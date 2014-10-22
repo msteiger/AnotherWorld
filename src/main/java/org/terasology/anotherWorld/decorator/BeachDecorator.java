@@ -68,7 +68,7 @@ public class BeachDecorator implements ChunkDecorator {
             if (groundLevel <= seaLevel + aboveSeaLevel && groundLevel >= seaLevel - belowSeaLevel) {
                 for (int y = seaLevel - belowSeaLevel; y < seaLevel + aboveSeaLevel; y++) {
                     if (blockFilter.apply(chunk.getBlock(TeraMath.calcBlockPos(position)))) {
-                        chunk.setBlock(TeraMath.calcBlockPos(position), beachBlockProvider.provide(terrainVariationFacet.getWorld(position)));
+                        chunk.setBlock(TeraMath.calcBlockPos(position), beachBlockProvider.provide(terrainVariationFacet.get(position.x, position.y, position.z)));
                     }
                 }
             }

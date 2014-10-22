@@ -36,12 +36,7 @@ public class TerrainVariationProvider implements FacetProvider {
 
     @Override
     public void process(GeneratingRegion region) {
-        TerrainVariationFacet facet = new TerrainVariationFacet(region.getRegion(), region.getBorderForFacet(TerrainVariationFacet.class));
-
-        for (Vector3i position : facet.getWorldRegion()) {
-            float noiseValue = alpha.apply((float) (1 + noise.noise(position.x * 0.01f, position.y * 0.01f, position.z * 0.01f)) / 2f);
-            facet.setWorld(position, noiseValue);
-        }
+        TerrainVariationFacet facet = new TerrainVariationFacet(region.getRegion(), region.getBorderForFacet(TerrainVariationFacet.class), noise);
 
         region.setRegionFacet(TerrainVariationFacet.class, facet);
     }

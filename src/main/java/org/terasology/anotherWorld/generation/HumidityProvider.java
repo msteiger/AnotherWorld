@@ -44,7 +44,7 @@ public class HumidityProvider implements FacetProvider {
 
     @Override
     public void process(GeneratingRegion region) {
-        Border3D border = region.getBorderForFacet(HillynessFacet.class);
+        Border3D border = region.getBorderForFacet(HumidityFacet.class);
         SeaLevelFacet seaLevelFacet = region.getRegionFacet(SeaLevelFacet.class);
         int seaLevel = seaLevelFacet.getSeaLevel();
         MaxLevelFacet maxLevelFacet = region.getRegionFacet(MaxLevelFacet.class);
