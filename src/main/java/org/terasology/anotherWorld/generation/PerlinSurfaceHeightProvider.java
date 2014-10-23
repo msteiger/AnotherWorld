@@ -80,9 +80,11 @@ public class PerlinSurfaceHeightProvider implements FacetProvider {
         terrainDeformation = new TerrainDeformation(seed, hillynessDiversity, hillynessFunction);
     }
 
-    private float getNoiseInWorld(float hillyness, int worldX, int worldZ) {
+    private float getNoiseInWorld(int worldX, int worldZ) {
+        float hillyness = terrainDeformation.getHillyness(worldX, worldZ);
+
         double noiseValue = 0;
-        int scanArea = (int) ((1 - hillyness) * 50);
+        int scanArea = (int) ((1 - hillyness) * 30);
         int divider = 0;
         int sampleReduction = Math.max(1, scanArea / 4);
         // Scan and average heights in the circle of blocks with diameter of "scanArea" (based on hillyness)
@@ -111,9 +113,9 @@ public class PerlinSurfaceHeightProvider implements FacetProvider {
         float maxLevel = maxLevelFacet.getMaxLevel();
 
         for (Vector2i position : facet.getWorldRegion()) {
-            float hillyness = terrainDeformation.getHillyness(position.x, position.y);
-            float noiseValue = getNoiseInWorld(hillyness, position.x, position.y);
+            float noiseValue = getNoiseInWorld(position.x, position.y);
             if (noiseValue < seaFrequency) {
+                // Number in range 0<=alpha<1
                 float alphaBelowSeaLevel = (noiseValue / seaFrequency);
                 float resultAlpha = heightBelowSeaLevelFunction.apply(alphaBelowSeaLevel);
                 facet.setWorld(position, (seaLevel * resultAlpha));
