@@ -15,11 +15,8 @@
  */
 package org.terasology.anotherWorld.generation;
 
-import com.google.common.base.Function;
+import org.terasology.anotherWorld.environment.ConditionsBaseField;
 import org.terasology.math.Region3i;
-import org.terasology.math.TeraMath;
-import org.terasology.utilities.procedural.Noise2D;
-import org.terasology.utilities.procedural.SimplexNoise;
 import org.terasology.world.generation.Border3D;
 import org.terasology.world.generation.facets.base.BaseFacet3D;
 
@@ -27,32 +24,14 @@ import org.terasology.world.generation.facets.base.BaseFacet3D;
  * Created by Marcin on 2014-10-20.
  */
 public class HumidityFacet extends BaseFacet3D {
-    private Noise2D noiseTable;
-    private int seaLevel;
-    private int maxLevel;
-    private float noiseMultiplier;
-    private Function<Float, Float> function;
+    private ConditionsBaseField humidityBaseField;
 
-    public HumidityFacet(Region3i targetRegion, Border3D border, int seaLevel, int maxLevel, float noiseMultiplier,
-                         Function<Float, Float> function, long humiditySeed) {
+    public HumidityFacet(Region3i targetRegion, Border3D border, ConditionsBaseField humidityBaseField) {
         super(targetRegion, border);
-        this.seaLevel = seaLevel;
-        this.maxLevel = maxLevel;
-        this.noiseMultiplier = noiseMultiplier;
-        this.function = function;
-        noiseTable = new SimplexNoise(humiditySeed);
+        this.humidityBaseField = humidityBaseField;
     }
 
     public float get(int x, int y, int z) {
-        float result = noiseTable.noise(x * noiseMultiplier, z * noiseMultiplier);
-        float humidityBase = function.apply(TeraMath.clamp((result + 1.0f) / 2.0f));
-        if (y <= seaLevel) {
-            return humidityBase;
-        } else if (y >= maxLevel) {
-            return 0;
-        } else {
-            // The higher above see level - the less humid
-            return humidityBase * (1f * (maxLevel - y) / (maxLevel - seaLevel));
-        }
+        return humidityBaseField.get(x, y, z);
     }
 }

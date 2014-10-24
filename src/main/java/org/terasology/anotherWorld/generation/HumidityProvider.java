@@ -16,6 +16,7 @@
 package org.terasology.anotherWorld.generation;
 
 import com.google.common.base.Function;
+import org.terasology.anotherWorld.environment.ConditionsBaseField;
 import org.terasology.world.generation.*;
 import org.terasology.world.generation.facets.SeaLevelFacet;
 
@@ -23,34 +24,22 @@ import org.terasology.world.generation.facets.SeaLevelFacet;
  * Created by Marcin on 2014-10-20.
  */
 @Produces(HumidityFacet.class)
-@Requires({@Facet(SeaLevelFacet.class), @Facet(MaxLevelFacet.class)})
 public class HumidityProvider implements FacetProvider {
-    private final float minMultiplier = 0.0005f;
-    private final float maxMultiplier = 0.01f;
+    private ConditionsBaseField conditionsBaseField;
 
-    private long humiditySeed;
-    private float noiseMultiplier;
-    private Function<Float, Float> humidityFunction;
-
-    public HumidityProvider(float conditionsDiversity, Function<Float, Float> humidityFunction) {
-        this.humidityFunction = humidityFunction;
-        noiseMultiplier = minMultiplier + (maxMultiplier - minMultiplier) * conditionsDiversity;
+    public HumidityProvider(ConditionsBaseField conditionsBaseField) {
+        this.conditionsBaseField = conditionsBaseField;
     }
 
     @Override
     public void setSeed(long seed) {
-        humiditySeed = seed + 129534;
     }
 
     @Override
     public void process(GeneratingRegion region) {
         Border3D border = region.getBorderForFacet(HumidityFacet.class);
-        SeaLevelFacet seaLevelFacet = region.getRegionFacet(SeaLevelFacet.class);
-        int seaLevel = seaLevelFacet.getSeaLevel();
-        MaxLevelFacet maxLevelFacet = region.getRegionFacet(MaxLevelFacet.class);
-        int maxLevel = maxLevelFacet.getMaxLevel();
 
-        HumidityFacet facet = new HumidityFacet(region.getRegion(), border, seaLevel, maxLevel, noiseMultiplier, humidityFunction, humiditySeed);
+        HumidityFacet facet = new HumidityFacet(region.getRegion(), border, conditionsBaseField);
         region.setRegionFacet(HumidityFacet.class, facet);
     }
 }

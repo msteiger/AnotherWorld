@@ -16,8 +16,11 @@
 package org.terasology.anotherWorld;
 
 import com.google.common.base.Function;
+import com.sun.deploy.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terasology.anotherWorld.environment.ConditionsBaseField;
+import org.terasology.anotherWorld.environment.EnvironmentSystem;
 import org.terasology.anotherWorld.generation.BiomeProvider;
 import org.terasology.anotherWorld.generation.HillynessProvider;
 import org.terasology.anotherWorld.generation.MaxLevelProvider;
@@ -30,6 +33,7 @@ import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.core.world.generator.facetProviders.SeaLevelProvider;
 import org.terasology.core.world.generator.facetProviders.SurfaceToDensityProvider;
 import org.terasology.engine.SimpleUri;
+import org.terasology.registry.CoreRegistry;
 import org.terasology.world.chunks.CoreChunk;
 import org.terasology.world.generation.FacetProvider;
 import org.terasology.world.generation.World;
@@ -114,6 +118,14 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     @Override
     public void initialize() {
         setupGenerator();
+
+        EnvironmentSystem environmentSystem = CoreRegistry.get(EnvironmentSystem.class);
+        environmentSystem.configureHumidity(seaLevel, maxLevel, biomeDiversity, humidityFunction, 0, 1);
+        environmentSystem.configureTemperature(seaLevel, maxLevel, biomeDiversity, temperatureFunction, -20, 40);
+
+        ConditionsBaseField temperatureBaseField = environmentSystem.getTemperatureBaseField();
+        ConditionsBaseField humidityBaseField = environmentSystem.getHumidityBaseField();
+
         WorldBuilder worldBuilder = new WorldBuilder(worldSeed.hashCode())
                 .addProvider(new SeaLevelProvider(seaLevel))
                 .addProvider(new BiomeProvider())
@@ -121,8 +133,8 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
                 .addProvider(new MaxLevelProvider(maxLevel))
                 .addProvider(surfaceHeightProvider)
                 .addProvider(new SurfaceToDensityProvider())
-                .addProvider(new HumidityProvider(biomeDiversity, humidityFunction))
-                .addProvider(new TemperatureProvider(biomeDiversity, temperatureFunction))
+                .addProvider(new HumidityProvider(humidityBaseField))
+                .addProvider(new TemperatureProvider(temperatureBaseField))
                 .addProvider(new SeedProvider())
                 .addProvider(new TerrainVariationProvider());
 

@@ -15,11 +15,8 @@
  */
 package org.terasology.anotherWorld.generation;
 
-import com.google.common.base.Function;
+import org.terasology.anotherWorld.environment.ConditionsBaseField;
 import org.terasology.math.Region3i;
-import org.terasology.math.TeraMath;
-import org.terasology.utilities.procedural.Noise2D;
-import org.terasology.utilities.procedural.SimplexNoise;
 import org.terasology.world.generation.Border3D;
 import org.terasology.world.generation.facets.base.BaseFacet3D;
 
@@ -27,32 +24,14 @@ import org.terasology.world.generation.facets.base.BaseFacet3D;
  * Created by Marcin on 2014-10-20.
  */
 public class TemperatureFacet extends BaseFacet3D {
-    private Noise2D noiseTable;
-    private int seaLevel;
-    private int maxLevel;
-    private float noiseMultiplier;
-    private Function<Float, Float> function;
+    private ConditionsBaseField temperatureBaseField;
 
-    public TemperatureFacet(Region3i targetRegion, Border3D border, int seaLevel, int maxLevel, float noiseMultiplier,
-                         Function<Float, Float> function, long temperatureSeed) {
+    public TemperatureFacet(Region3i targetRegion, Border3D border, ConditionsBaseField temperatureBaseField) {
         super(targetRegion, border);
-        this.seaLevel = seaLevel;
-        this.maxLevel = maxLevel;
-        this.noiseMultiplier = noiseMultiplier;
-        this.function = function;
-        noiseTable = new SimplexNoise(temperatureSeed);
+        this.temperatureBaseField = temperatureBaseField;
     }
 
     public float get(int x, int y, int z) {
-        float result = noiseTable.noise(x * noiseMultiplier, z * noiseMultiplier);
-        float temperatureBase = function.apply(TeraMath.clamp((result + 1.0f) / 2.0f));
-        if (y <= seaLevel) {
-            return temperatureBase;
-        } else if (y >= maxLevel) {
-            return 0;
-        } else {
-            // The higher above see level - the colder
-            return temperatureBase * (1f * (maxLevel - y) / (maxLevel - seaLevel));
-        }
+        return temperatureBaseField.get(x, y, z);
     }
 }
