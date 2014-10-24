@@ -43,21 +43,26 @@ public abstract class AbstractMultiChunkStructureDefinition implements Structure
         Vector3i chunkPosition = chunk.getPosition();
         Vector3i chunkSize = new Vector3i(chunk.getChunkSizeX(), chunk.getChunkSizeY(), chunk.getChunkSizeZ());
 
-        int chunksRangeToEvaluate = (int) Math.ceil(Math.max(maxRange / chunk.getChunkSizeX(), maxRange / chunk.getChunkSizeZ()));
-        for (int chunkX = -chunksRangeToEvaluate; chunkX <= chunksRangeToEvaluate; chunkX++) {
-            for (int chunkZ = -chunksRangeToEvaluate; chunkZ <= chunksRangeToEvaluate; chunkZ++) {
-                generateStructuresForChunkWithFrequency(result, seed,
-                        new Vector3i(
-                                chunkPosition.x + chunkX, 0,
-                                chunkPosition.z + chunkZ),
-                        chunkSize, chunkX * chunk.getChunkSizeX(), chunkZ * chunk.getChunkSizeZ());
+        int chunksRangeToEvaluateX = (int) Math.ceil(maxRange / chunk.getChunkSizeX());
+        int chunksRangeToEvaluateY = (int) Math.ceil(maxRange / chunk.getChunkSizeY());
+        int chunksRangeToEvaluateZ = (int) Math.ceil(maxRange / chunk.getChunkSizeZ());
+        for (int chunkX = -chunksRangeToEvaluateX; chunkX <= chunksRangeToEvaluateX; chunkX++) {
+            for (int chunkY = -chunksRangeToEvaluateY; chunkY <= chunksRangeToEvaluateY; chunkY++){
+                for (int chunkZ = -chunksRangeToEvaluateZ; chunkZ <= chunksRangeToEvaluateZ; chunkZ++) {
+                    generateStructuresForChunkWithFrequency(result, seed,
+                            new Vector3i(
+                                    chunkPosition.x + chunkX,
+                                    chunkPosition.y + chunkY,
+                                    chunkPosition.z + chunkZ),
+                            chunkSize, chunkX * chunk.getChunkSizeX(), chunkY * chunk.getChunkSizeY(), chunkZ * chunk.getChunkSizeZ());
+                }
             }
         }
 
         return result;
     }
 
-    protected final void generateStructuresForChunkWithFrequency(List<Structure> result, long seed, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int zShift) {
+    protected final void generateStructuresForChunkWithFrequency(List<Structure> result, long seed, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int yShift, int zShift) {
         Random random = ChunkRandom.getChunkRandom(seed, chunkPosition, getGeneratorSalt());
 
         float structuresInChunk = frequency.getValue(random);
@@ -69,7 +74,7 @@ public abstract class AbstractMultiChunkStructureDefinition implements Structure
         }
 
         for (int i = 0; i < structuresToGenerateInChunk; i++) {
-            generateStructuresForChunk(result, random, chunkSize, xShift, zShift);
+            generateStructuresForChunk(result, random, chunkPosition, chunkSize, xShift, yShift, zShift);
         }
     }
 
@@ -77,5 +82,5 @@ public abstract class AbstractMultiChunkStructureDefinition implements Structure
 
     protected abstract int getGeneratorSalt();
 
-    protected abstract void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkSize, int xShift, int zShift);
+    protected abstract void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int yShift, int zShift);
 }

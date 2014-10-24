@@ -66,22 +66,28 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
     }
 
     @Override
-    protected void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkSize, int xShift, int zShift) {
+    protected void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int yShift, int zShift) {
         // cloud X,Y,Z coordinates within chunk
-        float clX = random.nextFloat() * chunkSize.x + xShift;
-        float clY = pocketYLevel.getValue(random);
-        float clZ = random.nextFloat() * chunkSize.z + zShift;
+        float minY = Math.max(chunkPosition.y * chunkSize.y, pocketYLevel.getMin());
+        float maxY = Math.min((chunkPosition.y + 1) * chunkSize.y, pocketYLevel.getMax());
+        if (minY<=maxY) {
+            // Y is in world coordinates, need to move it to coordinates of the chunk we generate it for
+            float clY = random.nextFloat(minY, maxY) - chunkPosition.y * chunkSize.y + yShift;
 
-        // cloud transformation matrix
-        Transform clMat = new Transform();
-        clMat.translate(clX, clY, clZ); // center translation
-        clMat.rotateZInto(0, 1, 0); // rotate Z axis upward
-        clMat.rotateZ(random.nextFloat() * 6.28319F); // phi rotation
-        clMat.rotateY(pocketAngle.getValue(random)); // theta rotation
-        clMat.scale(pocketRadius.getValue(random), pocketRadius.getValue(random), pocketThickness.getValue(random)); // scale axes
+            float clX = random.nextFloat() * chunkSize.x + xShift;
+            float clZ = random.nextFloat() * chunkSize.z + zShift;
 
-        // create cloud component
-        result.add(new DiffusePocketStructure(clMat, random, chunkSize));
+            // cloud transformation matrix
+            Transform clMat = new Transform();
+            clMat.translate(clX, clY, clZ); // center translation
+            clMat.rotateZInto(0, 1, 0); // rotate Z axis upward
+            clMat.rotateZ(random.nextFloat() * 6.28319F); // phi rotation
+            clMat.rotateY(pocketAngle.getValue(random)); // theta rotation
+            clMat.scale(pocketRadius.getValue(random), pocketRadius.getValue(random), pocketThickness.getValue(random)); // scale axes
+
+            // create cloud component
+            result.add(new DiffusePocketStructure(clMat, random, chunkSize));
+        }
     }
 
     public interface PocketBlockProvider {
