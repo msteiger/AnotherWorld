@@ -24,6 +24,6 @@ import org.terasology.utilities.random.Random;
  */
 public abstract class ChunkRandom {
     public static Random getChunkRandom(long seed, Vector3i location, int salt) {
-        return new FastRandom(seed + salt * (97 * location.x + location.z));
+        return new FastRandom(seed + salt * (97 * location.x + 13*location.y + location.z));
     }
 }

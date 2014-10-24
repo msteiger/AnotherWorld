@@ -83,36 +83,42 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
     }
 
     @Override
-    protected void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkSize, int xShift, int zShift) {
+    protected void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int yShift, int zShift) {
         // motherlode X,Y,Z coordinates within chunk
-        float mlX = random.nextFloat() * chunkSize.x + xShift;
-        float mlY = motherLodeYLevel.getValue(random);
-        float mlZ = random.nextFloat() * chunkSize.z + zShift;
+        float minY = Math.max(chunkPosition.y * chunkSize.y, motherLodeYLevel.getMin());
+        float maxY = Math.min((chunkPosition.y + 1) * chunkSize.y, motherLodeYLevel.getMax());
+        if (minY <= maxY) {
+            // Y is in world coordinates, need to move it to coordinates of the chunk we generate it for
+            float mlY = random.nextFloat(minY, maxY) - chunkPosition.y * chunkSize.y + yShift;
 
-        // motherlode transformation matrix
-        Transform mlMat = new Transform();
-        mlMat.translate(mlX, mlY, mlZ); // center translation
-        mlMat.rotateZ(random.nextFloat() * 6.28319F); // phi rotation
-        mlMat.rotateY(random.nextFloat() * 6.28319F); // theta rotation
-        mlMat.scale(motherLodeRadius.getValue(random), motherLodeRadius.getValue(random), motherLodeRadius.getValue(random)); // scale axes
+            float mlX = random.nextFloat() * chunkSize.x + xShift;
+            float mlZ = random.nextFloat() * chunkSize.z + zShift;
 
-        // create motherlode component
-        result.add(new SolidSphereStructure(mlMat, chunkSize, random));
+            // motherlode transformation matrix
+            Transform mlMat = new Transform();
+            mlMat.translate(mlX, mlY, mlZ); // center translation
+            mlMat.rotateZ(random.nextFloat() * 6.28319F); // phi rotation
+            mlMat.rotateY(random.nextFloat() * 6.28319F); // theta rotation
+            mlMat.scale(motherLodeRadius.getValue(random), motherLodeRadius.getValue(random), motherLodeRadius.getValue(random)); // scale axes
 
-        // create random number of branches
-        for (int br = branchFrequency.getIntValue(random); br > 0; br--) {
-            // generate an independent random for this branch
-            Random brRandom = new FastRandom(random.nextLong());
-            // initialize branch transform
-            Transform segMat = new Transform();
-            segMat.translate(mlX, mlY, mlZ);  // motherlode translation
-            segMat.rotateY(brRandom.nextFloat() * 6.28319F); // random rotation about vertical
-            segMat.rotateX(-branchInclination.getValue(brRandom)); // angle from horizontal
-            // calculate height limits
-            float maxHeight = mlY + branchHeightLimit.getValue(brRandom);
-            float minHeight = mlY - branchHeightLimit.getValue(brRandom);
-            // create branch
-            generateBranch(result, branchLength.getValue(brRandom), maxHeight, minHeight, segMat, null, brRandom);
+            // create motherlode component
+            result.add(new SolidSphereStructure(mlMat, chunkSize, random));
+
+            // create random number of branches
+            for (int br = branchFrequency.getIntValue(random); br > 0; br--) {
+                // generate an independent random for this branch
+                Random brRandom = new FastRandom(random.nextLong());
+                // initialize branch transform
+                Transform segMat = new Transform();
+                segMat.translate(mlX, mlY, mlZ);  // motherlode translation
+                segMat.rotateY(brRandom.nextFloat() * 6.28319F); // random rotation about vertical
+                segMat.rotateX(-branchInclination.getValue(brRandom)); // angle from horizontal
+                // calculate height limits
+                float maxHeight = mlY + branchHeightLimit.getValue(brRandom);
+                float minHeight = mlY - branchHeightLimit.getValue(brRandom);
+                // create branch
+                generateBranch(result, branchLength.getValue(brRandom), maxHeight, minHeight, segMat, null, brRandom);
+            }
         }
     }
 

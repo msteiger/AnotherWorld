@@ -52,13 +52,20 @@ public class ClusterStructureDefinition extends AbstractMultiChunkStructureDefin
     }
 
     @Override
-    protected void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkSize, int xShift, int zShift) {
+    protected void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int yShift, int zShift) {
         // cluster X,Y,Z coordinates within chunk
-        float clX = random.nextFloat() * chunkSize.x + xShift;
-        float clY = pocketYLevel.getValue(random);
-        float clZ = random.nextFloat() * chunkSize.z + zShift;
 
-        result.add(new ClusterStructure(clX, clY, clZ, random, chunkSize));
+        float minY = Math.max(chunkPosition.y * chunkSize.y, pocketYLevel.getMin());
+        float maxY = Math.min((chunkPosition.y + 1) * chunkSize.y, pocketYLevel.getMax());
+        if (minY <= maxY) {
+            // Y is in world coordinates, need to move it to coordinates of the chunk we generate it for
+            float clY = random.nextFloat(minY, maxY) - chunkPosition.y * chunkSize.y + yShift;
+
+            float clX = random.nextFloat() * chunkSize.x + xShift;
+            float clZ = random.nextFloat() * chunkSize.z + zShift;
+
+            result.add(new ClusterStructure(clX, clY, clZ, random, chunkSize));
+        }
     }
 
     private class ClusterStructure implements Structure {
