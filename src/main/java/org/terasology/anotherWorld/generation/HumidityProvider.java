@@ -15,10 +15,8 @@
  */
 package org.terasology.anotherWorld.generation;
 
-import com.google.common.base.Function;
-import org.terasology.anotherWorld.environment.ConditionsBaseField;
+import org.terasology.climateConditions.ConditionsBaseField;
 import org.terasology.world.generation.*;
-import org.terasology.world.generation.facets.SeaLevelFacet;
 
 /**
  * Created by Marcin on 2014-10-20.

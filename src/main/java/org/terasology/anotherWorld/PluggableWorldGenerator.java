@@ -16,11 +16,10 @@
 package org.terasology.anotherWorld;
 
 import com.google.common.base.Function;
-import com.sun.deploy.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.anotherWorld.environment.ConditionsBaseField;
-import org.terasology.anotherWorld.environment.EnvironmentSystem;
+import org.terasology.climateConditions.ConditionsBaseField;
+import org.terasology.climateConditions.ClimateConditionsSystem;
 import org.terasology.anotherWorld.generation.BiomeProvider;
 import org.terasology.anotherWorld.generation.HillynessProvider;
 import org.terasology.anotherWorld.generation.MaxLevelProvider;
@@ -119,7 +118,7 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     public void initialize() {
         setupGenerator();
 
-        EnvironmentSystem environmentSystem = CoreRegistry.get(EnvironmentSystem.class);
+        ClimateConditionsSystem environmentSystem = CoreRegistry.get(ClimateConditionsSystem.class);
         environmentSystem.configureHumidity(seaLevel, maxLevel, biomeDiversity, humidityFunction, 0, 1);
         environmentSystem.configureTemperature(seaLevel, maxLevel, biomeDiversity, temperatureFunction, -20, 40);
 

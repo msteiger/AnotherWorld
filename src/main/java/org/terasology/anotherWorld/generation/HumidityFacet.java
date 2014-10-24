@@ -15,7 +15,7 @@
  */
 package org.terasology.anotherWorld.generation;
 
-import org.terasology.anotherWorld.environment.ConditionsBaseField;
+import org.terasology.climateConditions.ConditionsBaseField;
 import org.terasology.math.Region3i;
 import org.terasology.world.generation.Border3D;
 import org.terasology.world.generation.facets.base.BaseFacet3D;
