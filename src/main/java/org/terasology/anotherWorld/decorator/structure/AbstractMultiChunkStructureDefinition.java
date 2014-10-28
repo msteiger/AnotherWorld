@@ -17,9 +17,10 @@ package org.terasology.anotherWorld.decorator.structure;
 
 import org.terasology.anotherWorld.util.ChunkRandom;
 import org.terasology.anotherWorld.util.PDist;
+import org.terasology.math.Region3i;
+import org.terasology.math.TeraMath;
 import org.terasology.math.Vector3i;
 import org.terasology.utilities.random.Random;
-import org.terasology.world.chunks.CoreChunk;
 import org.terasology.world.generation.Region;
 
 import java.util.Collection;
@@ -37,24 +38,22 @@ public abstract class AbstractMultiChunkStructureDefinition implements Structure
     }
 
     @Override
-    public final Collection<Structure> generateStructures(CoreChunk chunk, long seed, Region chunkRegion) {
+    public final Collection<Structure> generateStructures(Vector3i chunkSize, long seed, Region3i region) {
         List<Structure> result = new LinkedList<>();
         float maxRange = getMaxRange();
-        Vector3i chunkPosition = chunk.getPosition();
-        Vector3i chunkSize = new Vector3i(chunk.getChunkSizeX(), chunk.getChunkSizeY(), chunk.getChunkSizeZ());
 
-        int chunksRangeToEvaluateX = (int) Math.ceil(maxRange / chunk.getChunkSizeX());
-        int chunksRangeToEvaluateY = (int) Math.ceil(maxRange / chunk.getChunkSizeY());
-        int chunksRangeToEvaluateZ = (int) Math.ceil(maxRange / chunk.getChunkSizeZ());
-        for (int chunkX = -chunksRangeToEvaluateX; chunkX <= chunksRangeToEvaluateX; chunkX++) {
-            for (int chunkY = -chunksRangeToEvaluateY; chunkY <= chunksRangeToEvaluateY; chunkY++){
-                for (int chunkZ = -chunksRangeToEvaluateZ; chunkZ <= chunksRangeToEvaluateZ; chunkZ++) {
+        int chunksRangeToEvaluateX = (int) Math.ceil(maxRange / chunkSize.x);
+        int chunksRangeToEvaluateY = (int) Math.ceil(maxRange / chunkSize.y);
+        int chunksRangeToEvaluateZ = (int) Math.ceil(maxRange / chunkSize.z);
+
+        Vector3i minChunk = TeraMath.calcChunkPos(region.min());
+        Vector3i maxChunk = TeraMath.calcChunkPos(region.max());
+
+        for (int chunkX = minChunk.x - chunksRangeToEvaluateX; chunkX <= maxChunk.x + chunksRangeToEvaluateX; chunkX++) {
+            for (int chunkY = minChunk.y - chunksRangeToEvaluateY; chunkY <= maxChunk.y + chunksRangeToEvaluateY; chunkY++) {
+                for (int chunkZ = minChunk.z - chunksRangeToEvaluateZ; chunkZ <= maxChunk.z + chunksRangeToEvaluateZ; chunkZ++) {
                     generateStructuresForChunkWithFrequency(result, seed,
-                            new Vector3i(
-                                    chunkPosition.x + chunkX,
-                                    chunkPosition.y + chunkY,
-                                    chunkPosition.z + chunkZ),
-                            chunkSize, chunkX * chunk.getChunkSizeX(), chunkY * chunk.getChunkSizeY(), chunkZ * chunk.getChunkSizeZ());
+                            new Vector3i(chunkX, chunkY, chunkZ), chunkSize);
                 }
             }
         }
@@ -62,7 +61,7 @@ public abstract class AbstractMultiChunkStructureDefinition implements Structure
         return result;
     }
 
-    protected final void generateStructuresForChunkWithFrequency(List<Structure> result, long seed, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int yShift, int zShift) {
+    protected final void generateStructuresForChunkWithFrequency(List<Structure> result, long seed, Vector3i chunkPosition, Vector3i chunkSize) {
         Random random = ChunkRandom.getChunkRandom(seed, chunkPosition, getGeneratorSalt());
 
         float structuresInChunk = frequency.getValue(random);
@@ -74,7 +73,7 @@ public abstract class AbstractMultiChunkStructureDefinition implements Structure
         }
 
         for (int i = 0; i < structuresToGenerateInChunk; i++) {
-            generateStructuresForChunk(result, random, chunkPosition, chunkSize, xShift, yShift, zShift);
+            generateStructuresForChunk(result, random, chunkPosition, chunkSize);
         }
     }
 
@@ -82,5 +81,5 @@ public abstract class AbstractMultiChunkStructureDefinition implements Structure
 
     protected abstract int getGeneratorSalt();
 
-    protected abstract void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int yShift, int zShift);
+    protected abstract void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkPosition, Vector3i chunkSize);
 }

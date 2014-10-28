@@ -66,16 +66,16 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
     }
 
     @Override
-    protected void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int yShift, int zShift) {
+    protected void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkPosition, Vector3i chunkSize) {
         // cloud X,Y,Z coordinates within chunk
         float minY = Math.max(chunkPosition.y * chunkSize.y, pocketYLevel.getMin());
         float maxY = Math.min((chunkPosition.y + 1) * chunkSize.y, pocketYLevel.getMax());
         if (minY<=maxY) {
             // Y is in world coordinates, need to move it to coordinates of the chunk we generate it for
-            float clY = random.nextFloat(minY, maxY) - chunkPosition.y * chunkSize.y + yShift;
+            float clY = random.nextFloat(minY, maxY);
 
-            float clX = random.nextFloat() * chunkSize.x + xShift;
-            float clZ = random.nextFloat() * chunkSize.z + zShift;
+            float clX = chunkPosition.x * chunkSize.x + random.nextFloat() * chunkSize.x;
+            float clZ = chunkPosition.z * chunkSize.z + random.nextFloat() * chunkSize.z;
 
             // cloud transformation matrix
             Transform clMat = new Transform();
@@ -86,7 +86,7 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
             clMat.scale(pocketRadius.getValue(random), pocketRadius.getValue(random), pocketThickness.getValue(random)); // scale axes
 
             // create cloud component
-            result.add(new DiffusePocketStructure(clMat, random, chunkSize));
+            result.add(new DiffusePocketStructure(clMat, random));
         }
     }
 
@@ -108,11 +108,9 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
         private Vector3i minPosition;
         private Vector3i maxPosition;
         private Random random;
-        private Vector3i chunkSize;
 
-        public DiffusePocketStructure(Transform transform, Random random, Vector3i chunkSize) {
+        public DiffusePocketStructure(Transform transform, Random random) {
             this.random = random;
-            this.chunkSize = chunkSize;
             // create noise generator
             noiseGen = new SimplexNoise(random.nextInt());
             sizeNoiseMagnitude = Math.abs(noiseLevel.getValue(random));
@@ -177,9 +175,9 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
             minNoisyR2 *= minNoisyR2;
             // iterate through blocks
             float[] pos = new float[3];
-            for (int x = Math.max(0, minPosition.x); x <= Math.min(chunkSize.x - 1, maxPosition.x); x++) {
-                for (int y = Math.max(0, minPosition.y); y <= Math.min(chunkSize.y - 1, maxPosition.y); y++) {
-                    for (int z = Math.max(0, minPosition.z); z <= Math.min(chunkSize.z - 1, maxPosition.z); z++) {
+            for (int x = minPosition.x; x <= maxPosition.x; x++) {
+                for (int y = minPosition.y; y <= maxPosition.y; y++) {
+                    for (int z = minPosition.z; z <= maxPosition.z; z++) {
                         if (!callback.canReplace(x, y, z)) {
                             continue;
                         }
@@ -231,7 +229,7 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
                         }
 
                         // place block
-                        callback.replaceBlock(new Vector3i(x, y, z), 1, blockProvider.getBlock((float) Math.sqrt(r2)));
+                        callback.replaceBlock(x, y, z, 1, blockProvider.getBlock((float) Math.sqrt(r2)));
                     }
                 }
             }

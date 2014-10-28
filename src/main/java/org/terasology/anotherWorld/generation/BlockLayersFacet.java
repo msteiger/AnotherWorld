@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.anotherWorld.decorator.structure;
+package org.terasology.anotherWorld.generation;
 
+import org.terasology.anotherWorld.decorator.layering.LayerDefinition;
 import org.terasology.math.Region3i;
-import org.terasology.math.Vector3i;
-import org.terasology.world.chunks.CoreChunk;
-import org.terasology.world.generation.Region;
+import org.terasology.world.generation.Border3D;
+import org.terasology.world.generation.facets.base.BaseObjectFacet2D;
 
-import java.util.Collection;
+import java.util.List;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
-public interface StructureDefinition {
-    Collection<Structure> generateStructures(Vector3i chunkSize, long seed, Region3i region);
+public class BlockLayersFacet extends BaseObjectFacet2D<List<LayerDefinition>> {
+    public BlockLayersFacet(Region3i targetRegion, Border3D border, Class<List<LayerDefinition>> objectType) {
+        super(targetRegion, border, objectType);
+    }
 }

@@ -52,19 +52,19 @@ public class ClusterStructureDefinition extends AbstractMultiChunkStructureDefin
     }
 
     @Override
-    protected void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int yShift, int zShift) {
+    protected void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkPosition, Vector3i chunkSize) {
         // cluster X,Y,Z coordinates within chunk
 
         float minY = Math.max(chunkPosition.y * chunkSize.y, pocketYLevel.getMin());
         float maxY = Math.min((chunkPosition.y + 1) * chunkSize.y, pocketYLevel.getMax());
         if (minY <= maxY) {
             // Y is in world coordinates, need to move it to coordinates of the chunk we generate it for
-            float clY = random.nextFloat(minY, maxY) - chunkPosition.y * chunkSize.y + yShift;
+            float clY = random.nextFloat(minY, maxY);
 
-            float clX = random.nextFloat() * chunkSize.x + xShift;
-            float clZ = random.nextFloat() * chunkSize.z + zShift;
+            float clX = chunkPosition.x * chunkSize.x + random.nextFloat() * chunkSize.x;
+            float clZ = chunkPosition.z * chunkSize.z + random.nextFloat() * chunkSize.z;
 
-            result.add(new ClusterStructure(clX, clY, clZ, random, chunkSize));
+            result.add(new ClusterStructure(clX, clY, clZ, random));
         }
     }
 
@@ -74,10 +74,8 @@ public class ClusterStructureDefinition extends AbstractMultiChunkStructureDefin
         protected final float[] ptA;    // segment start
         protected final float[] ptB;    // segment end
         protected final float[] rad;    // radius at each step along segment
-        private Vector3i chunkSize;
 
-        public ClusterStructure(float x, float y, float z, Random random, Vector3i chunkSize) {
-            this.chunkSize = chunkSize;
+        public ClusterStructure(float x, float y, float z, Random random) {
             // choose segment length and horizontal angle from +Z axis
             size = clusterRichness.getIntValue(random);
             double horizAngle = random.nextFloat() * Math.PI;
@@ -123,12 +121,12 @@ public class ClusterStructureDefinition extends AbstractMultiChunkStructureDefin
                 float zCenter = ptA[2] + (ptB[2] - ptA[2]) * ns;
 
                 // iterate over each block in the bounding box of the sphere
-                int xMin = (int) Math.max(0, Math.floor(xCenter - rad[s]));
-                int xMax = (int) Math.min(chunkSize.x - 1, Math.ceil(xCenter + rad[s]));
-                int yMin = (int) Math.max(0, Math.floor(yCenter - rad[s]));
-                int yMax = (int) Math.min(chunkSize.y - 1, Math.ceil(yCenter + rad[s]));
-                int zMin = (int) Math.max(0, Math.floor(zCenter - rad[s]));
-                int zMax = (int) Math.min(chunkSize.z - 1, Math.ceil(zCenter + rad[s]));
+                int xMin = (int) Math.floor(xCenter - rad[s]);
+                int xMax = (int) Math.ceil(xCenter + rad[s]);
+                int yMin = (int) Math.floor(yCenter - rad[s]);
+                int yMax = (int) Math.ceil(yCenter + rad[s]);
+                int zMin = (int) Math.floor(zCenter - rad[s]);
+                int zMax = (int) Math.ceil(zCenter + rad[s]);
                 for (int tgtX = xMin; tgtX <= xMax; tgtX++) {
                     double normXDist = (tgtX + 0.5D - xCenter) / rad[s];
                     if (normXDist * normXDist >= 1.0D) {
@@ -145,7 +143,7 @@ public class ClusterStructureDefinition extends AbstractMultiChunkStructureDefin
                                 continue;
                             }
 
-                            callback.replaceBlock(new Vector3i(tgtX, tgtY, tgtZ), 1, block);
+                            callback.replaceBlock(tgtX, tgtY, tgtZ, 1, block);
                         }
                     }
                 }

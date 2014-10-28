@@ -83,16 +83,16 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
     }
 
     @Override
-    protected void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkPosition, Vector3i chunkSize, int xShift, int yShift, int zShift) {
+    protected void generateStructuresForChunk(List<Structure> result, Random random, Vector3i chunkPosition, Vector3i chunkSize) {
         // motherlode X,Y,Z coordinates within chunk
         float minY = Math.max(chunkPosition.y * chunkSize.y, motherLodeYLevel.getMin());
         float maxY = Math.min((chunkPosition.y + 1) * chunkSize.y, motherLodeYLevel.getMax());
         if (minY <= maxY) {
             // Y is in world coordinates, need to move it to coordinates of the chunk we generate it for
-            float mlY = random.nextFloat(minY, maxY) - chunkPosition.y * chunkSize.y + yShift;
+            float mlY = random.nextFloat(minY, maxY);
 
-            float mlX = random.nextFloat() * chunkSize.x + xShift;
-            float mlZ = random.nextFloat() * chunkSize.z + zShift;
+            float mlX = chunkPosition.x * chunkSize.x + random.nextFloat() * chunkSize.x;
+            float mlZ = chunkPosition.z * chunkSize.z + random.nextFloat() * chunkSize.z;
 
             // motherlode transformation matrix
             Transform mlMat = new Transform();
@@ -372,7 +372,7 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
                                         continue; // density check failed
                                     }
 
-                                    callback.replaceBlock(new Vector3i(blockX, blockY, blockZ), 1, veinsBlockProvider.getBranchBlock());
+                                    callback.replaceBlock(blockX, blockY, blockZ, 1, veinsBlockProvider.getBranchBlock());
                                 }
                             }
                         }
@@ -585,7 +585,7 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
                         if (blockDensity.getIntValue(random) < 1) {
                             continue; // density check failed
                         }
-                        callback.replaceBlock(new Vector3i(x, y, z), 1, veinsBlockProvider.getClusterBlock((float) Math.sqrt(r2)));
+                        callback.replaceBlock(x, y, z, 1, veinsBlockProvider.getClusterBlock((float) Math.sqrt(r2)));
                     }
                 }
             }
