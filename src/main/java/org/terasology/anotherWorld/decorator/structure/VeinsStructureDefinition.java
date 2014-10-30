@@ -372,7 +372,9 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
                                         continue; // density check failed
                                     }
 
-                                    callback.replaceBlock(blockX, blockY, blockZ, 1, veinsBlockProvider.getBranchBlock());
+                                    if (callback.canReplace(blockX, blockY, blockZ)) {
+                                        callback.replaceBlock(blockX, blockY, blockZ, 1, veinsBlockProvider.getBranchBlock());
+                                    }
                                 }
                             }
                         }
