@@ -18,7 +18,7 @@ package org.terasology.anotherWorld.decorator;
 import org.terasology.anotherWorld.AnotherWorldBiome;
 import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.generation.BiomeFacet;
-import org.terasology.math.Vector3i;
+import org.terasology.math.*;
 import org.terasology.world.chunks.ChunkConstants;
 import org.terasology.world.chunks.CoreChunk;
 import org.terasology.world.generation.Region;
@@ -42,11 +42,15 @@ public class BiomeDecorator implements ChunkDecorator {
             throw new IllegalStateException("World generator does not provide a biome facet.");
         }
 
-        for (Vector3i pos : ChunkConstants.CHUNK_REGION) {
-            AnotherWorldBiome biome = biomeFacet.get(pos.x, pos.z);
-            chunk.setBiome(pos.x, pos.y, pos.z, biome);
+        for (int x = 0; x < ChunkConstants.CHUNK_SIZE.x; x++) {
+            for (int z = 0; z < ChunkConstants.CHUNK_SIZE.z; z++) {
+                // Biome is the same for each value of y and depends only on x and z
+                AnotherWorldBiome biome = biomeFacet.get(x, z);
+                for (int y = 0; y < ChunkConstants.CHUNK_SIZE.y; y++) {
+                    chunk.setBiome(x, y, z, biome);
+                }
+            }
         }
-
     }
 
 }

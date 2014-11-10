@@ -15,9 +15,7 @@
  */
 package org.terasology.anotherWorld.generation;
 
-import org.terasology.math.TeraMath;
-import org.terasology.math.Vector2i;
-import org.terasology.math.Vector3i;
+import org.terasology.math.*;
 import org.terasology.world.generation.Border3D;
 import org.terasology.world.generation.Facet;
 import org.terasology.world.generation.FacetBorder;
@@ -46,20 +44,24 @@ public class HillynessProvider implements FacetProvider {
         HillynessFacet facet = new HillynessFacet(region.getRegion(), border);
         SurfaceHeightFacet surfaceHeightFacet = region.getRegionFacet(SurfaceHeightFacet.class);
 
-        for (Vector3i position : region.getRegion()) {
-            float baseHeight = surfaceHeightFacet.getWorld(position.x, position.z);
-            int count = 0;
-            int diffSum = 0;
-            for (int testX = position.x - RANGE; testX < position.x + RANGE; testX++) {
-                int zRange = (int) Math.sqrt(RANGE * RANGE - (testX - position.x) * (testX - position.x));
-                for (int testZ = position.z - zRange; testZ < position.z + zRange; testZ++) {
-                    count++;
-                    diffSum += Math.abs(surfaceHeightFacet.getWorld(new Vector2i(testX, testZ)) - baseHeight);
-                }
-            }
-            float diffAverage = 1f * diffSum / count;
+        Rect2i worldRegion = facet.getWorldRegion();
 
-            facet.setWorld(position.x, position.z, TeraMath.clamp(diffAverage / 2));
+        for (int x = worldRegion.minX(); x <= worldRegion.maxX(); x++) {
+            for (int z = worldRegion.minY(); z <= worldRegion.maxY(); z++) {
+                float baseHeight = surfaceHeightFacet.getWorld(x, z);
+                int count = 0;
+                int diffSum = 0;
+                for (int testX = x - RANGE; testX < x + RANGE; testX++) {
+                    int zRange = (int) Math.sqrt(RANGE * RANGE - (testX - x) * (testX - x));
+                    for (int testZ = z - zRange; testZ < z + zRange; testZ++) {
+                        count++;
+                        diffSum += Math.abs(surfaceHeightFacet.getWorld(new Vector2i(testX, testZ)) - baseHeight);
+                    }
+                }
+                float diffAverage = 1f * diffSum / count;
+
+                facet.setWorld(x, z, TeraMath.clamp(diffAverage / 2));
+            }
         }
 
         region.setRegionFacet(HillynessFacet.class, facet);
