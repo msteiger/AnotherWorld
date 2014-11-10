@@ -60,9 +60,9 @@ public class BlockLayersProvider implements FacetProvider {
         BlockLayersFacet result = new BlockLayersFacet(region.getRegion(), border, (Class<List<LayerDefinition>>) (Class<?>) List.class);
         BiomeFacet biomeFacet = region.getRegionFacet(BiomeFacet.class);
 
-        for (Vector2i pos : result.getWorldRegion()) {
+        for (Vector2i pos : result.getRelativeRegion()) {
             AnotherWorldBiome biome = biomeFacet.get(pos);
-            result.setWorld(pos, biomeLayerDefinitions.get(biome.getId()));
+            result.set(pos, biomeLayerDefinitions.get(biome.getId()));
         }
 
         region.setRegionFacet(BlockLayersFacet.class, result);
