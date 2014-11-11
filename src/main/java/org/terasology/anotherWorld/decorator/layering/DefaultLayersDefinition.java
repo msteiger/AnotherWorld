@@ -60,8 +60,8 @@ public class DefaultLayersDefinition implements LayersDefinition {
         Region3i chunkRegion = chunk.getRegion();
         if (underSea) {
             int seaBottom = Math.max(groundLevel + 1, chunkRegion.minY());
-            int seaTop = Math.min(seaLevel+1, chunkRegion.maxY());
-            for (int level = seaBottom; level <seaTop; level++) {
+            int seaTop = Math.min(seaLevel, chunkRegion.maxY());
+            for (int level = seaBottom; level <= seaTop; level++) {
 //                if (chunkRegion.encompasses(x, level, z)) {
                     chunk.setBlock(TeraMath.calcBlockPos(x, level, z), layeringConfig.getSeaBlock());
                     chunk.setLiquid(TeraMath.calcBlockPos(x, level, z), new LiquidData(layeringConfig.getSeaLiquid(), LiquidData.MAX_LIQUID_DEPTH));
