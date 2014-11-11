@@ -44,10 +44,10 @@ public class HillynessProvider implements FacetProvider {
         HillynessFacet facet = new HillynessFacet(region.getRegion(), border);
         SurfaceHeightFacet surfaceHeightFacet = region.getRegionFacet(SurfaceHeightFacet.class);
 
-        Rect2i worldRegion = facet.getWorldRegion();
+        Region3i worldRegion = region.getRegion();
 
         for (int x = worldRegion.minX(); x <= worldRegion.maxX(); x++) {
-            for (int z = worldRegion.minY(); z <= worldRegion.maxY(); z++) {
+            for (int z = worldRegion.minZ(); z <= worldRegion.maxZ(); z++) {
                 float baseHeight = surfaceHeightFacet.getWorld(x, z);
                 int count = 0;
                 int diffSum = 0;
@@ -55,7 +55,7 @@ public class HillynessProvider implements FacetProvider {
                     int zRange = (int) Math.sqrt(RANGE * RANGE - (testX - x) * (testX - x));
                     for (int testZ = z - zRange; testZ < z + zRange; testZ++) {
                         count++;
-                        diffSum += Math.abs(surfaceHeightFacet.getWorld(new Vector2i(testX, testZ)) - baseHeight);
+                        diffSum += Math.abs(surfaceHeightFacet.getWorld(testX, testZ) - baseHeight);
                     }
                 }
                 float diffAverage = 1f * diffSum / count;
