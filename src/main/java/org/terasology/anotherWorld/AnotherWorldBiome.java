@@ -56,7 +56,7 @@ public interface AnotherWorldBiome extends Biome {
      * All the values below have to be in range of 0<=value<=1.
      * All the weights HAVE TO add up to 1.
      */
-    public interface SweetSpot {
+    interface SweetSpot {
         float getHumidity();
 
         float getHumidityWeight();

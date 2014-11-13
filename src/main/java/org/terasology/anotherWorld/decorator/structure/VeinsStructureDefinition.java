@@ -140,7 +140,7 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
             mat.translate(0, 0, segLen);
 
             // create segment component
-            Transform segMat = mat.clone().scale(segRad, segRad, segLen);
+            Transform segMat = mat.copy().scale(segRad, segRad, segLen);
             BezierTubeStructure tube = new BezierTubeStructure(parent, segMat, random);
             result.add(tube);
 
@@ -163,7 +163,7 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
             for (int fk = segmentForkFrequency.getIntValue(random); fk > 0; fk--) {
                 // generate an independent random and transform for this fork
                 Random fkRandom = new FastRandom(random.nextLong());
-                Transform fkMat = mat.clone();
+                Transform fkMat = mat.copy();
                 // rotate relative to arbitrary axis in XY plane
                 float axisTheta = fkRandom.nextFloat() * 6.28319F;
                 fkMat.rotate(segmentAngle.getValue(fkRandom), (float) Math.cos(axisTheta), (float) Math.sin(axisTheta), 0);
@@ -535,7 +535,7 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
             maxPosition = new Vector3i(maxX + 1, maxY + 1, maxZ + 1);
 
             // store transforms
-            mat = transform.clone();
+            mat = transform.copy();
             if (transform.determinant() != 0) {
                 invMat = transform.inverse();
             } else {

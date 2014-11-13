@@ -83,31 +83,6 @@ public class AnotherWorldBiomes implements BiomeRegistrator {
             new DefaultSweetSpot(0f, 0f, 0f, 0f, 1f, 1f, 0f, 0f)
     );
 
-    private void validateBiome(AnotherWorldBiome biome) {
-        AnotherWorldBiome.SweetSpot sweetSpot = biome.getSweetSpot();
-        validateValue(sweetSpot.getAboveSeaLevel());
-        validateValue(sweetSpot.getAboveSeaLevelWeight());
-        validateValue(sweetSpot.getHumidity());
-        validateValue(sweetSpot.getHumidityWeight());
-        validateValue(sweetSpot.getTemperature());
-        validateValue(sweetSpot.getTemperatureWeight());
-        validateValue(sweetSpot.getTerrain());
-        validateValue(sweetSpot.getTerrainWeight());
-
-        float weightTotal = sweetSpot.getAboveSeaLevelWeight() + sweetSpot.getHumidityWeight()
-                + sweetSpot.getTemperatureWeight() + sweetSpot.getTerrainWeight();
-
-        if (weightTotal > 1.0001 || weightTotal < 0.0009) {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    private void validateValue(float value) {
-        if (value < 0 || value > 1) {
-            throw new IllegalArgumentException();
-        }
-    }
-
     @Override
     public void registerBiomes(BiomeRegistry registry) {
         registry.registerBiome(DESERT);

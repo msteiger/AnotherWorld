@@ -38,6 +38,8 @@ class DefaultSweetSpot implements AnotherWorldBiome.SweetSpot {
         this.terrainWeight = terrainWeight;
         this.aboveSeaLevel = aboveSeaLevel;
         this.aboveSeaLevelWeight = aboveSeaLevelWeight;
+
+        validate();
     }
 
     public float getHumidity() {
@@ -70,5 +72,28 @@ class DefaultSweetSpot implements AnotherWorldBiome.SweetSpot {
 
     public float getAboveSeaLevelWeight() {
         return aboveSeaLevelWeight;
+    }
+
+    private void validate() {
+        validateValue(aboveSeaLevel);
+        validateValue(aboveSeaLevelWeight);
+        validateValue(humidity);
+        validateValue(humidityWeight);
+        validateValue(temperature);
+        validateValue(temperatureWeight);
+        validateValue(terrain);
+        validateValue(terrainWeight);
+
+        float weightTotal = aboveSeaLevelWeight + humidityWeight + temperatureWeight + terrainWeight;
+
+        if (weightTotal > 1.0001 || weightTotal < 0.0009) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private void validateValue(float value) {
+        if (value < 0 || value > 1) {
+            throw new IllegalArgumentException();
+        }
     }
 }

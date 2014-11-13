@@ -19,7 +19,7 @@ package org.terasology.anotherWorld.util;
  * Represents a 3D single-precision Affine transformation.
  * Useful for 3D geometric calculations.
  */
-public class Transform implements Cloneable {
+public class Transform {
     /**
      * row-major matrix (row index is most significant)
      */
@@ -49,8 +49,7 @@ public class Transform implements Cloneable {
     /**
      * Creates an independent copy of the transform
      */
-    @Override
-    public Transform clone() {
+    public Transform copy() {
         return new Transform(mat.clone());
     }
 

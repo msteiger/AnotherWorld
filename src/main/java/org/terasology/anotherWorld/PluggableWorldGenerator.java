@@ -43,8 +43,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class PluggableWorldGenerator implements WorldGenerator {
-    private static final Logger logger = LoggerFactory.getLogger(PluggableWorldGenerator.class);
-
     private World world;
     private List<ChunkDecorator> chunkDecorators = new LinkedList<>();
     private List<FeatureGenerator> featureGenerators = new LinkedList<>();

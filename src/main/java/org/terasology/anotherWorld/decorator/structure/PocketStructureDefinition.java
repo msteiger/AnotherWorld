@@ -140,7 +140,7 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
             noiseLevels = (maxSize <= 1) ? 0 : (int) (Math.log(maxSize) / Math.log(2) + 0.5F);
 
             // store transforms
-            mat = transform.clone();
+            mat = transform.copy();
             if (transform.determinant() != 0) {
                 invMat = transform.inverse();  // note - this alters the transform argument
             } else {
