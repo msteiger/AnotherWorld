@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,17 +18,17 @@ package org.terasology.anotherWorld;
 import com.google.common.base.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.climateConditions.ConditionsBaseField;
-import org.terasology.climateConditions.ClimateConditionsSystem;
 import org.terasology.anotherWorld.generation.BiomeProvider;
 import org.terasology.anotherWorld.generation.HillynessProvider;
+import org.terasology.anotherWorld.generation.HumidityProvider;
 import org.terasology.anotherWorld.generation.MaxLevelProvider;
 import org.terasology.anotherWorld.generation.PerlinSurfaceHeightProvider;
-import org.terasology.anotherWorld.generation.HumidityProvider;
 import org.terasology.anotherWorld.generation.SeedProvider;
 import org.terasology.anotherWorld.generation.TemperatureProvider;
 import org.terasology.anotherWorld.generation.TerrainVariationProvider;
 import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
+import org.terasology.climateConditions.ClimateConditionsSystem;
+import org.terasology.climateConditions.ConditionsBaseField;
 import org.terasology.core.world.generator.facetProviders.SeaLevelProvider;
 import org.terasology.core.world.generator.facetProviders.SurfaceToDensityProvider;
 import org.terasology.engine.SimpleUri;

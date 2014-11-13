@@ -18,6 +18,7 @@ package org.terasology.anotherWorld.decorator.layering;
 import org.terasology.world.block.Block;
 
 public interface LayerDefinition {
-    public Block getBlock(boolean underSea);
-    public int getThickness(int x, int z);
+    Block getBlock(boolean underSea);
+
+    int getThickness(int x, int z);
 }

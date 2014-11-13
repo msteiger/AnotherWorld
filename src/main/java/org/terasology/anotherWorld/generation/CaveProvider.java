@@ -37,7 +37,7 @@ public class CaveProvider implements FacetProvider {
     private long seed;
 
     public CaveProvider(Predicate<Block> blockFilter, PDist caveFrequency, PDist mainCaveRadius, PDist mainCaveYLevel,
-                         PDist tunnelLength, PDist tunnelRadius) {
+                        PDist tunnelLength, PDist tunnelRadius) {
         this.blockFilter = blockFilter;
 
         caveDefinition = new VeinsStructureDefinition(caveFrequency,

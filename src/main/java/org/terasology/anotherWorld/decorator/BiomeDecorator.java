@@ -18,11 +18,9 @@ package org.terasology.anotherWorld.decorator;
 import org.terasology.anotherWorld.AnotherWorldBiome;
 import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.generation.BiomeFacet;
-import org.terasology.math.*;
 import org.terasology.world.chunks.ChunkConstants;
 import org.terasology.world.chunks.CoreChunk;
 import org.terasology.world.generation.Region;
-import org.terasology.world.generation.WorldRasterizer;
 
 /**
  * Rasterizes the Biome Facet into the Chunk.

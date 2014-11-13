@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,6 @@ import org.terasology.utilities.random.Random;
  */
 public abstract class ChunkRandom {
     public static Random getChunkRandom(long seed, Vector3i location, int salt) {
-        return new FastRandom(seed + salt * (97 * location.x + 13*location.y + location.z));
+        return new FastRandom(seed + salt * (97 * location.x + 13 * location.y + location.z));
     }
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,7 @@ import org.terasology.math.TeraMath;
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class UniformNoiseAlpha implements Function<Float, Float> {
-    private static final float[] uniformNoiseLookup = new float[]{
+    private static final float[] UNIFORM_NOISE_LOOKUP = new float[]{
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.001f, 0.001f, 0.001f,
@@ -132,7 +132,7 @@ public class UniformNoiseAlpha implements Function<Float, Float> {
 
     @Override
     public Float apply(Float input) {
-        return uniformNoiseLookup[(int) (TeraMath.clamp(delegate.apply(input)) * uniformNoiseLookup.length)];
+        return UNIFORM_NOISE_LOOKUP[(int) (TeraMath.clamp(delegate.apply(input)) * UNIFORM_NOISE_LOOKUP.length)];
     }
 
 // This method was used for generating the lookupArray, if more granularity is required, it can be used again

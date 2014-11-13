@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -70,7 +70,7 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
         // cloud X,Y,Z coordinates within chunk
         float minY = Math.max(chunkPosition.y * chunkSize.y, pocketYLevel.getMin());
         float maxY = Math.min((chunkPosition.y + 1) * chunkSize.y, pocketYLevel.getMax());
-        if (minY<=maxY) {
+        if (minY <= maxY) {
             // Y is in world coordinates, need to move it to coordinates of the chunk we generate it for
             float clY = random.nextFloat(minY, maxY);
 

@@ -19,7 +19,6 @@ import com.google.common.collect.Maps;
 import org.terasology.anotherWorld.AnotherWorldBiome;
 import org.terasology.anotherWorld.decorator.layering.LayerDefinition;
 import org.terasology.anotherWorld.decorator.layering.LayeringConfig;
-import org.terasology.math.TeraMath;
 import org.terasology.math.Vector2i;
 import org.terasology.world.biomes.Biome;
 import org.terasology.world.generation.Border3D;

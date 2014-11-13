@@ -17,7 +17,6 @@ package org.terasology.anotherWorld.generation;
 
 import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.anotherWorld.util.alpha.UniformNoiseAlpha;
-import org.terasology.math.Vector3i;
 import org.terasology.utilities.procedural.Noise3D;
 import org.terasology.utilities.procedural.SimplexNoise;
 import org.terasology.world.generation.FacetProvider;

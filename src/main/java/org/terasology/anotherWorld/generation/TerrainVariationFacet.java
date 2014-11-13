@@ -15,17 +15,12 @@
  */
 package org.terasology.anotherWorld.generation;
 
-import com.google.common.base.Function;
 import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.anotherWorld.util.alpha.UniformNoiseAlpha;
 import org.terasology.math.Region3i;
-import org.terasology.math.TeraMath;
-import org.terasology.utilities.procedural.Noise2D;
 import org.terasology.utilities.procedural.Noise3D;
-import org.terasology.utilities.procedural.SimplexNoise;
 import org.terasology.world.generation.Border3D;
 import org.terasology.world.generation.facets.base.BaseFacet3D;
-import org.terasology.world.generation.facets.base.BaseFieldFacet3D;
 
 public class TerrainVariationFacet extends BaseFacet3D {
     private UniformNoiseAlpha alpha = new UniformNoiseAlpha(IdentityAlphaFunction.singleton());
