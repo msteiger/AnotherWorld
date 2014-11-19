@@ -32,6 +32,8 @@ import java.util.List;
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class PocketStructureDefinition extends AbstractMultiChunkStructureDefinition {
+    private static final float TWO_PI = (float) (2 * Math.PI);
+
     private PocketBlockProvider blockProvider;
     private PDist pocketRadius;
     private PDist pocketThickness;
@@ -81,7 +83,7 @@ public class PocketStructureDefinition extends AbstractMultiChunkStructureDefini
             Transform clMat = new Transform();
             clMat.translate(clX, clY, clZ); // center translation
             clMat.rotateZInto(0, 1, 0); // rotate Z axis upward
-            clMat.rotateZ(random.nextFloat() * 6.28319F); // phi rotation
+            clMat.rotateZ(random.nextFloat() * TWO_PI); // phi rotation
             clMat.rotateY(pocketAngle.getValue(random)); // theta rotation
             clMat.scale(pocketRadius.getValue(random), pocketRadius.getValue(random), pocketThickness.getValue(random)); // scale axes
 

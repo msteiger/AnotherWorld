@@ -35,6 +35,8 @@ import org.terasology.world.generation.facets.SurfaceHeightFacet;
 @Produces(SurfaceHeightFacet.class)
 @Requires({@Facet(SeaLevelFacet.class), @Facet(MaxLevelFacet.class)})
 public class PerlinSurfaceHeightProvider implements FacetProvider {
+    private static final float MIN_MULTIPLIER = 0.00005f;
+    private static final float MAX_MULTIPLIER = 0.001f;
 
     private Noise2D noise;
     private double noiseScale;
@@ -47,9 +49,6 @@ public class PerlinSurfaceHeightProvider implements FacetProvider {
     private float hillynessDiversity;
     private Function<Float, Float> hillynessFunction;
     private TerrainDeformation terrainDeformation;
-
-    private final float minMultiplier = 0.00005f;
-    private final float maxMultiplier = 0.001f;
 
     /**
      * @deprecated Use the full constructor instead.
@@ -66,7 +65,7 @@ public class PerlinSurfaceHeightProvider implements FacetProvider {
                                        Function<Float, Float> heightAboveSeaLevelFunction,
                                        float hillinessDiversity, Function<Float, Float> hillynessFunction) {
         this.seaFrequency = seaFrequency;
-        this.terrainNoiseMultiplier = minMultiplier + terrainDiversity * (maxMultiplier - minMultiplier);
+        this.terrainNoiseMultiplier = MIN_MULTIPLIER + terrainDiversity * (MAX_MULTIPLIER - MIN_MULTIPLIER);
         this.generalHeightFunction = generalTerrainFunction;
         this.heightBelowSeaLevelFunction = heightBelowSeaLevelFunction;
         this.heightAboveSeaLevelFunction = heightAboveSeaLevelFunction;

@@ -75,8 +75,7 @@ public class CaveProvider implements FacetProvider {
         region.setRegionFacet(CaveFacet.class, caveFacet);
     }
 
-
-    private final class StructureCallbackImpl implements Structure.StructureCallback {
+    private static final class StructureCallbackImpl implements Structure.StructureCallback {
         private Region3i region;
         private CaveFacet oreBlockFacet;
 

@@ -15,8 +15,6 @@
  */
 package org.terasology.anotherWorld.generation;
 
-import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
-import org.terasology.anotherWorld.util.alpha.UniformNoiseAlpha;
 import org.terasology.utilities.procedural.Noise3D;
 import org.terasology.utilities.procedural.SimplexNoise;
 import org.terasology.world.generation.FacetProvider;
@@ -25,7 +23,6 @@ import org.terasology.world.generation.Produces;
 
 @Produces(TerrainVariationFacet.class)
 public class TerrainVariationProvider implements FacetProvider {
-    private UniformNoiseAlpha alpha = new UniformNoiseAlpha(IdentityAlphaFunction.singleton());
     private Noise3D noise;
 
     @Override

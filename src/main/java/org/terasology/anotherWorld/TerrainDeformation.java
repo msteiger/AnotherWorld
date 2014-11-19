@@ -24,8 +24,8 @@ import org.terasology.utilities.procedural.SimplexNoise;
  * @author Marcin Sciesinski <marcins78@ gmail.com>
  */
 public class TerrainDeformation {
-    private final float minMultiplier = 0.0005f;
-    private final float maxMultiplier = 0.01f;
+    private static final float MIN_MULTIPLIER = 0.0005f;
+    private static final float MAX_MULTIPLIER = 0.01f;
 
     private final Noise2D hillynessNoise;
 
@@ -35,7 +35,7 @@ public class TerrainDeformation {
     public TerrainDeformation(long worldSeed, float terrainDiversity, Function<Float, Float> terrainFunction) {
         this.terrainFunction = terrainFunction;
         hillynessNoise = new SimplexNoise(worldSeed + 872364);
-        noiseMultiplier = minMultiplier + (maxMultiplier - minMultiplier) * terrainDiversity;
+        noiseMultiplier = MIN_MULTIPLIER + (MAX_MULTIPLIER - MIN_MULTIPLIER) * terrainDiversity;
     }
 
     public float getHillyness(int x, int z) {

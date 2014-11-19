@@ -31,6 +31,8 @@ import java.util.List;
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinition {
+    private static final float TWO_PI = (float) (2 * Math.PI);
+
     private VeinsBlockProvider veinsBlockProvider;
 
     private PDist motherLodeRadius;
@@ -97,8 +99,8 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
             // motherlode transformation matrix
             Transform mlMat = new Transform();
             mlMat.translate(mlX, mlY, mlZ); // center translation
-            mlMat.rotateZ(random.nextFloat() * 6.28319F); // phi rotation
-            mlMat.rotateY(random.nextFloat() * 6.28319F); // theta rotation
+            mlMat.rotateZ(random.nextFloat() * TWO_PI); // phi rotation
+            mlMat.rotateY(random.nextFloat() * TWO_PI); // theta rotation
             mlMat.scale(motherLodeRadius.getValue(random), motherLodeRadius.getValue(random), motherLodeRadius.getValue(random)); // scale axes
 
             // create motherlode component
@@ -111,7 +113,7 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
                 // initialize branch transform
                 Transform segMat = new Transform();
                 segMat.translate(mlX, mlY, mlZ);  // motherlode translation
-                segMat.rotateY(brRandom.nextFloat() * 6.28319F); // random rotation about vertical
+                segMat.rotateY(brRandom.nextFloat() * TWO_PI); // random rotation about vertical
                 segMat.rotateX(-branchInclination.getValue(brRandom)); // angle from horizontal
                 // calculate height limits
                 float maxHeight = mlY + branchHeightLimit.getValue(brRandom);
@@ -165,7 +167,7 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
                 Random fkRandom = new FastRandom(random.nextLong());
                 Transform fkMat = mat.copy();
                 // rotate relative to arbitrary axis in XY plane
-                float axisTheta = fkRandom.nextFloat() * 6.28319F;
+                float axisTheta = fkRandom.nextFloat() * TWO_PI;
                 fkMat.rotate(segmentAngle.getValue(fkRandom), (float) Math.cos(axisTheta), (float) Math.sin(axisTheta), 0);
                 // create forked branch
                 float fkLenMult = segmentForkLengthMultiplier.getValue(fkRandom);
@@ -173,7 +175,7 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
             }
 
             // rotate relative to arbitrary axis in XY plane
-            float axisTheta = random.nextFloat() * 6.28319F;
+            float axisTheta = random.nextFloat() * TWO_PI;
             mat.rotate(segmentAngle.getValue(random), (float) Math.cos(axisTheta), (float) Math.sin(axisTheta), 0);
         }
     }
@@ -191,8 +193,6 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
         // interpolation context & persistent transform object
         private final InterpolationContext context;
         private final Transform mat;
-        private Vector3i minPosition;
-        private Vector3i maxPosition;
 
         private BezierTubeStructure(BezierTubeStructure parent, Transform transform, Random random) {
             prev = parent;
@@ -216,18 +216,6 @@ public class VeinsStructureDefinition extends AbstractMultiChunkStructureDefinit
             }
             float[] bb = new float[]{-rMax, -rMax, -1, rMax, rMax, 1};
             transform.transformBB(bb);
-
-            float minX = Math.min(bb[0], bb[3]);
-            float minY = Math.min(bb[1], bb[4]);
-            float minZ = Math.min(bb[2], bb[5]);
-
-            minPosition = new Vector3i(minX, minY, minZ);
-
-            float maxX = Math.max(bb[0], bb[3]);
-            float maxY = Math.max(bb[1], bb[4]);
-            float maxZ = Math.max(bb[2], bb[5]);
-
-            maxPosition = new Vector3i(maxX + 1, maxY + 1, maxZ + 1);
 
             // construct a persistent context for interpolation loops
             context = new InterpolationContext();

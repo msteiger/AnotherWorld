@@ -74,7 +74,7 @@ public class OreBlockProvider implements FacetProvider {
         }
     }
 
-    private final class StructureCallbackImpl implements Structure.StructureCallback {
+    private static final class StructureCallbackImpl implements Structure.StructureCallback {
         private Region3i region;
         private OreBlockFacet oreBlockFacet;
 
