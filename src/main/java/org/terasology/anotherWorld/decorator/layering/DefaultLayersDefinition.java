@@ -35,9 +35,11 @@ import java.util.List;
  */
 public class DefaultLayersDefinition implements LayersDefinition {
     private List<LayerDefinition> layerDefinitions = new LinkedList<>();
+    private int seaLevel;
     private String biomeId;
 
-    public DefaultLayersDefinition(String biomeId) {
+    public DefaultLayersDefinition(int seaLevel, String biomeId) {
+        this.seaLevel = seaLevel;
         this.biomeId = biomeId;
     }
 
@@ -53,7 +55,6 @@ public class DefaultLayersDefinition implements LayersDefinition {
     @Override
     public void generateInChunk(long seed, CoreChunk chunk, Region region, int x, int z, LayeringConfig layeringConfig) {
         Random random = ChunkRandom.getChunkRandom(seed, chunk.getPosition(), 349 * (31 * x + z));
-        int seaLevel = region.getFacet(SeaLevelFacet.class).getSeaLevel();
         int groundLevel = TeraMath.floorToInt(region.getFacet(SurfaceHeightFacet.class).getWorld(x, z));
         boolean underSea = groundLevel < seaLevel;
 

@@ -19,7 +19,6 @@ import com.google.common.base.Predicate;
 import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.decorator.structure.Structure;
 import org.terasology.anotherWorld.decorator.structure.StructureDefinition;
-import org.terasology.anotherWorld.generation.SeedFacet;
 import org.terasology.math.Region3i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.block.Block;
@@ -38,9 +37,11 @@ import java.util.Map;
  */
 public class OreDecorator implements ChunkDecorator {
     private Map<String, StructureDefinition> oreDefinitions = new LinkedHashMap<>();
+    private long seed;
     private Predicate<Block> blockFilter;
 
-    public OreDecorator(Predicate<Block> blockFilter) {
+    public OreDecorator(long seed, Predicate<Block> blockFilter) {
+        this.seed = seed;
         this.blockFilter = blockFilter;
         loadOres();
     }
@@ -51,11 +52,10 @@ public class OreDecorator implements ChunkDecorator {
 
     @Override
     public void generateChunk(CoreChunk chunk, Region chunkRegion) {
-        SeedFacet seedFacet = chunkRegion.getFacet(SeedFacet.class);
         Structure.StructureCallback callback = new StructureCallbackImpl(chunk);
 
         for (StructureDefinition structureDefinition : oreDefinitions.values()) {
-            Collection<Structure> structures = structureDefinition.generateStructures(ChunkConstants.CHUNK_SIZE, seedFacet.getSeed(), chunkRegion.getRegion());
+            Collection<Structure> structures = structureDefinition.generateStructures(ChunkConstants.CHUNK_SIZE, seed, chunkRegion.getRegion());
             for (Structure structure : structures) {
                 structure.generateStructure(callback);
             }

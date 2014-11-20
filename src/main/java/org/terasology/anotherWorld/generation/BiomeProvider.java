@@ -33,9 +33,7 @@ import org.terasology.world.generation.facets.SurfaceHeightFacet;
 @Requires({@Facet(TemperatureFacet.class),
         @Facet(HumidityFacet.class),
         @Facet(HillynessFacet.class),
-        @Facet(SurfaceHeightFacet.class),
-        @Facet(SeaLevelFacet.class),
-        @Facet(MaxLevelFacet.class)})
+        @Facet(SurfaceHeightFacet.class)})
 public class BiomeProvider implements FacetProvider {
 
     @Override

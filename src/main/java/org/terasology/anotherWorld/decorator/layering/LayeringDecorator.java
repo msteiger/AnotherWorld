@@ -35,9 +35,9 @@ import java.util.Map;
 public class LayeringDecorator implements ChunkDecorator {
     private Map<String, LayersDefinition> biomeLayers = new HashMap<>();
     private LayeringConfig layeringConfig;
-    private int seed;
+    private long seed;
 
-    public LayeringDecorator(LayeringConfig layeringConfig, int seed) {
+    public LayeringDecorator(LayeringConfig layeringConfig, long seed) {
         this.layeringConfig = layeringConfig;
         this.seed = seed;
         loadLayers();

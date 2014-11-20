@@ -24,16 +24,12 @@ import org.terasology.utilities.procedural.BrownianNoise2D;
 import org.terasology.utilities.procedural.Noise2D;
 import org.terasology.utilities.procedural.SimplexNoise;
 import org.terasology.world.generation.Border3D;
-import org.terasology.world.generation.Facet;
 import org.terasology.world.generation.FacetProvider;
 import org.terasology.world.generation.GeneratingRegion;
 import org.terasology.world.generation.Produces;
-import org.terasology.world.generation.Requires;
-import org.terasology.world.generation.facets.SeaLevelFacet;
 import org.terasology.world.generation.facets.SurfaceHeightFacet;
 
 @Produces(SurfaceHeightFacet.class)
-@Requires({@Facet(SeaLevelFacet.class), @Facet(MaxLevelFacet.class)})
 public class PerlinSurfaceHeightProvider implements FacetProvider {
     private static final float MIN_MULTIPLIER = 0.00005f;
     private static final float MAX_MULTIPLIER = 0.001f;
@@ -42,6 +38,8 @@ public class PerlinSurfaceHeightProvider implements FacetProvider {
     private double noiseScale;
 
     private float seaFrequency;
+    private int seaLevel;
+    private int maxLevel;
     private float terrainNoiseMultiplier;
     private Function<Float, Float> generalHeightFunction;
     private Function<Float, Float> heightBelowSeaLevelFunction;
@@ -55,16 +53,20 @@ public class PerlinSurfaceHeightProvider implements FacetProvider {
      */
     @Deprecated
     public PerlinSurfaceHeightProvider(float seaFrequency, Function<Float, Float> heightAboveSeaLevelFunction,
-                                       float hillynessDiversity, Function<Float, Float> hillynessFunction) {
+                                       float hillynessDiversity, Function<Float, Float> hillynessFunction,
+                                       int seaLevel, int maxLevel) {
         this(seaFrequency, 0.4216f, IdentityAlphaFunction.singleton(), IdentityAlphaFunction.singleton(),
-                heightAboveSeaLevelFunction, hillynessDiversity, hillynessFunction);
+                heightAboveSeaLevelFunction, hillynessDiversity, hillynessFunction, seaLevel, maxLevel);
     }
 
     public PerlinSurfaceHeightProvider(float seaFrequency, float terrainDiversity, Function<Float, Float> generalTerrainFunction,
                                        Function<Float, Float> heightBelowSeaLevelFunction,
                                        Function<Float, Float> heightAboveSeaLevelFunction,
-                                       float hillinessDiversity, Function<Float, Float> hillynessFunction) {
+                                       float hillinessDiversity, Function<Float, Float> hillynessFunction,
+                                       int seaLevel, int maxLevel) {
         this.seaFrequency = seaFrequency;
+        this.seaLevel = seaLevel;
+        this.maxLevel = maxLevel;
         this.terrainNoiseMultiplier = MIN_MULTIPLIER + terrainDiversity * (MAX_MULTIPLIER - MIN_MULTIPLIER);
         this.generalHeightFunction = generalTerrainFunction;
         this.heightBelowSeaLevelFunction = heightBelowSeaLevelFunction;
@@ -72,7 +74,6 @@ public class PerlinSurfaceHeightProvider implements FacetProvider {
         this.hillynessDiversity = hillinessDiversity;
         this.hillynessFunction = hillynessFunction;
     }
-
 
     @Override
     public void setSeed(long seed) {
@@ -101,18 +102,13 @@ public class PerlinSurfaceHeightProvider implements FacetProvider {
                 }
             }
         }
-        noiseValue /= divider;
-        return generalHeightFunction.apply((float) TeraMath.clamp((noiseValue + 1.0) / 2));
+        return generalHeightFunction.apply((float) TeraMath.clamp((noiseValue / divider + 1.0) / 2));
     }
 
     @Override
     public void process(GeneratingRegion region) {
         Border3D border = region.getBorderForFacet(SurfaceHeightFacet.class);
         SurfaceHeightFacet facet = new SurfaceHeightFacet(region.getRegion(), border);
-        SeaLevelFacet seaLevelFacet = region.getRegionFacet(SeaLevelFacet.class);
-        float seaLevel = seaLevelFacet.getSeaLevel();
-        MaxLevelFacet maxLevelFacet = region.getRegionFacet(MaxLevelFacet.class);
-        float maxLevel = maxLevelFacet.getMaxLevel();
 
         for (Vector2i position : facet.getWorldRegion()) {
             float noiseValue = getNoiseInWorld(position.x, position.y);

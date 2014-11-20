@@ -20,7 +20,6 @@ import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.decorator.structure.Structure;
 import org.terasology.anotherWorld.decorator.structure.StructureDefinition;
 import org.terasology.anotherWorld.decorator.structure.VeinsStructureDefinition;
-import org.terasology.anotherWorld.generation.SeedFacet;
 import org.terasology.anotherWorld.util.PDist;
 import org.terasology.math.Region3i;
 import org.terasology.world.block.Block;
@@ -35,11 +34,14 @@ import java.util.Collection;
  * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class CaveDecorator implements ChunkDecorator {
+    private long seed;
     private Predicate<Block> blockFilter;
     private StructureDefinition caveDefinition;
 
-    public CaveDecorator(Predicate<Block> blockFilter, PDist caveFrequency, PDist mainCaveRadius, PDist mainCaveYLevel,
+    public CaveDecorator(long seed,
+                         Predicate<Block> blockFilter, PDist caveFrequency, PDist mainCaveRadius, PDist mainCaveYLevel,
                          PDist tunnelLength, PDist tunnelRadius) {
+        this.seed = seed;
         this.blockFilter = blockFilter;
 
         caveDefinition = new VeinsStructureDefinition(caveFrequency,
@@ -64,10 +66,9 @@ public class CaveDecorator implements ChunkDecorator {
 
     @Override
     public void generateChunk(CoreChunk chunk, Region chunkRegion) {
-        SeedFacet seedFacet = chunkRegion.getFacet(SeedFacet.class);
         Structure.StructureCallback callback = new StructureCallbackImpl(chunk);
 
-        Collection<Structure> structures = caveDefinition.generateStructures(ChunkConstants.CHUNK_SIZE, seedFacet.getSeed(), chunkRegion.getRegion());
+        Collection<Structure> structures = caveDefinition.generateStructures(ChunkConstants.CHUNK_SIZE, seed, chunkRegion.getRegion());
         for (Structure structure : structures) {
             structure.generateStructure(callback);
         }

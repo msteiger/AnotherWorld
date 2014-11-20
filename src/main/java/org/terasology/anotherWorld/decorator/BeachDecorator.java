@@ -33,23 +33,23 @@ import org.terasology.world.generation.facets.SurfaceHeightFacet;
 public class BeachDecorator implements ChunkDecorator {
     private Predicate<Block> blockFilter;
     private Provider<Block> beachBlockProvider;
-    private int aboveSeaLevel;
-    private int belowSeaLevel;
+    private int fromLevel;
+    private int toLevel;
 
-    public BeachDecorator(Predicate<Block> blockFilter, final Block beachBlock, int aboveSeaLevel, int belowSeaLevel) {
+    public BeachDecorator(Predicate<Block> blockFilter, final Block beachBlock, int fromLevel, int toLevel) {
         this(blockFilter, new Provider<Block>() {
             @Override
             public Block provide(float randomValue) {
                 return beachBlock;
             }
-        }, aboveSeaLevel, belowSeaLevel);
+        }, fromLevel, toLevel);
     }
 
-    public BeachDecorator(Predicate<Block> blockFilter, Provider<Block> beachBlockProvider, int aboveSeaLevel, int belowSeaLevel) {
+    public BeachDecorator(Predicate<Block> blockFilter, Provider<Block> beachBlockProvider, int fromLevel, int toLevel) {
         this.blockFilter = blockFilter;
         this.beachBlockProvider = beachBlockProvider;
-        this.aboveSeaLevel = aboveSeaLevel;
-        this.belowSeaLevel = belowSeaLevel;
+        this.fromLevel = fromLevel;
+        this.toLevel = toLevel;
     }
 
     @Override
@@ -60,13 +60,10 @@ public class BeachDecorator implements ChunkDecorator {
     public void generateChunk(CoreChunk chunk, Region chunkRegion) {
         SurfaceHeightFacet surfaceHeightFacet = chunkRegion.getFacet(SurfaceHeightFacet.class);
         TerrainVariationFacet terrainVariationFacet = chunkRegion.getFacet(TerrainVariationFacet.class);
-        SeaLevelFacet seaLevelFacet = chunkRegion.getFacet(SeaLevelFacet.class);
-        int seaLevel = seaLevelFacet.getSeaLevel();
-
         for (Vector3i position : chunk.getRegion()) {
             int groundLevel = TeraMath.floorToInt(surfaceHeightFacet.getWorld(position.x, position.z));
-            if (groundLevel <= seaLevel + aboveSeaLevel && groundLevel >= seaLevel - belowSeaLevel) {
-                for (int y = seaLevel - belowSeaLevel; y < seaLevel + aboveSeaLevel; y++) {
+            if (groundLevel <= toLevel && groundLevel >= fromLevel) {
+                for (int y = fromLevel; y <= toLevel; y++) {
                     if (blockFilter.apply(chunk.getBlock(TeraMath.calcBlockPos(position)))) {
                         chunk.setBlock(TeraMath.calcBlockPos(position), beachBlockProvider.provide(terrainVariationFacet.get(position.x, position.y, position.z)));
                     }

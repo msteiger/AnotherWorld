@@ -19,15 +19,12 @@ import com.google.common.base.Function;
 import org.terasology.anotherWorld.generation.BiomeProvider;
 import org.terasology.anotherWorld.generation.HillynessProvider;
 import org.terasology.anotherWorld.generation.HumidityProvider;
-import org.terasology.anotherWorld.generation.MaxLevelProvider;
 import org.terasology.anotherWorld.generation.PerlinSurfaceHeightProvider;
-import org.terasology.anotherWorld.generation.SeedProvider;
 import org.terasology.anotherWorld.generation.TemperatureProvider;
 import org.terasology.anotherWorld.generation.TerrainVariationProvider;
 import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.climateConditions.ClimateConditionsSystem;
 import org.terasology.climateConditions.ConditionsBaseField;
-import org.terasology.core.world.generator.facetProviders.SeaLevelProvider;
 import org.terasology.core.world.generator.facetProviders.SurfaceToDensityProvider;
 import org.terasology.engine.SimpleUri;
 import org.terasology.registry.CoreRegistry;
@@ -51,7 +48,7 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     private float biomeDiversity = 0.5f;
 
     private SimpleUri uri;
-    private String worldSeed;
+    private long seed;
 
     private Function<Float, Float> temperatureFunction = IdentityAlphaFunction.singleton();
     private Function<Float, Float> humidityFunction = IdentityAlphaFunction.singleton();
@@ -99,7 +96,6 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         this.humidityFunction = humidityFunction;
     }
 
-
     public void setLandscapeOptions(float seaFrequency, float terrainDiversity, Function<Float, Float> generalTerrainFunction,
                                     Function<Float, Float> heightBelowSeaLevelFunction,
                                     Function<Float, Float> heightAboveSeaLevelFunction,
@@ -107,7 +103,7 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         surfaceHeightProvider = new PerlinSurfaceHeightProvider(seaFrequency, terrainDiversity, generalTerrainFunction,
                 heightBelowSeaLevelFunction,
                 heightAboveSeaLevelFunction,
-                hillinessDiversity, hillynessFunction);
+                hillinessDiversity, hillynessFunction, seaLevel, maxLevel);
     }
 
     @Override
@@ -121,16 +117,13 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         ConditionsBaseField temperatureBaseField = environmentSystem.getTemperatureBaseField();
         ConditionsBaseField humidityBaseField = environmentSystem.getHumidityBaseField();
 
-        WorldBuilder worldBuilder = new WorldBuilder(worldSeed.hashCode())
-                .addProvider(new SeaLevelProvider(seaLevel))
+        WorldBuilder worldBuilder = new WorldBuilder(seed)
                 .addProvider(new BiomeProvider())
                 .addProvider(new HillynessProvider())
-                .addProvider(new MaxLevelProvider(maxLevel))
                 .addProvider(surfaceHeightProvider)
                 .addProvider(new SurfaceToDensityProvider())
                 .addProvider(new HumidityProvider(humidityBaseField))
                 .addProvider(new TemperatureProvider(temperatureBaseField))
-                .addProvider(new SeedProvider())
                 .addProvider(new TerrainVariationProvider());
 
         for (FacetProvider facetProvider : facetProviders) {
@@ -149,12 +142,12 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     }
 
     @Override
-    public void setWorldSeed(String seed) {
-        worldSeed = seed;
+    public void setWorldSeed(String seedString) {
+        seed = seedString.hashCode();
     }
 
-    public String getWorldSeed() {
-        return worldSeed;
+    public long getSeed() {
+        return seed;
     }
 
     protected abstract void setupGenerator();
