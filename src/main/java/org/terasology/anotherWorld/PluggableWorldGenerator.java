@@ -25,6 +25,7 @@ import org.terasology.anotherWorld.generation.TerrainVariationProvider;
 import org.terasology.anotherWorld.util.alpha.IdentityAlphaFunction;
 import org.terasology.climateConditions.ClimateConditionsSystem;
 import org.terasology.climateConditions.ConditionsBaseField;
+import org.terasology.core.world.generator.facetProviders.SeaLevelProvider;
 import org.terasology.core.world.generator.facetProviders.SurfaceToDensityProvider;
 import org.terasology.engine.SimpleUri;
 import org.terasology.registry.CoreRegistry;
@@ -124,7 +125,8 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
                 .addProvider(new SurfaceToDensityProvider())
                 .addProvider(new HumidityProvider(humidityBaseField))
                 .addProvider(new TemperatureProvider(temperatureBaseField))
-                .addProvider(new TerrainVariationProvider());
+                .addProvider(new TerrainVariationProvider())
+                .addProvider(new SeaLevelProvider(seaLevel));
 
         for (FacetProvider facetProvider : facetProviders) {
             worldBuilder.addProvider(facetProvider);
