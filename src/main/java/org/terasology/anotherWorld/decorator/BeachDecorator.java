@@ -20,11 +20,10 @@ import org.terasology.anotherWorld.ChunkDecorator;
 import org.terasology.anotherWorld.generation.TerrainVariationFacet;
 import org.terasology.anotherWorld.util.Provider;
 import org.terasology.math.TeraMath;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.world.block.Block;
 import org.terasology.world.chunks.CoreChunk;
 import org.terasology.world.generation.Region;
-import org.terasology.world.generation.facets.SeaLevelFacet;
 import org.terasology.world.generation.facets.SurfaceHeightFacet;
 
 /**

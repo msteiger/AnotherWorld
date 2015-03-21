@@ -16,7 +16,7 @@
 package org.terasology.anotherWorld.decorator.structure;
 
 import org.terasology.math.Region3i;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 
 import java.util.Collection;
 

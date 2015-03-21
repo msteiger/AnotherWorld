@@ -17,7 +17,7 @@ package org.terasology.anotherWorld;
 
 import org.terasology.anotherWorld.generation.HumidityFacet;
 import org.terasology.anotherWorld.generation.TemperatureFacet;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.world.generation.Region;
 
 /**

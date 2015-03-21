@@ -17,7 +17,7 @@ package org.terasology.anotherWorld.decorator.structure;
 
 import org.terasology.anotherWorld.util.PDist;
 import org.terasology.anotherWorld.util.Transform;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.utilities.procedural.Noise3D;
 import org.terasology.utilities.procedural.SimplexNoise;
 import org.terasology.utilities.random.Random;

@@ -19,7 +19,7 @@ import org.terasology.anotherWorld.util.ChunkRandom;
 import org.terasology.anotherWorld.util.PDist;
 import org.terasology.math.Region3i;
 import org.terasology.math.TeraMath;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.utilities.random.Random;
 
 import java.util.Collection;

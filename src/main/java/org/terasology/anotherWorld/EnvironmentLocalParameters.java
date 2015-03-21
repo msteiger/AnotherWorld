@@ -16,7 +16,7 @@
 package org.terasology.anotherWorld;
 
 import org.terasology.climateConditions.ClimateConditionsSystem;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 
 /**
  * @author Marcin Sciesinski <marcins78@gmail.com>
