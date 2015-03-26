@@ -16,6 +16,7 @@
 package org.terasology.anotherWorld;
 
 import com.google.common.base.Function;
+
 import org.terasology.anotherWorld.generation.BiomeProvider;
 import org.terasology.anotherWorld.generation.HillynessProvider;
 import org.terasology.anotherWorld.generation.HumidityProvider;
@@ -49,7 +50,7 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
     private float biomeDiversity = 0.5f;
 
     private SimpleUri uri;
-    private long seed;
+    private String worldSeed;
 
     private Function<Float, Float> temperatureFunction = IdentityAlphaFunction.singleton();
     private Function<Float, Float> humidityFunction = IdentityAlphaFunction.singleton();
@@ -118,7 +119,7 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         ConditionsBaseField temperatureBaseField = environmentSystem.getTemperatureBaseField();
         ConditionsBaseField humidityBaseField = environmentSystem.getHumidityBaseField();
 
-        WorldBuilder worldBuilder = new WorldBuilder(seed)
+        WorldBuilder worldBuilder = new WorldBuilder(getSeed())
                 .addProvider(new BiomeProvider())
                 .addProvider(new HillynessProvider())
                 .addProvider(surfaceHeightProvider)
@@ -145,11 +146,16 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
     @Override
     public void setWorldSeed(String seedString) {
-        seed = seedString.hashCode();
+        worldSeed = seedString;
+    }
+
+    @Override
+    public String getWorldSeed() {
+        return worldSeed;
     }
 
     public long getSeed() {
-        return seed;
+        return worldSeed.hashCode();
     }
 
     protected abstract void setupGenerator();
