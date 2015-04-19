@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,6 @@ import org.terasology.math.TeraMath;
 import org.terasology.utilities.procedural.Noise2D;
 import org.terasology.utilities.procedural.SimplexNoise;
 
-/**
- * @author Marcin Sciesinski <marcins78@ gmail.com>
- */
 public class TerrainDeformation {
     private static final float MIN_MULTIPLIER = 0.0005f;
     private static final float MAX_MULTIPLIER = 0.01f;

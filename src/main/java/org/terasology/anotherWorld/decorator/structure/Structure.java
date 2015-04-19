@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,6 @@ package org.terasology.anotherWorld.decorator.structure;
 
 import org.terasology.world.block.Block;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
 public interface Structure {
     void generateStructure(StructureCallback callback);
 

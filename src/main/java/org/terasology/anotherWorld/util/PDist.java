@@ -57,6 +57,10 @@ public class PDist {
 
     /**
      * Set distribution parameters
+     * @param meanValue
+     * @param rangeValue
+     * @param typeValue
+     * @return
      */
     public PDist set(float meanValue, float rangeValue, Type typeValue) {
         this.mean = meanValue;
@@ -67,6 +71,7 @@ public class PDist {
 
     /**
      * Calculate maximum possible value
+     * @return
      */
     public float getMax() {
         return mean + range;
@@ -83,6 +88,7 @@ public class PDist {
      * Calculate a random floating point value from the distribution.
      *
      * @param rand java.util.Random object, appropriately seeded
+     * @return
      */
     public float getValue(Random rand) {
         if (range == 0) {
@@ -111,6 +117,7 @@ public class PDist {
      * the standard deviation.
      *
      * @param rand java.util.Random object, appropriately seeded
+     * @return
      */
     public int getIntValue(Random rand) {
         float fval = getValue(rand);

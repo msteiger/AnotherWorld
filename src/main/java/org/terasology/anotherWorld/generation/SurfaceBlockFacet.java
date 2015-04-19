@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,6 @@ import org.terasology.math.Region3i;
 import org.terasology.world.block.Block;
 import org.terasology.world.generation.Border3D;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
 public class SurfaceBlockFacet extends SparseObjectFacet3D<Block> {
     public SurfaceBlockFacet(Region3i targetRegion, Border3D border) {
         super(targetRegion, border);

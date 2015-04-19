@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,6 @@ package org.terasology.anotherWorld.util.alpha;
 
 import com.google.common.base.Function;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
 public class MinMaxAlphaFunction implements Function<Float, Float> {
     private Function<Float, Float> delegate;
     private float min;

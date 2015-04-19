@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,6 @@ import org.terasology.anotherWorld.generation.TemperatureFacet;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.world.generation.Region;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
 public class GenerationLocalParameters implements LocalParameters {
     private Vector3i location;
     private TemperatureFacet surfaceTemperatureFacet;

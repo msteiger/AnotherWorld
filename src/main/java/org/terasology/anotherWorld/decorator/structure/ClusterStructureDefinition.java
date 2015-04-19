@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,6 @@ import java.util.List;
 /**
  * Code very heavily based on JRoush's implementation of CustomOreGen.
  * http://www.minecraftforum.net/topic/1107057-146v2-custom-ore-generation-updated-jan-5th/
- *
- * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public class ClusterStructureDefinition extends AbstractMultiChunkStructureDefinition {
     private Block block;

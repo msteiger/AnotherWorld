@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,6 @@ import org.terasology.math.geom.Vector3i;
 import org.terasology.utilities.random.FastRandom;
 import org.terasology.utilities.random.Random;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
 public abstract class ChunkRandom {
     public static Random getChunkRandom(long seed, Vector3i location, int salt) {
         return new FastRandom(seed + salt * (97L * location.x + 13L * location.y + location.z));

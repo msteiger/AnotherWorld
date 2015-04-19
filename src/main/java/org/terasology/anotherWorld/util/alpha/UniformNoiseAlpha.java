@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,6 @@ package org.terasology.anotherWorld.util.alpha;
 import com.google.common.base.Function;
 import org.terasology.math.TeraMath;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
 public class UniformNoiseAlpha implements Function<Float, Float> {
     private static final float[] UNIFORM_NOISE_LOOKUP = new float[]{
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,

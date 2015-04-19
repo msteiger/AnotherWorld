@@ -41,6 +41,7 @@ public class Transform {
 
     /**
      * Create a transform using an existing array
+     * @param matrix
      */
     protected Transform(float[] matrix) {
         mat = matrix;
@@ -48,6 +49,7 @@ public class Transform {
 
     /**
      * Creates an independent copy of the transform
+     * @return
      */
     public Transform copy() {
         return new Transform(mat.clone());
@@ -55,6 +57,9 @@ public class Transform {
 
     /**
      * Retrieve matrix element directly
+     * @param row
+     * @param col
+     * @return
      */
     public float element(int row, int col) {
         return mat[(row & 3) << 2 | (col & 3)];
@@ -62,6 +67,9 @@ public class Transform {
 
     /**
      * Set matrix element directly
+     * @param row
+     * @param col
+     * @param value
      */
     public void setElement(int row, int col, float value) {
         mat[(row & 3) << 2 | (col & 3)] = value;
@@ -69,6 +77,7 @@ public class Transform {
 
     /**
      * Reset matrix to identity
+     * @return
      */
     public Transform identity() {
         mat[0] = 1;
@@ -92,6 +101,8 @@ public class Transform {
 
     /**
      * In-place local transformation: new = old * transformation
+     * @param trans
+     * @return
      */
     public Transform transform(final Transform trans) {
         mult(mat, trans.mat);

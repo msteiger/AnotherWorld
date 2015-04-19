@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,6 @@ import org.terasology.math.geom.Vector3i;
 
 import java.util.Collection;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
 public interface StructureDefinition {
     Collection<Structure> generateStructures(Vector3i chunkSize, long seed, Region3i region);
 }

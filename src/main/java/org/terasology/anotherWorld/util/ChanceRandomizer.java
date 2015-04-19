@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,6 @@ import org.terasology.utilities.random.Random;
 import java.util.Deque;
 import java.util.LinkedList;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
 public class ChanceRandomizer<T> {
     private int granularity;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,6 @@ import org.terasology.world.generation.Produces;
 import org.terasology.world.generation.Requires;
 import org.terasology.world.generation.facets.SurfaceHeightFacet;
 
-/**
- * @author Marcin Sciesinski <marcins78@gmail.com>
- */
 @Produces(SurfaceBlockFacet.class)
 @Requires({@Facet(BlockLayersFacet.class), @Facet(SurfaceHeightFacet.class),
         @Facet(CaveFacet.class), @Facet(OreBlockFacet.class)})
