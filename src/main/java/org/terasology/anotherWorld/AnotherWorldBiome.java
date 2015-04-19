@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@ import org.terasology.world.biomes.Biome;
 /**
  * Biomes used by the Another World generation framework need additional properties that are defined
  * in this extension of the core biome interface.
- *
- * @author Marcin Sciesinski <marcins78@gmail.com>
  */
 public interface AnotherWorldBiome extends Biome {
 
