@@ -119,15 +119,16 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         ConditionsBaseField temperatureBaseField = environmentSystem.getTemperatureBaseField();
         ConditionsBaseField humidityBaseField = environmentSystem.getHumidityBaseField();
 
-        WorldBuilder worldBuilder = new WorldBuilder(getSeed())
-                .addProvider(new BiomeProvider())
-                .addProvider(new HillynessProvider())
-                .addProvider(surfaceHeightProvider)
-                .addProvider(new SurfaceToDensityProvider())
-                .addProvider(new HumidityProvider(humidityBaseField))
-                .addProvider(new TemperatureProvider(temperatureBaseField))
-                .addProvider(new TerrainVariationProvider())
-                .addProvider(new SeaLevelProvider(seaLevel));
+        WorldBuilder worldBuilder = new WorldBuilder();
+        worldBuilder.setSeed(getSeed());
+        worldBuilder.addProvider(new BiomeProvider())
+                    .addProvider(new HillynessProvider())
+                    .addProvider(surfaceHeightProvider)
+                    .addProvider(new SurfaceToDensityProvider())
+                    .addProvider(new HumidityProvider(humidityBaseField))
+                    .addProvider(new TemperatureProvider(temperatureBaseField))
+                    .addProvider(new TerrainVariationProvider())
+                    .addProvider(new SeaLevelProvider(seaLevel));
 
         for (FacetProvider facetProvider : facetProviders) {
             worldBuilder.addProvider(facetProvider);
