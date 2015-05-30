@@ -37,7 +37,7 @@ public class CaveDecorator implements ChunkDecorator {
 
     public CaveDecorator(long seed,
                          Predicate<Block> blockFilter, PDist caveFrequency, PDist mainCaveRadius, PDist mainCaveYLevel,
-                         PDist tunnelLength, PDist tunnelRadius) {
+                         PDist tunnelLength, PDist tunnelRadius, BlockManager blockManager) {
         this.seed = seed;
         this.blockFilter = blockFilter;
 
@@ -45,12 +45,12 @@ public class CaveDecorator implements ChunkDecorator {
                 new VeinsStructureDefinition.VeinsBlockProvider() {
                     @Override
                     public Block getClusterBlock(float distanceFromCenter) {
-                        return BlockManager.getAir();
+                        return blockManager.getBlock(BlockManager.AIR_ID);
                     }
 
                     @Override
                     public Block getBranchBlock() {
-                        return BlockManager.getAir();
+                        return blockManager.getBlock(BlockManager.AIR_ID);
                     }
                 }, mainCaveRadius, mainCaveYLevel, new PDist(4f, 1f), new PDist(0f, 0.1f), tunnelLength,
                 new PDist(1000f, 0f), new PDist(0f, 0f), new PDist(0.25f, 0f), new PDist(5f, 0f), new PDist(0.5f, 0.5f),

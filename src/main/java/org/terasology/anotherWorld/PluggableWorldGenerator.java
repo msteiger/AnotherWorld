@@ -16,7 +16,6 @@
 package org.terasology.anotherWorld;
 
 import com.google.common.base.Function;
-
 import org.terasology.anotherWorld.generation.BiomeProvider;
 import org.terasology.anotherWorld.generation.HillynessProvider;
 import org.terasology.anotherWorld.generation.HumidityProvider;
@@ -35,6 +34,7 @@ import org.terasology.world.generation.FacetProvider;
 import org.terasology.world.generation.World;
 import org.terasology.world.generation.WorldBuilder;
 import org.terasology.world.generator.WorldGenerator;
+import org.terasology.world.generator.plugin.WorldGeneratorPluginLibrary;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -119,16 +119,16 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
         ConditionsBaseField temperatureBaseField = environmentSystem.getTemperatureBaseField();
         ConditionsBaseField humidityBaseField = environmentSystem.getHumidityBaseField();
 
-        WorldBuilder worldBuilder = new WorldBuilder()
-                .addProvider(new BiomeProvider())
-                .addProvider(new HillynessProvider())
-                .addProvider(surfaceHeightProvider)
-                .addProvider(new SurfaceToDensityProvider())
-                .addProvider(new HumidityProvider(humidityBaseField))
-                .addProvider(new TemperatureProvider(temperatureBaseField))
-                .addProvider(new TerrainVariationProvider())
-                .addProvider(new SeaLevelProvider(seaLevel));
+        WorldBuilder worldBuilder = new WorldBuilder(CoreRegistry.get(WorldGeneratorPluginLibrary.class));
         worldBuilder.setSeed(getSeed());
+        worldBuilder.addProvider(new BiomeProvider());
+        worldBuilder.addProvider(new HillynessProvider());
+        worldBuilder.addProvider(surfaceHeightProvider);
+        worldBuilder.addProvider(new SurfaceToDensityProvider());
+        worldBuilder.addProvider(new HumidityProvider(humidityBaseField));
+        worldBuilder.addProvider(new TemperatureProvider(temperatureBaseField));
+        worldBuilder.addProvider(new TerrainVariationProvider());
+        worldBuilder.addProvider(new SeaLevelProvider(seaLevel));
 
         for (FacetProvider facetProvider : facetProviders) {
             worldBuilder.addProvider(facetProvider);
