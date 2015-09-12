@@ -30,6 +30,7 @@ import org.terasology.core.world.generator.facetProviders.SurfaceToDensityProvid
 import org.terasology.engine.SimpleUri;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.chunks.CoreChunk;
+import org.terasology.world.generation.EntityBuffer;
 import org.terasology.world.generation.FacetProvider;
 import org.terasology.world.generation.World;
 import org.terasology.world.generation.WorldBuilder;
@@ -163,8 +164,8 @@ public abstract class PluggableWorldGenerator implements WorldGenerator {
 
 
     @Override
-    public void createChunk(CoreChunk chunk) {
-        world.rasterizeChunk(chunk);
+    public void createChunk(CoreChunk chunk, EntityBuffer buffer) {
+        world.rasterizeChunk(chunk, buffer);
     }
 
     @Override
