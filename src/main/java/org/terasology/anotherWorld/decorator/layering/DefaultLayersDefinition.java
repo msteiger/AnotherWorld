@@ -17,6 +17,7 @@ package org.terasology.anotherWorld.decorator.layering;
 
 import org.terasology.anotherWorld.util.ChunkRandom;
 import org.terasology.anotherWorld.util.PDist;
+import org.terasology.math.ChunkMath;
 import org.terasology.math.Region3i;
 import org.terasology.math.TeraMath;
 import org.terasology.utilities.random.Random;
@@ -60,8 +61,8 @@ public class DefaultLayersDefinition implements LayersDefinition {
             int seaTop = Math.min(seaLevel, chunkRegion.maxY());
             for (int level = seaBottom; level <= seaTop; level++) {
 //                if (chunkRegion.encompasses(x, level, z)) {
-                chunk.setBlock(TeraMath.calcBlockPos(x, level, z), layeringConfig.getSeaBlock());
-                chunk.setLiquid(TeraMath.calcBlockPos(x, level, z), new LiquidData(layeringConfig.getSeaLiquid(), LiquidData.MAX_LIQUID_DEPTH));
+                chunk.setBlock(ChunkMath.calcBlockPos(x, level, z), layeringConfig.getSeaBlock());
+                chunk.setLiquid(ChunkMath.calcBlockPos(x, level, z), new LiquidData(layeringConfig.getSeaLiquid(), LiquidData.MAX_LIQUID_DEPTH));
 //                }
             }
         }
@@ -73,7 +74,7 @@ public class DefaultLayersDefinition implements LayersDefinition {
                 for (int i = 0; i < layerHeight; i++) {
                     if (level - i > 0) {
                         if (chunkRegion.encompasses(x, level - i, z)) {
-                            chunk.setBlock(TeraMath.calcBlockPos(x, level - i, z), layerDefinition.block);
+                            chunk.setBlock(ChunkMath.calcBlockPos(x, level - i, z), layerDefinition.block);
                         }
                     }
                 }
@@ -87,13 +88,13 @@ public class DefaultLayersDefinition implements LayersDefinition {
         for (int i = level; i > 0; i--) {
             if (chunkRegion.encompasses(x, i, z)) {
 
-                chunk.setBlock(TeraMath.calcBlockPos(x, i, z), layeringConfig.getMainBlock());
+                chunk.setBlock(ChunkMath.calcBlockPos(x, i, z), layeringConfig.getMainBlock());
             }
         }
 
 
         if (chunkRegion.encompasses(x, 0, z)) {
-            chunk.setBlock(TeraMath.calcBlockPos(x, 0, z), layeringConfig.getBottomBlock());
+            chunk.setBlock(ChunkMath.calcBlockPos(x, 0, z), layeringConfig.getBottomBlock());
         }
     }
 

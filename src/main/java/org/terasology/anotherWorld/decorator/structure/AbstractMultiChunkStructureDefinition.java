@@ -17,8 +17,8 @@ package org.terasology.anotherWorld.decorator.structure;
 
 import org.terasology.anotherWorld.util.ChunkRandom;
 import org.terasology.anotherWorld.util.PDist;
+import org.terasology.math.ChunkMath;
 import org.terasology.math.Region3i;
-import org.terasology.math.TeraMath;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.utilities.random.Random;
 
@@ -42,8 +42,8 @@ public abstract class AbstractMultiChunkStructureDefinition implements Structure
         int chunksRangeToEvaluateY = (int) Math.ceil(maxRange / chunkSize.y);
         int chunksRangeToEvaluateZ = (int) Math.ceil(maxRange / chunkSize.z);
 
-        Vector3i minChunk = TeraMath.calcChunkPos(region.min());
-        Vector3i maxChunk = TeraMath.calcChunkPos(region.max());
+        Vector3i minChunk = ChunkMath.calcChunkPos(region.min());
+        Vector3i maxChunk = ChunkMath.calcChunkPos(region.max());
 
         for (int chunkX = minChunk.x - chunksRangeToEvaluateX; chunkX <= maxChunk.x + chunksRangeToEvaluateX; chunkX++) {
             for (int chunkY = minChunk.y - chunksRangeToEvaluateY; chunkY <= maxChunk.y + chunksRangeToEvaluateY; chunkY++) {
